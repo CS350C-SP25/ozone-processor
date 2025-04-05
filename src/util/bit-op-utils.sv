@@ -3,7 +3,7 @@ import op_pkg::*;
 // Lookup table given an instruction
 module istable (
     input logic [31:0] instruction,
-    ouptut opcode_t op
+    output opcode_t op
 );
     casez (instruction[31-:11])
         11'b11111000010: // LOAD

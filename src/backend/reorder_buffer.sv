@@ -6,8 +6,7 @@ import rob_pkg::*;
 module reorder_buffer_queue #(
     parameter Q_DEPTH = rob_pkg::ROB_ENTRIES,
     parameter Q_WIDTH = uop_pkg::INSTR_Q_WIDTH
-) 
-(
+) (
     input logic clk_in,
     input logic rst_N_in,                       // resets the q completely, empty, 0 size, etc.
     input logic flush_in,                       // same function as reset
@@ -18,7 +17,7 @@ module reorder_buffer_queue #(
     output rob_entry [Q_WIDTH-1:0] q_out,        // the top width elements of the queue
     output logic full,                          // 1 if the queue is full
     output logic empty,                         // 1 if the queue is empty
-    output logic [$clog2(Q_DEPTH)-1:0] size,    // the #elems in the queue
+    output logic [$clog2(Q_DEPTH)-1:0] size    // the #elems in the queue
 ); 
     rob_entry [Q_DEPTH-1:0] q;
     logic [$clog2(Q_DEPTH)-1:0] head;
@@ -29,11 +28,9 @@ module reorder_buffer_queue #(
     logic [$clog2(Q_WIDTH+1)-1:0] size_decr; 
     always_ff @( posedge clk_in ) begin : instruction_queue_fsm
         if (rst_N_in && !flush_in) begin
-            generate
-                for (genvar i = 0; i < Q_WIDTH; i++) begin
-                    q[tail + i] <= size_incr > i ? q_next[i] : q[tail];
-                end
-            endgenerate
+            for (int i = 0; i < Q_WIDTH; i++) begin
+                q[tail + i] <= size_incr > i ? q_next[i] : q[tail];
+            end
             head <= head + size_decr;
             tail <= tail + size_incr;
             size <= tail - head + size_incr - size_decr;
@@ -50,17 +47,20 @@ module reorder_buffer_queue #(
         size_decr = flush_in ? tail - head : deq_in;
     end
     generate
-        for (genvar i = 0; i < Q_WIDTH; i++) begin
-            assign q_out[i] <= q[head + i];
-        end
+        genvar i;
+        for (i = 0; i < Q_WIDTH; i++) begin: get_top_width
+            assign q_out[i] = q[head + i];
+        end: get_top_width
     endgenerate
     assign full = (size == Q_DEPTH);
     assign empty = (size == 0);
 endmodule: reorder_buffer_queue
 
 module reorder_buffer #(
+    parameter Q_DEPTH = rob_pkg::ROB_ENTRIES,
+    parameter Q_WIDTH = uop_pkg::INSTR_Q_WIDTH,
     parameter ADDR_BITS = 64,
-    parameter WORD_SIZE
+    parameter WORD_SIZE = 64
 ) (
     input logic clk_in,
     input logic rst_N_in,
@@ -84,8 +84,8 @@ module reorder_buffer #(
     logic [$clog2(Q_DEPTH)-1:0] queue_size;
 
     reorder_buffer_queue #(
-        .Q_DEPTH(rob_pkg::ROB_ENTRIES),
-        .Q_WIDTH(uop_pkg::INSTR_Q_WIDTH)
+        .Q_DEPTH(Q_DEPTH),
+        .Q_WIDTH(Q_WIDTH)
     ) reorder_buffer_queue_internal(
         // ** INPUTS ** 
         clk_in,
@@ -108,15 +108,19 @@ module reorder_buffer #(
     always_comb begin
         // ** CHECK COMMIT **
         deq_in = 0;
+        str_val_reg_out = '0;
+        str_addr_reg_off_out = '0;
+        str_addr_reg_out = '0;
+        valid_str_out = '0;
         if (!queue_empty & queue_size >= uop_pkg::INSTR_Q_WIDTH) begin
             for (int i = 0; i < uop_pkg::INSTR_Q_WIDTH; i++) begin
                 case (queue_out[i])
                     DONE: begin
-                        if (queue_out[i].uop_code == UOP_STORE) begin // only str on commit
+                        if (queue_out[i].uop.uopcode == UOP_STORE) begin // only str on commit
                             valid_str_out[i] = 1'b1;
-                            str_addr_reg_out[i] = queue_out[i].data.dest_reg.gpr;
-                            str_addr_reg_off_out[i] = queue_out[i].data.src2.gpr;
-                            str_val_reg_out[i] = queue_out[i].data.src1.gpr;
+                            str_addr_reg_out[i] = queue_out[i].uop.data.dst.gpr;
+                            str_addr_reg_off_out[i] = queue_out[i].uop.data.src2.gpr;
+                            str_val_reg_out[i] = queue_out[i].uop.data.src1.gpr;
                         end
                         deq_in += 1;
                         // TODO update RRAT mapping to match architectural state
