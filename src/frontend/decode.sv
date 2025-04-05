@@ -85,12 +85,6 @@ module decode #(
             uop_out.tx_end = 1'b1;
         endfunction
 
-        function automatic void decode_i2_format(
-            input logic[31:0] op_bits,
-            output uop_insn uop_out
-        );
-        endfunction
-
         function automatic void decode_rr_format(
             input logic[31:0] op_bits,
             output uop_insn uop_out
@@ -186,7 +180,11 @@ module decode #(
                         enq_idx = enq_idx + 1;
                         break;
                     OPCODE_ADRP:
-                        // uhhh?
+                        enq_next[enq_idx].uop_code = UOP_ADRP_MOV;
+                        enq_next[enq_idx].data = branch_data[instr_idx]; // NOTE THIS DATA IS MILDLY DIFFERENT FROM BRANCHES (IT CONTAINS A REGISTER NOT A COND)
+                        enq_next[enq_idx].valb_sel = '0;
+                        enq_next[enq_idx].tx_begin = 1'b1;
+                        enq_next[enq_idx].tx_end = 1'b1;
                         break;
                     // Integer ALU operations
                     OPCODE_ADD:
@@ -260,7 +258,11 @@ module decode #(
                         enq_next[enq_idx].tx_end = 1'b1;
                         break;
                     OPCODE_RET:
-                        // ???
+                        enq_next[enq_idx].uop_code = UOP_CHECK_RET;
+                        enq_next[enq_idx].data = branch_data[instr_idx]; // NOTE THIS DATA IS MILDLY DIFFERENT FROM BRANCHES (IT CONTAINS A REGISTER NOT A COND)
+                        enq_next[enq_idx].valb_sel = '0;
+                        enq_next[enq_idx].tx_begin = 1'b1;
+                        enq_next[enq_idx].tx_end = 1'b1;
                         break;
                     // Misc
                     OPCODE_NOP:
