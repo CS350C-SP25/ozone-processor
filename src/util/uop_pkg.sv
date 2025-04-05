@@ -4,7 +4,7 @@ package uop_pkg;
     parameter int INSTR_Q_DEPTH = 32;
     parameter int INSTR_Q_WIDTH = 4;
 
-    typedef enum logic[3:0] {
+    typedef enum logic[4:0] {
         UOP_LOAD,
         UOP_STORE,
         UOP_ADD,
