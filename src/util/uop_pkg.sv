@@ -15,7 +15,10 @@ package uop_pkg;
         UOP_EOR,
         UOP_MVN,
         UOP_UBFM,
+        UOP_ASR,
         UOP_BRANCH,
+        UOP_MOVZ,
+        UOP_MOVK,
         UOP_NOP
     } uop_code;
 
@@ -36,7 +39,8 @@ package uop_pkg;
     typedef struct packed {
         uop_reg dst;
         uop_reg src;
-        logic [15:0] imm;
+        logic [18:0] imm;
+        logic [1:0] hw;
         logic set_nzcv;
     } uop_ri;
 
@@ -48,11 +52,7 @@ package uop_pkg;
 
     typedef struct packed {
         uop_code uopcode;
-        union packed {
-            uop_rr rr;
-            uop_ri ri;
-            uop_branch branch;
-        } data;
+        uop_branch data; //this is actually going to be a union, quartus doesnt support unions
         logic valb_sel; // use val b or immediate
         logic mem_read;
         logic mem_write;
@@ -60,4 +60,46 @@ package uop_pkg;
         logic tx_begin;
         logic tx_end;
     } uop_insn;
+
+    function automatic void get_data_rr (
+        input logic[$bits(uop_branch)-1:0] in,
+        output uop_rr out
+    );
+        out = in[$bits(uop_rr)-1:0];
+    endfunction
+
+    function automatic void set_data_rr (
+        input  uop_rr in,
+        output logic [$bits(uop_branch)-1:0] out
+    );
+        out = { {($bits(uop_branch)-$bits(uop_rr)){1'b0}}, in };
+    endfunction
+
+    function automatic void get_data_ri (
+        input logic[$bits(uop_branch)-1:0] in,
+        output uop_ri out
+    );
+        out = in[$bits(uop_ri)-1:0];
+    endfunction
+
+    function automatic void set_data_ri (
+        input  uop_ri in,
+        output logic [$bits(uop_branch)-1:0] out
+    );
+        out = { {($bits(uop_branch)-$bits(uop_ri)){1'b0}}, in };
+    endfunction
+
+    function automatic void get_data_br (
+        input logic[$bits(uop_branch)-1:0] in,
+        output uop_branch out
+    );
+        out = in;
+    endfunction
+
+    function automatic void set_data_br (
+        input uop_branch in
+        output logic[$bits(uop_branch)-1:0] out,
+    );
+        out = in;
+    endfunction
 endpackage
