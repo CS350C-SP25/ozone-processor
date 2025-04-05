@@ -1,29 +1,75 @@
 import uop_pkg::*;
+import op_pkg::*;
 
 module decode #(
-    parameter INSTRUCTION_WIDTH = 32;
-    parameter SUPER_SCALAR_WIDTH = 2,
+    parameter INSTRUCTION_WIDTH = op_pkg::INSTRUCTION_WIDTH,
+    parameter SUPER_SCALAR_WIDTH = op_pkg::SUPER_SCALAR_WIDTH,
     parameter INSTR_Q_DEPTH = uop_pkg::INSTR_Q_DEPTH,
     parameter INSTR_Q_WIDTH = uop_pkg::INSTR_Q_WIDTH
 ) (
     input logic clk_in,
     input logic rst_N_in,
     input logic flush_in,
-    output logic ready,
-    output logic valid,
     input logic[SUPER_SCALAR_WIDTH-1:0][INSTRUCTION_WIDTH-1:0] fetched_ops,
     input opcode_t [SUPER_SCALAR_WIDTH-1:0] opcode,
     input uop_branch [SUPER_SCALAR_WIDTH-1:0] branch_data,
+    input logic fetch_valid,
+    input logic exe_ready;
+    output logic decode_ready,
+    output logic decode_valid,
     output logic [$clog2(INSTR_Q_WIDTH+1)-1:0] instruction_queue_pushes,
     output uop_insn[INSTR_Q_WIDTH-1:0] instruction_queue_in
 );
     uop_insn [INSTR_Q_WIDTH-1:0] enq_next;
+    logic [$clog2(INSTR_Q_WIDTH+1)-1:0] enq_width;
+
+    uop_insn [INSTR_Q_WIDTH-1:0] buffer;
+    logic [$clog2(INSTR_Q_WIDTH+1)-1:0] buffer_width,
+    logic buffered;
     always_ff @(posedge clk_in) begin : decode_fsm
+        if (rst_N_in && !flush_in) begin
+            if (fetch_valid) begin
+                if (exe_ready) begin
+                    instruction_queue_in <= buffered ? buffer : enq_next;
+                    instruction_queue_pushes <= buffered ? buffer_width : enq_width;
+                    buffered <= buffered; //this should be 0 if the fsm is working correctly 
+                    buffer <= enq_next; 
+                    buffer_width <= enq_width;
+                    decode_valid <= 1'b1;
+                    decode_ready <= 1'b1;
+                end else begin
+                    buffer <= enq_next;
+                    buffer_width <= enq_width;
+                    buffered <= 1'b1;
+                    decode_valid <= 1'b0;
+                    decode_ready <= 1'b0;
+                end
+            end else begin
+                if (exe_ready) begin
+                    instruction_queue_in <= buffer;
+                    instruction_queue_pushes <= buffered ? buffer_width : '0;
+                    buffered <= '0;
+                    decode_valid <= '1;
+                    decode_ready <= '1;
+                end else begin
+                    instruction_queue_pushes <= '0;
+                    decode_ready <= ~buffered;
+                    buffered <= buffered;
+                    decode_valid <= '0;
+                end
+            end
+        end else begin
+            buffered = '0;
+            buffer_width = '0;
+            decode_valid <= 1'b0;
+            decode_ready <= 1'b0;
+            instruction_queue_pushes <= '0;
+        end
     end
 
     always_comb begin : decode_comb_logic
         function automatic void decode_m_format_add(
-            input logic[31:0] op_bits,
+            input logic[INSTR_Q_WIDTH-1:0] op_bits,
             output uop_insn uop_out 
         );
             uop_ri ri;
@@ -46,7 +92,7 @@ module decode #(
         endfunction
 
         function automatic void decode_m_format_mem(
-            input logic[31:0] op_bits,
+            input logic[INSTRUCTION_WIDTH-1:0] op_bits,
             output uop_insn uop_out 
         );
             uop_ri ri;
@@ -64,7 +110,7 @@ module decode #(
         endfunction
 
         function automatic void decode_i1_format(
-            input logic[31:0] op_bits,
+            input logic[INSTRUCTION_WIDTH-1:0] op_bits,
             output uop_insn uop_out
         );
             uop_ri ri;
@@ -86,7 +132,7 @@ module decode #(
         endfunction
 
         function automatic void decode_rr_format(
-            input logic[31:0] op_bits,
+            input logic[INSTRUCTION_WIDTH-1:0] op_bits,
             output uop_insn uop_out
         );
             uop_rr rr;
@@ -109,7 +155,7 @@ module decode #(
         endfunction
 
         function automatic void decode_ri_format(
-            input logic[31:0] op_bits,
+            input logic[INSTRUCTION_WIDTH-1:0] op_bits,
             output uop_insn uop_out
         );
             uop_ri ri;
@@ -129,25 +175,6 @@ module decode #(
             uop_out.tx_begin = 1'b1;
             uop_out.tx_end = 1'b1;
         endfunction
-
-        function automatic void decode_b1_format(
-            input logic[31:0] op_bits,
-            output uop_insn uop_out
-        );
-        endfunction
-
-        function automatic void decode_b2_format(
-            input logic[31:0] op_bits,
-            output uop_insn uop_out
-        );
-        endfunction
-
-        function automatic void decode_b3_format(
-            input logic[31:0] op_bits,
-            output uop_insn uop_out
-        );
-        endfunction
-
 
         int enq_idx = 0; //store cracked uops into enq next. 
         generate
@@ -310,6 +337,7 @@ module decode #(
                 endcase
             end
         endgenerate
+        enq_width = enq_idx;
     end
 
 endmodule
