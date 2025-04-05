@@ -97,8 +97,8 @@ package uop_pkg;
     endfunction
 
     function automatic void set_data_br (
-        input uop_branch in
-        output logic[$bits(uop_branch)-1:0] out,
+        input uop_branch in,
+        output logic[$bits(uop_branch)-1:0] out
     );
         out = in;
     endfunction
