@@ -19,7 +19,12 @@ package uop_pkg;
         UOP_BRANCH,
         UOP_MOVZ,
         UOP_MOVK,
-        UOP_NOP
+        UOP_FMOV,
+        UOP_FNEG,
+        UOP_FADD,
+        UOP_FMUL,
+        UOP_FSUB,
+        UOP_HLT // NOPS wont be sent at all, HLT is exception will need.
     } uop_code;
 
     typedef struct packed {
