@@ -46,13 +46,14 @@ package uop_pkg;
         logic predict_taken;
     } uop_branch;
 
-    typedef struct packed {
+    typedef struct packed { // changed it so it will compile for ROB for now, feel free to change later
         uop_code uopcode;
-        union packed {
-            uop_rr rr;
-            uop_ri ri;
-            uop_branch branch;
-        } data;
+        // union packed {
+        //     uop_rr rr;
+        //     uop_ri ri;
+        //     uop_branch branch;
+        // } data;
+        uop_rr data;
         logic valb_sel; // use val b or immediate
         logic mem_read;
         logic mem_write;
