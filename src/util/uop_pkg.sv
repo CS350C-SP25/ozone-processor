@@ -55,7 +55,7 @@ package uop_pkg;
         logic predict_taken;
     } uop_branch;
 
-    typedef struct packed {
+    typedef struct packed { // changed it so it will compile for ROB for now, feel free to change later
         uop_code uopcode;
         uop_branch data; //this is actually going to be a union, quartus doesnt support unions
         logic valb_sel; // use val b or immediate
