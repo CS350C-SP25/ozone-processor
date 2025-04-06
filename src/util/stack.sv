@@ -10,14 +10,11 @@ module stack #(
     input logic restoreTail,
     input logic[$clog2(STACK_DEPTH)-1:0] newTail,
     output logic [ENTRY_SIZE-1:0] stack_out,
-    output logic empty,
 );
     logic [ENTRY_SIZE-1:0] underlying [STACK_DEPTH-1:0];
     logic [ENTRY_SIZE-1:0] next_push;
-    logic[$clog2(STACK_DEPTH+1)-1:0] size;
     logic[$clog2(STACK_DEPTH)-1:0] tail;
 
-    logic[$clog2(STACK_DEPTH+1)-1:0] size_next;
     logic[$clog2(STACK_DEPTH)-1:0] tail_next;
 
     always_ff @(posedge clk_in) begin
@@ -27,27 +24,21 @@ module stack #(
             underlying[tail] <= next_push;
         end else begin
             tail <= '0;
-            size <= '0;
-            empty <= '0;
         end
     end
 
     always_comb begin
         if (restoreTail) begin
             tail_next = restoreTail;
-            size_next = size - (tail - restoreTail);
             next_push = underlying[tail];
         end else begin
             if (push && pop) begin
-                size_next = size;
                 tail_next = tail;
                 next_push = pushee;
             end else if (push) begin
-                size_next = size == STACK_DEPTH ? size : size + 1;
                 tail_next = tail + 1;
                 next_push = pushee;
             end else if (pop) begin
-                size_next = size == 0 ? 0 : size - 1;
                 tail_next = tail - 1;
                 next_push = underlying[tail];
             end
@@ -55,6 +46,5 @@ module stack #(
     end
 
     assign stack_out = underlying[tail];
-    assign empty = size == 0;
 
 endmodule
