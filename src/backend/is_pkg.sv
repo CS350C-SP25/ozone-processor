@@ -1,7 +1,7 @@
 import uop_pkg::*;
 import reg_pkg::*;
 
-package ins_sched_pkg;
+package is_pkg;
 
     paramater int IS_ENTIRES = 64; // TODO
 
