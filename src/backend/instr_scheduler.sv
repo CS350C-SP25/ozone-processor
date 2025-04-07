@@ -34,7 +34,7 @@ endmodule
 
 
 module instruction_scheduler #(
-    parameter Q_DEPTH = rob_pkg::IS_ENTRIES,
+    parameter Q_DEPTH = is_pkg::IS_ENTRIES,
     parameter Q_WIDTH = uop_pkg::INSTR_Q_WIDTH
 ) (
     input logic clk_in,
@@ -73,9 +73,9 @@ module instruction_scheduler #(
     // TODO: parameterize # of functional units
     
     // 4 queues (1 per FU)
-    rob_issue queue[NUM_OF_FU][QUEUE_DEPTH];
-    logic [$clog2(QUEUE_DEPTH):0] head[4], tail[4];
-    logic [$clog2(QUEUE_DEPTH+1):0] count[4];
+    rob_issue queue[NUM_OF_FU][Q_DEPTH];
+    logic [$clog2(Q_DEPTH):0] head[4], tail[4];
+    logic [$clog2(Q_DEPTH+1):0] count[4];
 
     rob_issue [NUM_OF_FU-1:0] insn_in;
 
