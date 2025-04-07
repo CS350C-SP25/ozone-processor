@@ -86,6 +86,7 @@ module branch_pred #(
     always_comb begin
         if (pc_correction) begin // we have gotten a valid pc from the pc, lets fetch the instruction bits from the l1i. TODO only do this on flush otherwise it should come from the output of pred_pc on this cycle
             // i think the if statement should be if branch prediction correction || initial startup
+            // TODO stall if we have instruction inflight from l1ic
             l1i_addr_out_next = current_pc;
             bp_l1i_valid_out_next = 1'b1;
         end else begin
