@@ -3,7 +3,7 @@ import reg_pkg::*;
 import is_pkg::*;
 
 module is_queue #(
-    parameter N = IS_ENTIRES
+    parameter N = IS_ENTRIES
 ) (
     input logic rst_N_in,
     input logic clk_in,
@@ -20,7 +20,7 @@ endmodule
 
 
 module ready_queue #(
-    paramater N = RQ_ENTRIES
+    parameter N = RQ_ENTRIES
 ) (
     input logic rst_N_in,
     input logic clk_in,
@@ -31,11 +31,19 @@ module ready_queue #(
     logic [$clog2(N)-1:0] rq_head;
     logic [$clog2(N)-1:0] rq_tail;
 
+    
 endmodule
 
 
 module instruction_scheduler #() (
-
+    input logic rst_N_in,
+    input logic clk_in,
+    input logic flush_in
 );
+    // Instruction scheduler queue
+    is_queue #(.N(IS_ENTRIES)) iq (.rst_N_in(rst_N_in), .clk_in(clk_in), .flush_in(flush_in));
+    
+    // Ready queue
+    ready_queue rq (.rst_N_in(rst_N_in), .clk_in(clk_in), .flush_in(flush_in));
 
 endmodule;
