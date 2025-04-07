@@ -15,10 +15,10 @@ module branch_pred #(
     input logic l1i_ready,
     input logic pc_correction,
     input logic [63:0] correct_pc,
-    input logic [CACHE_LINE_WIDTH-1:0][7:0] l1i_cacheline,
+    input logic [7:0] l1i_cacheline [CACHE_LINE_WIDTH-1:0],
     output logic[63:0] pred_pc, //goes into the program counter
     output uop_branch [SUPER_SCALAR_WIDTH-1:0] decode_branch_data, //goes straight into decode. what the branches are and if the super scalar needs to be squashed
-    output logic[$clog2(SUPER_SCALAR_WIDTH+1)-1:0] pc_valid_out, //vaild out is saying ready for next as well
+    output logic pc_valid_out, // sending a predicted instruction address.
     output logic bp_l1i_valid_out,
     output logic[63:0] l1i_addr_out
 );
@@ -31,8 +31,39 @@ module branch_pred #(
         IST_RET         = 3'b100
     } ist_entry_t;
 
+    // tables
     ist_entry_t istable [$clog2(IST_ENTRIES)-1:0];
     logic[25:0] btb [$clog2(BTB_ENTRIES)-1:0]; // stores B, BL, Bcond offsets; Bcond decisions stored elsewhere
+
+    //FSM control
+    logic [63:0] current_pc; // pc register
+    logic instruction_bits_inflight; // do we need to wait for the L1i to resolve? register
+    logic new_pc_predicted; //wire for the above
+    logic [63:0] pred_pc; // wire
+    logic [63:0] l1i_addr_waiting; //address we are waiting on from cache; register
+    logic discard_inflight;
+    logic discard_inflight_next;
+
+    // RAS
+    logic ras_push;
+    logic ras_push_next;
+    logic ras_pop;
+    logic ras_pop_next;
+    logic[63:0] ras_next_push;
+    logic[63:0] ras_next_push_next;
+    logic[63:0] ras_top;
+    logic ras_restoreTail; //ignore tail resets for now (this can be part of misprediction correction for a mildly better RAS acc)
+    logic[$clog2(8)-1:0] ras_newTail;
+    stack #(.STACK_DEPTH(8), .ENTRY_SIZE(64)) ras (
+        .clk_in(clk_in),
+        .rst_N_in(rst_N_in),
+        .push(ras_push),
+        .pop(ras_pop),
+        .pushee(ras_next_push),
+        .restoreTail(ras_restoreTail),
+        .newTail(ras_newTail),
+        .stack_out(ras_top)
+    );
 
 
     function  automatic logic[INSTRUCTION_WIDTH-1:0] get_instr_bits(
@@ -58,7 +89,7 @@ module branch_pred #(
         // note that this function doesnt modify ras or ist, we will only do this after we get the instruction bits back and feel certain
         // if we have a BL followed by a ret in the next set of super scalar we need to use make sure ras top was set correctly for better prediction chances.
         logic found_branch;
-        logic res = pc;
+        logic [63:0] res = pc;
         for (int instr_idx = 0; instr_idx < SUPER_SCALAR_WIDTH; instr_idx++) begin
             if (pc[5:0]+(instr_idx<<2) <= CACHE_LINE_WIDTH - INSTRUCTION_WIDTH && !found_branch) begin
                 case (istable[pc[11:2] + instr_idx])
@@ -89,40 +120,54 @@ module branch_pred #(
         pred = res;
     endfunction
 
-    logic [63:0] current_pc; // pc register
-    logic instruction_bits_inflight; // do we need to wait for the L1i to resolve? register
-    logic new_pc_predicted; //wire for the above
-    logic [63:0] pred_pc; // wire
 
-
-
-    logic ras_push;
-    logic ras_push_next;
-    logic ras_pop;
-    logic ras_pop_next;
-    logic[63:0] ras_next_push;
-    logic[63:0] ras_next_push_next;
-    logic[63:0] ras_top;
-    logic ras_restoreTail; //ignore tail resets for now (this can be part of misprediction correction for a mildly better RAS acc)
-    logic[$clog2(8)-1:0] ras_newTail;
-    stack #(.STACK_DEPTH(8), .ENTRY_SIZE(64)) ras (
-        .clk_in(clk_in),
-        .rst_N_in(rst_N_in),
-        .push(ras_push),
-        .pop(ras_pop),
-        .pushee(ras_next_push),
-        .restoreTail(ras_restoreTail),
-        .newTail(ras_newTail),
-        .stack_out(ras_top)
+    function automatic void partial_predecode (
+        input logic [63:0] pc,
+        input logic [7:0] actual_cacheline [CACHE_LINE_WIDTH-1:0],
+        output logic [63:0] actual_pc
     );
+        logic found_branch;
+        logic [63:0] res = pc;
+        for (int instr_idx = 0; instr_idx < SUPER_SCALAR_WIDTH; instr_idx++) begin
+            if (pc[5:0]+(instr_idx<<2) <= CACHE_LINE_WIDTH - INSTRUCTION_WIDTH && !found_branch) begin
+                if (get_instr_bits(actual_cacheline, pc, instr_idx)[31:21] == 11'b11010110010) begin // RET case
+                    res = ras_top;
+                    found_branch = 1'b1;
+                end else if (get_instr_bits(l1i_cacheline, l1i_addr_awaiting, instr_idx)[31:26] == 6'b000101) begin // B
+                    res = res + {{38{get_instr_bits(l1i_cacheline, l1i_addr_awaiting, instr_idx)[25]}}, get_instr_bits(l1i_cacheline, l1i_addr_awaiting, instr_idx)[25:0]};
+                    found_branch = 1'b1;
+                end else if (get_instr_bits(l1i_cacheline, l1i_addr_awaiting, instr_idx)[31:26] == 6'b100101) begin // BL
+                    res = res + {{38{get_instr_bits(l1i_cacheline, l1i_addr_awaiting, instr_idx)[25]}}, get_instr_bits(l1i_cacheline, l1i_addr_awaiting, instr_idx)[25:0]};
+                    found_branch = 1'b1;
+                end else if (get_instr_bits(l1i_cacheline, l1i_addr_awaiting, instr_idx)[31:24] == 8'b01010100) begin //B cond
+                end else begin
+                end
+            end
+        end
+        actual_pc = res;
+    endfunction
+
 
     always_ff @(posedge clk_in) begin
+        if (rst_N_in) begin
+            instruction_bits_inflight <= new_pc_predicted | instruction_bits_inflight;
+            l1i_addr_awaiting <= pred_pc;
+            current_pc <= pred_pc;
+            bp_l1i_valid_out <= new_pc_predicted;
+            l1i_addr_out <= pred_pc;
+            pc_valid_out <= new_pc_predicted;
+            discard_inflight <= discard_inflight_next;
+        end else begin
+            instruction_bits_inflight <= 1'b0;
+            current_pc <= '0;
+            l1i_addr_awaiting <= '0;
+            bp_l1i_valid_out <= 1'b0;
+            l1i_addr_out <= '0;
+            pc_valid_out <= 1'b0;
+            discard_inflight = 1'b0;
+        end
     end
 
-    logic bp_l1i_valid_out_next;
-    logic [63:0] l1i_addr_out_next;
-    logic [63:0] l1i_addr_waiting; //address we are waiting on from cache
-    logic done;
 
 
     always_comb begin
@@ -131,6 +176,7 @@ module branch_pred #(
             if (instruction_bits_inflight && !l1i_valid) begin
                 pred_pc = correct_pc;
                 new_pc_predicted = 1'b0;
+                discard_inflight_next = 1'b1;
             end else begin // spec decode correction pc
                 speculative_decode(
                     .pc(correct_pc),
@@ -142,10 +188,11 @@ module branch_pred #(
         end else begin
             // we have the correct PC according to the execute stage
             // stall if instruction bits are in flight
-            if (instruction_bits_inflight && !l1i_valid) begin
+            if (!l1i_valid) begin
                 pred_pc = current_pc;
                 new_pc_predicted = 1'b0;
-            end else begin // instruction bits not in flight, verify that our spec decode was correct
+                discard_inflight_next = discard_inflight;
+            end else if (!discard_inflight) begin // instruction bits not in flight, verify that our spec decode was correct
                 //actual PC = ...
 
                 if (actual_pc == current_pc) begin
@@ -162,10 +209,15 @@ module branch_pred #(
 
                     // decode will need to handle itself. it has the same instruction bits as us at this point and will need to squash a bad spec decode for itself. maybe we can combine this check into 1 higher level comb module
                 end
-
+            end else begin
+                // we discard the cacheline previously requested and start fresh with a speculative decode on the current PC.
+                speculative_decode(
+                    .pc(current_pc),
+                    .spec_ras_top(ras_top),
+                    .pred(pred_pc)
+                );
+                new_pc_predicted = 1'b1;
             end
-            
-            // else pred PC off partial decode of cl in
         end
     end
 endmodule
@@ -202,7 +254,7 @@ endmodule
 //                     l1i_addr_out_next = pc + {{38{get_instr_bits(l1i_cacheline, l1i_addr_awaiting, instr_idx)[25]}}, get_instr_bits(l1i_cacheline, l1i_addr_awaiting, instr_idx)[25:0]};
 //                     bp_l1i_valid_out_next = 1'b1;
 //                     done = 1;
-//                 end else if (get_instr_bits(l1i_cacheline, l1i_addr_awaiting, instr_idx)[31:26] == 6'b000101) begin // BL (same as B but we need to push to RAS)
+//                 end else if (get_instr_bits(l1i_cacheline, l1i_addr_awaiting, instr_idx)[31:26] == 6'b100101) begin // BL (same as B but we need to push to RAS)
 //                     pc_valid_out_next = instr_idx + 1;
 //                     // push to RAS l1i_addr_awaiting[5:0]+(instr_idx<<2) + 4
 //                     ras_push_next = 1'b1;
