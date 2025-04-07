@@ -2,9 +2,9 @@ package uop_pkg;
 
     // Parameters for queue depth/width
     parameter int INSTR_Q_DEPTH = 32;
-    parameter int INSTR_Q_WIDTH = 4;
+    parameter int INSTR_Q_WIDTH = 5;
 
-    typedef enum logic[3:0] {
+    typedef enum logic[4:0] {
         UOP_LOAD,
         UOP_STORE,
         UOP_ADD,
@@ -102,8 +102,8 @@ package uop_pkg;
     endfunction
 
     function automatic void set_data_br (
-        input uop_branch in
-        output logic[$bits(uop_branch)-1:0] out,
+        input uop_branch in,
+        output logic[$bits(uop_branch)-1:0] out
     );
         out = in;
     endfunction

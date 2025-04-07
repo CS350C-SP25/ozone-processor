@@ -1,3 +1,6 @@
+`include "../util/uop_pkg.sv"
+`include "./reg_pkg.sv"
+
 import uop_pkg::*;
 import reg_pkg::*;
 
@@ -16,7 +19,8 @@ package rob_pkg;
         logic [reg_pkg::ADDR_BITS-1:0] pc;
         logic [reg_pkg::ADDR_BITS-1:0] next_pc;
         uop_insn uop;
-        logic [$clog2(reg_pkg::NUM_ARCH_REGS)-1:0] dest_reg; // ROB gets mapping to phys reg file from RAT and stores it to the architectural reg file
+        logic [$clog2(reg_pkg::NUM_PHYS_REGS)-1:0] dest_reg_phys; // To operate on
+        logic [$clog2(reg_pkg::NUM_ARCH_REGS)-1:0] dest_reg_arch; // For the RRAT to commit
         status_t status;
     } rob_entry;
     

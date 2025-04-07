@@ -1,3 +1,4 @@
+`include "../rob_pkg.sv"
 import rob_pkg::*;
 
 // used for the RAT + RRAT
