@@ -3,7 +3,7 @@ import reg_pkg::*;
 
 package is_pkg;
 
-    parameter int IS_ENTRIES = 64; // TODO
+    parameter int IS_ENTRIES = 128; // TODO
     parameter int RQ_ENTRIES = IS_ENTRIES;
 
     typedef enum logic [2:0] {
