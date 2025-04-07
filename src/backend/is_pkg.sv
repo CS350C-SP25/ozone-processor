@@ -4,6 +4,7 @@ import reg_pkg::*;
 package is_pkg;
 
     paramater int IS_ENTIRES = 64; // TODO
+    parameter int RQ_ENTRIES = IS_ENTIRES;
 
     typedef enum logic [2:0] {
         WAITING,
@@ -13,11 +14,22 @@ package is_pkg;
         EXCEPTION
     } is_status;
 
+    typedef enum logic [1:0] {
+        WAITING,
+        READY,
+        EXCEPTION
+    } op_status;
+
     /* Instruction scheduler queue entry */
     typedef struct packed {
         logic [reg_pkg::ADDR_BITS-1:0] pc;
         uop_insn uop;
         is_status status;
+        logic [$clog2(rob_pkg::ROB_ENTRIES)-1:0] rob_entry;
+        logic [$clog2(reg_pkg::NUM_ARCH_REGS)-1:0] dest_reg;
+        logic [1:0][reg_pkg::ADDR_BITS-1:0] operands;
+        op_status [1:0] operand_status;
+        //logic [reg_pkg::ADDR_BITS-1:0] result_value;
     } is_entry;
 
     /* Ready queue entry */
@@ -25,8 +37,15 @@ package is_pkg;
         logic [reg_pkg::ADDR_BITS-1:0] pc;
         uop_insn uop;
         is_status status;
+        logic [$clog2(rob_pkg::ROB_ENTRIES)-1:0] rob_entry;
+        logic [$clog2(reg_pkg::NUM_ARCH_REGS)-1:0] dest_reg;
+        logic [reg_pkg::ADDR_BITS-1:0] result_value;
     } rq_entry;
 
-    // issue packet TODO
+    // issue packet
+    typedef struct packed {
+        uop_insn uop;
+        logic [$clog2(IS_ENTIRES)-1:0] ptr;
+    } is_issue;
 
 endpackage
