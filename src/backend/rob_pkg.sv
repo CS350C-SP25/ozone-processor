@@ -23,6 +23,7 @@ package rob_pkg;
     } rob_entry;
 
     typedef struct packed {
+        logic valid;
         uop_insn uop;
         logic [$clog2(ROB_ENTRIES)-1:0] ptr; // ptr to entry in the ROB
     } rob_issue; // struct for issuing insn from the ROB
