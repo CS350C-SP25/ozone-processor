@@ -2,7 +2,7 @@ package uop_pkg;
 
     // Parameters for queue depth/width
     parameter int INSTR_Q_DEPTH = 32;
-    parameter int INSTR_Q_WIDTH = 4;
+    parameter int INSTR_Q_WIDTH = 5;
 
     typedef enum logic[4:0] {
         UOP_LOAD,
