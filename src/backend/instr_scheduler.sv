@@ -18,19 +18,19 @@ module is_queue #(
 
 endmodule
 
-module ready_queue #(
-    parameter N = RQ_ENTRIES
-) (
-    input logic rst_N_in,
-    input logic clk_in,
-    input logic flush_in
-);
-    // ready queue
-    rq_entry [N-1:0] q;
-    logic [$clog2(N)-1:0] rq_head;
-    logic [$clog2(N)-1:0] rq_tail;
+// module ready_queue #(
+//     parameter N = RQ_ENTRIES
+// ) (
+//     input logic rst_N_in,
+//     input logic clk_in,
+//     input logic flush_in
+// );
+//     // ready queue
+//     rq_entry [N-1:0] q;
+//     logic [$clog2(N)-1:0] rq_head;
+//     logic [$clog2(N)-1:0] rq_tail;
 
-endmodule
+// endmodule
 
 
 module instruction_scheduler #(
@@ -71,6 +71,9 @@ module instruction_scheduler #(
 );
 
     // TODO: parameterize # of functional units
+
+    // asymmetric # of units per FU type
+
     
     // 4 queues (1 per FU)
     rob_issue queue[NUM_OF_FU][Q_DEPTH];
@@ -103,7 +106,7 @@ module instruction_scheduler #(
         end else begin
             // ROB input handling, enqueue instructions 
             for (int j = 0; j < NUM_OF_FU; j++) begin
-                if (insn_in[j].valid && count[j] < QUEUE_DEPTH) begin // TODO: maybe a valid bit in rob_issue?
+                if (insn_in[j].valid && count[j] < QUEUE_DEPTH) begin // TODO: maybe a valid bit in rob_issue? 
                     queue[j][tail[j]] <= insn_in[j];
                     tail[j] <= tail[j] + 1;
                     count[j] <= count[j] + 1;
@@ -130,7 +133,4 @@ module instruction_scheduler #(
     // // Instruction scheduler queue
     // is_queue #(.N(IS_ENTRIES)) iq (.rst_N_in(rst_N_in), .clk_in(clk_in), .flush_in(flush_in));
     
-    // // Ready queue
-    // ready_queue rq (.rst_N_in(rst_N_in), .clk_in(clk_in), .flush_in(flush_in));
-
 endmodule;
