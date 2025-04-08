@@ -16,7 +16,8 @@ package uop_pkg;
         UOP_MVN,
         UOP_UBFM,
         UOP_ASR,
-        UOP_BRANCH,
+        UOP_BCOND,
+        UOP_BL,
         UOP_MOVZ,
         UOP_MOVK,
         UOP_FMOV,
@@ -24,6 +25,8 @@ package uop_pkg;
         UOP_FADD,
         UOP_FMUL,
         UOP_FSUB,
+        UOP_CHECK_RET,
+        UOP_ADRP_MOV,
         UOP_HLT // NOPS wont be sent at all, HLT is exception will need.
     } uop_code;
 
@@ -44,13 +47,13 @@ package uop_pkg;
     typedef struct packed {
         uop_reg dst;
         uop_reg src;
-        logic [18:0] imm;
+        logic [20:0] imm;
         logic [1:0] hw;
         logic set_nzcv;
     } uop_ri;
 
     typedef struct packed {
-        logic [63:0] not_taken;
+        logic [63:0] branch_target;
         logic [3:0] condition;
         logic predict_taken;
     } uop_branch;
@@ -58,6 +61,7 @@ package uop_pkg;
     typedef struct packed { // changed it so it will compile for ROB for now, feel free to change later
         uop_code uopcode;
         uop_branch data; //this is actually going to be a union, quartus doesnt support unions
+        logic [63:0] pc; // left undetermined if non PC operation. PC operations are B BCOND, BL, RET, ADRP
         logic valb_sel; // use val b or immediate
         logic mem_read;
         logic mem_write;
