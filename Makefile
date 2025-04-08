@@ -20,9 +20,9 @@ VERILATOR ?= /u/nate/verilator
 
 # Flags
 ifeq ($(shell uname),Linux)
-	VFLAGS = --binary -j $$(( `nproc` - 1 )) --trace --trace-underscore --compiler clang
+	VFLAGS = --binary -j $$(( `nproc` - 1 )) --trace --trace-underscore --compiler clang --relative-includes
 else
-	VFLAGS = --binary -j $$(( `sysctl -n hw.logicalcpu` - 1 )) --trace --trace-underscore --compiler clang
+	VFLAGS = --binary -j $$(( `sysctl -n hw.logicalcpu` - 1 )) --trace --trace-underscore --compiler clang --relative-includes
 endif
 
 # Target-specific flags

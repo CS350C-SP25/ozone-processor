@@ -1,5 +1,5 @@
 `include "../util/uop_pkg.sv"
-`include "./reg_pkg.sv"
+`include "../backend/reg_pkg.sv"
 
 import uop_pkg::*;
 import reg_pkg::*;
@@ -19,9 +19,9 @@ package rob_pkg;
         logic [reg_pkg::ADDR_BITS-1:0] pc;
         logic [reg_pkg::ADDR_BITS-1:0] next_pc;
         uop_insn uop;
+        logic [$clog2(reg_pkg::NUM_PHYS_REGS)-1:0] r1_reg_phys; // To operate on
+        logic [$clog2(reg_pkg::NUM_PHYS_REGS)-1:0] r2_reg_phys; // To operate on
         logic [$clog2(reg_pkg::NUM_PHYS_REGS)-1:0] dest_reg_phys; // To operate on
-        logic [$clog2(reg_pkg::NUM_ARCH_REGS)-1:0] dest_reg_arch; // For the RRAT to commit
         status_t status;
     } rob_entry;
-    
 endpackage

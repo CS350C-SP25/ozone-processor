@@ -11,7 +11,6 @@ module reg_map #(
     input   logic                               rst,
     input   logic                               valid_in, // We are committing
     input   logic [$clog2(NUM_ARCH_REGS)-1:0] [$clog2(NUM_PHYS_REGS)-1:0]   rename_in,
-    input   logic [$clog2(NUM_ARCH_REGS)-1:0]  rename_mask_in,
     output  logic [$clog2(NUM_ARCH_REGS)-1:0] [$clog2(NUM_PHYS_REGS)-1:0]   phys_regs_out
 );
     logic [$clog2(NUM_PHYS_REGS)-1:0] register_mapping [NUM_ARCH_REGS-1:0];
