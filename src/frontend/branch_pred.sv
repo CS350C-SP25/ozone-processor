@@ -7,7 +7,7 @@ module branch_pred #(
     parameter SUPER_SCALAR_WIDTH = op_pkg::SUPER_SCALAR_WIDTH,
     parameter IST_ENTRIES = 1024,
     parameter BTB_ENTRIES = 128,
-    parameter PHT_K = 8,
+    parameter GHR_K = 8,
     parameter PHT_N = 8,
     parameter L0_WAYS = 8;
 ) (
@@ -29,8 +29,8 @@ module branch_pred #(
     output logic [7:0] l0_cacheline [CACHE_LINE_WIDTH-1:0]; // this gets fed to fetch
 );
   // GHR and PHT logic
-  localparam int PHT_SIZE = 1 << (n + k);
-  logic [k-1:0] ghr;
+  localparam int PHT_SIZE = 1 << (PHT_N + GHR_K);
+  logic [GHR_K-1:0] ghr;
   logic [1:0] pht[PHT_SIZE-1:0];
 
 
@@ -160,9 +160,9 @@ module branch_pred #(
       // and then update it
 
       if (x_taken) begin
-        pht_next[pht_index_update] = pht[pht_index_update] + 1;
+        pht_next[pht_index_update] = (pht[pht_index_update] + 1) == 0 ? pht[pht_index_update] : pht[pht_index_update] + 1; // make sure overflow doeesnt happen
       end else if (!x_taken) begin
-        pht_next[pht_index_update] = pht[pht_index_update] - 1;
+        pht_next[pht_index_update] = pht[pht_index_update] == 0 ? 0 : pht[pht_index_update] - 1; // prevent underflow
       end
 
       ghr_next = {ghr[PHT_K-2:0], x_taken};
