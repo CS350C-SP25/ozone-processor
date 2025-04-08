@@ -19,7 +19,7 @@ module branch_pred #(
     input logic x_pc_incorrect,  // this means that the PC that we had originally predicted was incorrect. We need to fix.
     input logic x_taken,  // if the branch resolved as taken or not -- to update PHT and GHR
     input logic [63:0] x_pc, // pc that is currently in the exec phase (the one that just was resolved)
-    input logic [18:0] x_correction_offset, // the offset of the correction from x_pc
+    input logic [18:0] x_correction_offset, // the offset of the correction from x_pc (could change this to be just the actual correct PC instead ??)
     input logic [7:0] l1i_cacheline[CACHE_LINE_WIDTH-1:0],
     output logic [63:0] pred_pc,  //goes into the fetch
     output uop_branch [SUPER_SCALAR_WIDTH-1:0] decode_branch_data, //goes straight into decode. what the branches are and if the super scalar needs to be squashed
