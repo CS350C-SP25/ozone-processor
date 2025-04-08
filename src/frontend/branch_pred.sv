@@ -129,23 +129,27 @@ SUPER_SCALAR_WIDTH+1
       // TODO only do this on flush otherwise it should come from the output of pred_pc on this cycle
       // i think the if statement should be if branch prediction correction || initial startup
       // TODO stall if we have instruction inflight from l1ic
-     if (pc_incorrect) begin
+      if (pc_incorrect) begin
         if (x_taken) begin
-            // have to call cache for the data, get_instr_bits
-            current_pc = x_pc + offset // how do we get offset HERE 
-            // TODO: get the L1i cache line
-            
-        end else begin
-            // 
-            current_pc = pc + 64'h4;
-        end
+          // TODO get correct instruction bits
+          // this is under the WRONG assumption that the bits are alr in cacheline
+          logic [31:0] instr;
+          instr = get_instr_bits(l1i_cacheline, x_pc,  /* instr_idx = */ 0);
+          // Now recalc the correct PC
+          offset = instr[23:5];  //  19 bits are the offset (signed)
+          current_pc = x_pc + 64'(offset);
 
+        end else begin
+          // not taken, just the next sequential pc
+          current_pc = x_pc + 64'h4;
+        end
       end
+
       logic [n-1:0] pc_index_update;
-      pc_index_update = x_pc[n-1:0]; 
+      pc_index_update = x_pc[n-1:0];
 
       logic [n+k-1:0] pht_index_update;
-      pht_index_update = {ghr, pc_index_update}; 
+      pht_index_update = {ghr, pc_index_update};
 
       // now that we have our pht index
       // we need to see if we are gonna take it
@@ -159,17 +163,8 @@ SUPER_SCALAR_WIDTH+1
 
       ghr_next = {ghr[k-2:0], x_taken};
 
-
-      // if our current guess does not match what we guessed at the beginning
-      // we need to update the pc
-
-      // how do we know what we guessed at beginning
-      // can check pht entry but that could be wrong
-      // can compare the  pc of the things surrounding it
-
-      
       l1i_addr_out_next = current_pc;  // ?
-      bp_l1i_valid_out_next = 1'b1; // gets the cacheline
+      bp_l1i_valid_out_next = 1'b1;  // gets the cacheline
       // how do we wait for next clock cycle
     end else begin
       if (l1i_valid) begin // we got the instruction bits back. predecode, update ras, pred_pc, look up ghr, etc
