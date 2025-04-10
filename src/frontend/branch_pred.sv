@@ -85,7 +85,7 @@ module branch_pred #(
     pc_n_bits = pc[PHT_N-1:0];
 
     // make the index
-    logic [PHT_N+PHT_K-1:0] pht_index;
+    logic [PHT_N+GHR_K-1:0] pht_index;
     pht_index = {ghr, pc_n_bits};
 
     logic [1:0] counter;
