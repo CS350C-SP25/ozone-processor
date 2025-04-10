@@ -1,3 +1,6 @@
 [submodule "mem"]
 	path = mem
 	url = git@github.com:CS350C-SP25/hdl-mem-subsystem.git
+[submodule "hdl-mem-subsystem"]
+	path = hdl-mem-subsystem
+	url = git@github.com:CS350C-SP25/hdl-mem-subsystem.git
