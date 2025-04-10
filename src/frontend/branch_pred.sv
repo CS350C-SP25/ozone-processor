@@ -69,6 +69,11 @@ module branch_pred #(
       .newTail(ras_newTail),
       .stack_out(ras_top)
   );
+  l0_instruction_cache #(
+    
+  )
+
+
 
 
   function automatic logic [INSTRUCTION_WIDTH-1:0] get_instr_bits(
@@ -117,6 +122,9 @@ module branch_pred #(
   );
     logic hit = 1'b0;
     // TODO implement l0.
+
+
+
     return hit;
   endfunction
 
