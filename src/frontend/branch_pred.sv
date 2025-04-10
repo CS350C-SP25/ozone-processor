@@ -9,8 +9,7 @@ module branch_pred #(
     parameter BTB_ENTRIES = 128,
     parameter GHR_K = 8,
     parameter PHT_N = 8,
-    parameter L0_WAYS = 1;
-    parameter L0_SETS = 8
+    parameter L0_WAYS = 8;
 ) (
     //TODO also include inputs for GHR updates.
     input clk_in,
@@ -120,8 +119,6 @@ module branch_pred #(
     // TODO implement l0.
     return hit;
   endfunction
-
-  logic [7:0] l0_cache [$clog2[L0_SETS]-1:0][$clog2(L0_WAYS)-1:0][CACHE_LINE_WIDTH];
 
   always_ff @(posedge clk_in) begin
     if (rst_N_in) begin
