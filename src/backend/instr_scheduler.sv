@@ -3,65 +3,91 @@ import reg_pkg::*;
 import is_pkg::*;
 import rob_pkg::*;
 
-module is_queue #(
-    parameter N = IS_ENTRIES
+module fu_queue #(
+    parameter Q_DEPTH = is_pkg::FQ_ENTRIES,
+    parameter Q_WIDTH = is_pkg::FQ_EL_SIZE
 ) (
-    input logic rst_N_in,
-    input logic clk_in,
-    input logic flush_in
-    // TODO ...
+    input logic clk,
+    input logic rst,
+    input logic flush,
+
+    // enqueue
+    input logic enq_valid, // getting the request to enqueue
+    input logic [Q_WIDTH-1:0] enq_data,
+
+    // dequeue
+    input logic deq_ready,  // getting the request to dequeue
+    output logic deq_valid, // deq_data holds valid dequeued data
+    output logic [Q_WIDTH-1:0] deq_data,
+
+    output logic full
 );
-    // instruction scheduler queue
-    is_entry [N-1:0] q;
-    logic [$clog2(N)-1:0] is_head;
-    logic [$clog2(N)-1:0] is_tail;
+    logic [Q_WIDTH-1:0] q [Q_DEPTH-1:0];
+    logic [$clog2(Q_DEPTH)-1:0] head, tail;
+    logic [$clog2(Q_DEPTH+1)-1:0] count;
+    logic empty;
+    
+    assign full  = (count == Q_DEPTH);
+    assign empty = (count == 0);
+    assign deq_valid = !empty;
+    assign deq_data = q[head];
+
+    always_ff @(posedge clk) begin
+        if (!rst || flush) begin
+            head  <= 0;
+            tail  <= 0;
+            count <= 0;
+        end else begin
+            // enqueue
+            if (enq_valid && !full) begin
+                q[tail] <= enq_data;
+                tail <= (tail + 1) % Q_DEPTH;
+                count <= count + 1;
+            end
+
+            // dequeue
+            if (deq_ready && !empty) begin
+                head <= (head + 1) % Q_DEPTH;
+                count <= count - 1;
+            end
+        end
+    end
 
 endmodule
 
-// module ready_queue #(
-//     parameter N = RQ_ENTRIES
-// ) (
-//     input logic rst_N_in,
-//     input logic clk_in,
-//     input logic flush_in
-// );
-//     // ready queue
-//     rq_entry [N-1:0] q;
-//     logic [$clog2(N)-1:0] rq_head;
-//     logic [$clog2(N)-1:0] rq_tail;
-
-// endmodule
-
 
 module instruction_scheduler #(
-    parameter Q_DEPTH = is_pkg::IS_ENTRIES,
-    parameter Q_WIDTH = uop_pkg::INSTR_Q_WIDTH
+    parameter Q_DEPTH = is_pkg::FQ_ENTRIES,
+    parameter Q_WIDTH = is_pkg::FQ_EL_SIZE
 ) (
     input logic clk_in,
     input logic rst_N_in,
     input logic flush_in,
 
     // instructions from the ROB
-    input rob_issue lsu_insn_in,
+    input rob_issue lsu_insn_i,
     input rob_issue bru_insn_in, 
     input rob_issue alu_insn_in, 
     input rob_issue fpu_insn_in,
 
     // ready signals from the func units
-    input logic lsu_ready_in,
-    input logic bru_ready_in,
-    input logic alu_ready_in,
-    input logic fpu_ready_in,
+    input logic lsu_ready_in [is_pkg::NUM_LSU],
+    input logic bru_ready_in [is_pkg::NUM_BRU],
+    input logic alu_ready_in [is_pkg::NUM_ALU],
+    input logic fpu_ready_in [is_pkg::NUM_FPU],
     
-    // TODO: data the func units will take in
-    // output __ lsu_input_out,
-    output logic lsu_valid_out,
-    // output __ bru_input_out,
-    output logic bru_valid_out,
-    // output __ alu_input_out,
-    output logic alu_valid_out,
-    // output __ fpu_input_out,
-    output logic fpu_valid_out,
+    // data the func units will take in
+    output uop_insn lsu_input_out [is_pkg::NUM_LSU],
+    output logic lsu_valid_out [is_pkg::NUM_LSU],
+
+    output uop_insn bru_input_out [is_pkg::NUM_BRU],
+    output logic bru_valid_out [is_pkg::NUM_BRU],
+
+    output uop_insn alu_input_out [is_pkg::NUM_ALU],
+    output logic alu_valid_out [is_pkg::NUM_ALU],
+
+    output uop_insn fpu_input_out [is_pkg::NUM_FPU],
+    output logic fpu_valid_out [is_pkg::NUM_FPU],
 
     // signal the ROB which instructions have been accepted by the func units
     output logic lsu_insn_executing_out,
@@ -70,67 +96,167 @@ module instruction_scheduler #(
     output logic fpu_insn_executing_out
 );
 
-    // TODO: parameterize # of functional units
+    logic [is_pkg::NUM_LSU-1:0] lsu_q_full;
+    logic [is_pkg::NUM_LSU-1:0] lsu_enq_valid;
+    logic [Q_WIDTH-1:0] lsu_enq_data;
+    logic [is_pkg::NUM_LSU-1:0] lsu_deq_ready;
+    logic [is_pkg::NUM_LSU-1:0] lsu_deq_valid;
+    logic [Q_WIDTH-1:0] lsu_deq_data;
 
-    // asymmetric # of units per FU type
+    logic [is_pkg::NUM_BRU-1:0] bru_q_full;
+    logic [is_pkg::NUM_BRU-1:0] bru_enq_valid;
+    logic [Q_WIDTH-1:0] bru_enq_data;
+    logic [is_pkg::NUM_BRU-1:0] bru_deq_ready;
+    logic [is_pkg::NUM_BRU-1:0] bru_deq_valid;
+    logic [Q_WIDTH-1:0] bru_deq_data;
 
-    
-    // 4 queues (1 per FU)
-    rob_issue queue[NUM_OF_FU][Q_DEPTH];
-    logic [$clog2(Q_DEPTH):0] head[4], tail[4];
-    logic [$clog2(Q_DEPTH+1):0] count[4];
+    logic [is_pkg::NUM_ALU-1:0] alu_q_full;
+    logic [is_pkg::NUM_ALU-1:0] alu_enq_valid;
+    logic [Q_WIDTH-1:0] alu_enq_data;
+    logic [is_pkg::NUM_ALU-1:0] alu_deq_ready;
+    logic [is_pkg::NUM_ALU-1:0] alu_deq_valid;
+    logic [Q_WIDTH-1:0] alu_deq_data;
 
-    rob_issue [NUM_OF_FU-1:0] insn_in;
+    logic [is_pkg::NUM_FPU-1:0] fpu_q_full;
+    logic [is_pkg::NUM_FPU-1:0] fpu_enq_valid;
+    logic [Q_WIDTH-1:0] fpu_enq_data;
+    logic [is_pkg::NUM_FPU-1:0] fpu_deq_ready;
+    logic [is_pkg::NUM_FPU-1:0] fpu_deq_valid;
+    logic [Q_WIDTH-1:0] fpu_deq_data;
 
-    assign insn_in[0] = lsu_insn_in;
-    assign insn_in[1] = bru_insn_in;
-    assign insn_in[2] = alu_insn_in;
-    assign insn_in[3] = fpu_insn_in;
+    genvar i;
+    generate
+        for (i = 0; i < is_pkg::NUM_LSU; i++) begin: lsu_queues
+            fu_queue #(.Q_DEPTH(Q_DEPTH), .Q_WIDTH(Q_WIDTH)) lsu_q (
+                .clk(clk_in),
+                .rst(rst_N_in),
+                .flush(flush_in),
+                .enq_valid(lsu_enq_valid[i]),
+                .enq_data(lsu_insn_i),
+                .deq_ready(lsu_ready_in[i]),
+                .deq_valid(lsu_deq_valid[i]),
+                .deq_data(lsu_deq_data[i]),
+                .full(lsu_q_full[i])
+            );
+        end
+        for (i = 0; i < is_pkg::NUM_BRU; i++) begin: bru_queues
+            fu_queue #(.Q_DEPTH(Q_DEPTH), .Q_WIDTH(Q_WIDTH)) bru_q (
+                .clk(clk_in),
+                .rst(rst_N_in),
+                .flush(flush_in),
+                .enq_valid(bru_enq_valid[i]),
+                .enq_data(bru_insn_i),
+                .deq_ready(bru_ready_in[i]),
+                .deq_valid(bru_deq_valid[i]),
+                .deq_data(bru_deq_data[i]),
+                .full(bru_q_full[i])
+            );
+        end
+        for (i = 0; i < is_pkg::NUM_ALU; i++) begin: alu_queues
+            fu_queue #(.Q_DEPTH(Q_DEPTH), .Q_WIDTH(Q_WIDTH)) alu_q (
+                .clk(clk_in),
+                .rst(rst_N_in),
+                .flush(flush_in),
+                .enq_valid(alu_enq_valid[i]),
+                .enq_data(alu_insn_i),
+                .deq_ready(alu_ready_in[i]),
+                .deq_valid(alu_deq_valid[i]),
+                .deq_data(alu_deq_data[i]),
+                .full(alu_q_full[i])
+            );
+        end
+        for (i = 0; i < is_pkg::NUM_FPU; i++) begin: fpu_queues
+            fu_queue #(.Q_DEPTH(Q_DEPTH), .Q_WIDTH(Q_WIDTH)) fpu_q (
+                .clk(clk_in),
+                .rst(rst_N_in),
+                .flush(flush_in),
+                .enq_valid(fpu_enq_valid[i]),
+                .enq_data(fpu_insn_i),
+                .deq_ready(fpu_ready_in[i]),
+                .deq_valid(fpu_deq_valid[i]),
+                .deq_data(fpu_deq_data[i]),
+                .full(fpu_q_full[i])
+            );
+        end
+    endgenerate
 
-    logic [NUM_OF_FU-1:0] ready_in;
-    assign ready_in = {fpu_ready_in, alu_ready_in, bru_ready_in, lsu_ready_in};
+    always_comb begin
+        lsu_enq_valid = '0;
+        lsu_enq_data = '0;
 
-    logic [NUM_OF_FU-1:0] executing_out;
-    
-    always_ff @(posedge clk_in) begin
-        if (!rst_N_in || flush_in) begin
-            for (int i = 0; i < 4; i++) begin
-                head[i] <= 0;
-                tail[i] <= 0;
-                count[i] <= 0;
-            end
-            lsu_insn_executing_out <= 0;
-            bru_insn_executing_out <= 0;
-            alu_insn_executing_out <= 0;
-            fpu_insn_executing_out <= 0;
-        end else begin
-            // ROB input handling, enqueue instructions 
-            for (int j = 0; j < NUM_OF_FU; j++) begin
-                if (insn_in[j].valid && count[j] < QUEUE_DEPTH) begin // TODO: maybe a valid bit in rob_issue? 
-                    queue[j][tail[j]] <= insn_in[j];
-                    tail[j] <= tail[j] + 1;
-                    count[j] <= count[j] + 1;
+        bru_enq_valid = '0;
+        bru_enq_data = '0;
+
+        alu_enq_valid = '0;
+        alu_enq_data = '0;
+
+        fpu_enq_valid = '0;
+        fpu_enq_data = '0;
+
+        lsu_insn_executing_out = 1'b0;
+        bru_insn_executing_out = 1'b0;
+        alu_insn_executing_out = 1'b0;
+        fpu_insn_executing_out = 1'b0;
+
+        if (lsu_insn_in.valid) begin
+            for (int i = 0; i < is_pkg::NUM_LSU; i++) begin
+                if (!lsu_q_full[i]) begin
+                    lsu_enq_valid[i] = 1'b1;
+                    lsu_enq_data = lsu_insn_in.uop;
+                    lsu_insn_executing_out = 1'b1;
+                    break;
                 end
             end
+        end
 
-            // FU output handling, dequeue instructions 
-            for (int j = 0; j < NUM_OF_FU; j++) begin
-                if (ready_in[j] && count[j] > 0) begin
-                    // TODO: give data and set valid bit
-                    head[j] <= head[j] + 1;
-                    count[j] <= count[j] - 1;
-                    executing_out[j] <= 1;
+        if (bru_insn_in.valid) begin
+            for (int i = 0; i < is_pkg::NUM_BRU; i++) begin
+                if (!bru_q_full[i]) begin
+                    bru_enq_valid[i] = 1'b1;
+                    bru_enq_data = bru_insn_in.uop;
+                    bru_insn_executing_out = 1'b1;
+                    break;
                 end
             end
+        end
 
-            lsu_insn_executing_out <= executing_out[0];
-            bru_insn_executing_out <= executing_out[1];
-            alu_insn_executing_out <= executing_out[2];
-            fpu_insn_executing_out <= executing_out[3];
+        if (alu_insn_in.valid) begin
+            for (int i = 0; i < is_pkg::NUM_ALU; i++) begin
+                if (!alu_q_full[i]) begin
+                    alu_enq_valid[i] = 1'b1;
+                    alu_enq_data = alu_insn_in.uop;
+                    alu_insn_executing_out = 1'b1;
+                    break;
+                end
+            end
+        end
+
+        if (fpu_insn_in.valid) begin
+            for (int i = 0; i < is_pkg::NUM_FPU; i++) begin
+                if (!fpu_q_full[i]) begin
+                    fpu_enq_valid[i] = 1'b1;
+                    fpu_enq_data = fpu_insn_in.uop;
+                    fpu_insn_executing_out = 1'b1;
+                    break;
+                end
+            end
         end
     end
-    
-    // // Instruction scheduler queue
-    // is_queue #(.N(IS_ENTRIES)) iq (.rst_N_in(rst_N_in), .clk_in(clk_in), .flush_in(flush_in));
+
+    assign lsu_input_out = lsu_deq_data;
+    assign lsu_valid_out = lsu_deq_valid && lsu_ready_in;
+    assign lsu_deq_ready = lsu_ready_in;
+
+    assign bru_input_out = bru_deq_data;
+    assign bru_valid_out = bru_deq_valid && bru_ready_in;
+    assign bru_deq_ready = bru_ready_in;
+
+    assign alu_input_out = alu_deq_data;
+    assign alu_valid_out = alu_deq_valid && alu_ready_in;
+    assign alu_deq_ready = alu_ready_in;
+
+    assign fpu_input_out = fpu_deq_data;
+    assign fpu_valid_out = fpu_deq_valid && fpu_ready_in;
+    assign fpu_deq_ready = fpu_ready_in;
     
 endmodule;
