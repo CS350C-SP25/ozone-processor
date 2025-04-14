@@ -7,11 +7,10 @@ module reg_map #(
     parameter NUM_PHYS_REGS = rob_pkg::NUM_PHYS_REGS
 )(
     input   logic                               clk,
-    input   logic                               rst,
-    input   logic                               valid_in, // We are committing
-    input   logic [$clog2(NUM_ARCH_REGS)-1:0] [$clog2(NUM_PHYS_REGS)-1:0]   rename_in,
-    input   logic [$clog2(NUM_ARCH_REGS)-1:0]  rename_mask_in,
-    output  logic [$clog2(NUM_ARCH_REGS)-1:0] [$clog2(NUM_PHYS_REGS)-1:0]   phys_regs_out
+    input   logic                               rst, // Set all mappings to default
+    input   logic [1:0]                         valid_in, // Commits rename_in registers
+    input   logic [1:0] [$clog2(NUM_PHYS_REGS)-1:0]   rename_in,
+    output  logic [1:0] [$clog2(NUM_PHYS_REGS)-1:0]   phys_regs_out
 );
     logic [$clog2(NUM_PHYS_REGS)-1:0] register_mapping [NUM_ARCH_REGS-1:0];
 
@@ -25,16 +24,14 @@ module reg_map #(
             end
         end else begin
             // Update mapping
-            if (commit_valid) begin
-                for (int i = 0; i < NUM_ARCH_REGS; i++) begin
-                    if (rename_mask_in[i] == 1'b1)
-                        register_mapping[i] <= phys_reg_in;
-                end
-            end
+            if (valid_in[1])
+                register_mapping[rename_in[1]] <= rename_in[1];
+            if (valid_in[0])
+                register_mapping[rename_in[0]] <= rename_in[0];
         end
-    end
 
-    // Read out all physical registers
-    assign phys_reg_out = register_mapping[arch_reg_in];
+        // Read out mapping
+        phys_regs_out <= {register_mapping[rename_in[1]], register_mapping[rename_in[0]]}
+    end
 
 endmodule
