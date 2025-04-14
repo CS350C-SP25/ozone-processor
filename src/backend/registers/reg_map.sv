@@ -1,4 +1,4 @@
-import rob_pkg::*;
+`include "../rob_pkg.sv"
 
 // used for the RAT + RRAT
 // input arch register, output corresponding physical register
