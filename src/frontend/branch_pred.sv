@@ -69,9 +69,7 @@ module branch_pred #(
       .newTail(ras_newTail),
       .stack_out(ras_top)
   );
-  l0_instruction_cache #(
-    
-  )
+
 
 
 
