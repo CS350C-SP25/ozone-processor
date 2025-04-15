@@ -74,20 +74,7 @@ module frl #(
     input logic [1:0][$clog2(NUM_PHYS_REGS) - 1:0] freeing_registers,
     output logic [1:0][$clog2(NUM_PHYS_REGS) - 1:0] registers_out,
 );
-
-  logic [NUM_PHYS_REGS - 1 : 0] in_use;
-  logic [$clog2(NUM_PHYS_REGS)-1:0] first_free_reg;
-  logic found_free_reg;
-
-  first_bit_finder #() f (
-      .in_use     (in_use),
-      .find_true  (0),
-      // 1: find first true bit, 0: find first false bit
-      .first_index(first_free_reg),
-      // 1: valid index found, 0: no valid index (all bits are the same)
-      .valid      (found_free_reg)
-  );
-
+  
   // TODO: This module will break if the list is overfilled or overfreed
   // Does not support freeing and acquiring a register in the same cycle
 
