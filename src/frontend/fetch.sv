@@ -1,64 +1,102 @@
 import uop_pkg::*;
 import op_pkg::*;
 
-// fetch logic unit frfr
-// we will generate multiple of these in our top level module to simulate the multiple instn fetch
-// one module of this will only fetch one instruction at a time
+// fetch logic unit.
+// will choose from the cacheline received from branch predictor and the pc which instructions
+// to send over to decode at most in super_scalar_width.
 module fetch #(
     parameter INSTRUCTION_WIDTH = op_pkg::INSTRUCTION_WIDTH,
     parameter SUPER_SCALAR_WIDTH = op_pkg::SUPER_SCALAR_WIDTH,
-    parameter CACHE_LINE_WIDTH = 64, // TODO: waiting for the l1 i$ to be added to change this
+    parameter CACHE_LINE_WIDTH = 64, 
 ) (
     input logic clk_in,                                      // clock signal
-    input logic rst_N_in,                                    // reset signal, active low I assume?
-    input logic l1i_valid,
-    input logic l1i_ready,
-    input logic [7:0] l1i_cacheline [CACHE_LINE_WIDTH-1:0],  // cacheline sent from icache
-    input logic bp_l1i_valid_in,
-    input logic[$clog2(SUPER_SCALAR_WIDTH+1)-1:0] pc_valid_in, // vector for all the pc's being valid???
-    input logic[63:0] l1i_addr_out,
-    output logic [INSTRUCTION_WIDTH-1:0] fetched_cacheline [SUPER_SCALAR_WIDTH-1:0],
-    output logic fetch_valid,                                // valid when done
-    output logic [63:0] next_pc                             // next PC, predicted from BTB to decode
+    input logic rst_N_in,                                    // reset signal, active low                                 
+    input logic [7:0] l0_cacheline [CACHE_LINE_WIDTH-1:0],   // cacheline sent from l0
+    input logic bp_l0_valid,                                 // branch prediction's cacheline is valid
+    input logic[$clog2(SUPER_SCALAR_WIDTH+1)-1:0] pc_valid,  // all pcs valid
+    input logic[63:0] pc,                                    // start pc
+    input logic [63:0] pred_pc,                              // predicted pc
+    output logic [INSTRUCTION_WIDTH-1:0] fetched_cacheline [SUPER_SCALAR_WIDTH-1:0], // instrns to send to decode
+    output logic fetch_valid,                                // valid when done (sent to decode)
+    output logic fetch_ready,                                // fetch is ready to receive cacheline (sent to bp)
+    output logic [63:0] next_pc                              // next PC, predicted from bp to decode
 );
 
-logic [63:0] last_pc;
-int last_instr_block;
+localparam int BLOCK_OFFSET_BITS = $clog2(CACHE_LINE_WIDTH);
+logic buffer_done;
 
-// req to icache when we receive a valid pc
-// update the pc through the btb/ist
+// start copying over instructions when received a valid cacheline and pc
+// pass off the the next predicted pc to decode
 always_comb begin: fetch_comb_logic
-    if (l1i_valid) begin
-        // aligning cacheline fetched to desired super scalar width
-        // assuming that total size of instructions fetched at once for super scalar < CACHE_LINE_WIDTH
+    if (bp_l0_valid && pc_valid) begin
         for (int i = 0; i < SUPER_SCALAR_WIDTH; i++) begin
-            if (last_instr_block == 16) begin
-                // consecutive instructions are spanning two diff cachelines
-                // need to stall for next cacheline ?? is this how you stall idk lol
-                last_instr_block = '0;
-            end else begin
-                for (int j = 0; j < INSTRUCTION_WIDTH; j = j + 8) begin // 1 byte at a time
-                    fetched_cacheline [i] = l1i_cacheline [last_instr_block * 4:(last_instr_block * 4) + 4];
-                    last_instr_block = last_instr_block + 1;
-                end
+            // temp buffer to check next instruction in cacheline
+            logic [INSTRUCTION_WIDTH-1:0] temp_instrn_buffer;
+            for (int j = 0; j < INSTRUCTION_WIDTH; j = j + 8) begin // 1 byte at a time
+                temp_instrn_buffer [j:j+7] = l0_cacheline [pc[BLOCK_OFFSET_BITS:0] + j];
             end
+            case (istable[temp_instrn_buffer])
+                // Branch Instructions
+                OPCODE_B:
+                OPCODE_BL:
+                OPCODE_B_COND:
+                OPCODE_RET:
+                    // need to put this in buffer then end fetching
+                    fetched_cacheline [i] = temp_instrn_buffer [:];
+                    i = SUPER_SCALAR_WIDTH;
+                    break;
+                OPCODE_LDUR:
+                OPCODE_STUR:
+                OPCODE_MOVK:
+                OPCODE_MOVZ:
+                OPCODE_ADRP:
+                OPCODE_ADD:
+                OPCODE_CMN:
+                OPCODE_ADDS:
+                OPCODE_SUB:
+                OPCODE_CMP:
+                OPCODE_SUBS:
+                OPCODE_MVN:
+                OPCODE_ORR:
+                OPCODE_EOR:
+                OPCODE_TST:
+                OPCODE_ANDS:
+                OPCODE_LSR:
+                OPCODE_LSL:
+                OPCODE_UBFM:
+                OPCODE_ASR:
+                OPCODE_NOP:
+                OPCODE_HLT:
+                OPCODE_F_LDUR:
+                OPCODE_F_STUR:
+                    fetched_cacheline [i] = temp_instrn_buffer [:];
+                    break;
+                default: begin
+                    // idk we shouldn't be here
+                end
+            endcase
         end
-        fetch_valid = 1;
+        buffer_done = 1;
     end else begin
-        // stall waiting for l1i cacheline given to be valid
-    end
-    if (bp_l1i_valid_in && pc_valid_in) begin
-        last_pc = l1i_addr_out;
+        buffer_done = 0;
     end
 end
 
-// keep da pipeline pipelining
+// ctrl signals to keep checking for on every posedge of the clock
 always_ff@(posedge clk_in) begin
     if (rst_N_in) begin
-        next_pc <= last_pc;
+        if (buffer_done) begin
+            next_pc <= pred_pc;
+            fetch_valid <= 1'b1;
+            fetch_ready <= 1'b0;
+        end else begin
+            next_pc <= '0;
+            fetch_valid <= 1'b0;
+            fetch_ready <= 1'b1;
+        end
     end else begin
-        fetch_valid <= '0;
-        last_instr_block <= '0;
+        fetch_valid <= 1'b0;
+        fetch_ready <= 1'b1;
     end
 end
 
