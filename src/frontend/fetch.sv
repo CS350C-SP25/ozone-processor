@@ -10,7 +10,8 @@ module fetch #(
     parameter CACHE_LINE_WIDTH = 64, 
 ) (
     input logic clk_in,                                      // clock signal
-    input logic rst_N_in,                                    // reset signal, active low                                 
+    input logic rst_N_in,                                    // reset signal, active low       
+    input logic flush_in,                                    // signal for misprediction                          
     input logic [7:0] l0_cacheline [CACHE_LINE_WIDTH-1:0],   // cacheline sent from l0
     input logic bp_l0_valid,                                 // branch prediction's cacheline is valid
     input logic[$clog2(SUPER_SCALAR_WIDTH+1)-1:0] pc_valid,  // all pcs valid
@@ -28,7 +29,11 @@ logic buffer_done;
 // start copying over instructions when received a valid cacheline and pc
 // pass off the the next predicted pc to decode
 always_comb begin: fetch_comb_logic
-    if (bp_l0_valid && pc_valid) begin
+    if (flush_in) begin
+        // we predicted wrong guhhh
+        fetched_cacheline [:] = '0;
+        buffer_done = 0;
+    end else if (bp_l0_valid && pc_valid) begin
         for (int i = 0; i < SUPER_SCALAR_WIDTH; i++) begin
             // temp buffer to check next instruction in cacheline
             logic [INSTRUCTION_WIDTH-1:0] temp_instrn_buffer;
@@ -84,7 +89,10 @@ end
 
 // ctrl signals to keep checking for on every posedge of the clock
 always_ff@(posedge clk_in) begin
-    if (rst_N_in) begin
+    if (flush_in) begin
+        fetch_valid <= 1'b0;
+        fetch_ready <= 1'b1;
+    end else if (rst_N_in) begin
         if (buffer_done) begin
             next_pc <= pred_pc;
             fetch_valid <= 1'b1;
