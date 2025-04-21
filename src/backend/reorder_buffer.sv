@@ -1,6 +1,7 @@
 `include "../util/uop_pkg.sv"
 `include "./reg_pkg.sv"
 `include "./rob_pkg.sv"
+`include "./is_pkg.sv"
 
 import uop_pkg::*;
 import reg_pkg::*;
@@ -65,6 +66,12 @@ module reorder_buffer #(
     input logic rst_N_in,
     input rob_entry [Q_WIDTH-1:0] q_in,
     input logic [$clog2(Q_WIDTH+1)-1:0] enq_in,
+
+    // ** INPUTS FROM INSTR_SCHEDULER
+    input logic alu_ready_in,
+    input logic fpu_ready_in,
+    input logic lsu_ready_in,
+    input logic bru_ready_in,
 
     // ** PC OUTPUT LOGIC **
     output logic valid_pc_out, // if PC needs to be set for exception handling, branch mispredictions, trap, etc..
@@ -201,17 +208,8 @@ module reorder_buffer #(
                             deq_in += 1;
                             // TODO update RRAT mapping to match architectural state
                         end
-                        EXCEPTION: begin
-                            // TODO set PC to exception handler
-                            break;
-                        end
-                        INTERRUPT: begin
-                            // TODO set PC to interrupt handler
-                            break;
-                        end
-                        TRAP: begin
-                            // TODO set PC to exception handler to invoke privileged exec mode
-                            break;
+                        EXCEPTION, INTERRUPT, TRAP: begin
+                            // normally would be separated but for the sake of demonstration just turn on a LED or smth
                         end
                         default: break;
                     endcase
@@ -231,55 +229,63 @@ module reorder_buffer #(
                         end
                     end 
                     UOP_LOAD: begin
-                        insn_check(
-                            cur_lsu_check,
-                            cur_entry,
-                            queue_size,
-                            queue_out,
-                            i,
-                            next_check,
-                            lsu_insn_out_t
-                        );
-                        cur_lsu_check = next_check;
+                        if (lsu_ready_in) begin
+                            insn_check(
+                                cur_lsu_check,
+                                cur_entry,
+                                queue_size,
+                                queue_out,
+                                i,
+                                next_check,
+                                lsu_insn_out_t
+                            );
+                            cur_lsu_check = next_check;
+                        end
                     end
                     UOP_ADD, UOP_SUB, UOP_AND, UOP_ORR, 
                     UOP_XOR, UOP_EOR, UOP_MVN, UOP_UBFM, 
                     UOP_ASR, UOP_MOVZ, UOP_MOVK: begin
-                        insn_check(
-                            cur_alu_check,
-                            cur_entry,
-                            queue_size,
-                            queue_out,
-                            i,
-                            next_check,
-                            alu_insn_out_t
-                        );
-                        cur_alu_check = next_check;
+                        if (alu_ready_in) begin
+                            insn_check(
+                                cur_alu_check,
+                                cur_entry,
+                                queue_size,
+                                queue_out,
+                                i,
+                                next_check,
+                                alu_insn_out_t
+                            );
+                            cur_alu_check = next_check;
+                        end
                     end
                     UOP_FMOV, 
                     UOP_FNEG, UOP_FADD, UOP_FMUL, UOP_FSUB: begin
-                        insn_check(
-                            cur_fpu_check,
-                            cur_entry,
-                            queue_size,
-                            queue_out,
-                            i,
-                            next_check,
-                            fpu_insn_out_t
-                        );
-                        cur_fpu_check = next_check;
+                        if (fpu_ready_in) begin
+                            insn_check(
+                                cur_fpu_check,
+                                cur_entry,
+                                queue_size,
+                                queue_out,
+                                i,
+                                next_check,
+                                fpu_insn_out_t
+                            );
+                            cur_fpu_check = next_check;
+                        end
                     end
                     UOP_BRANCH: begin
-                        insn_check(
-                            cur_bru_check,
-                            cur_entry,
-                            queue_size,
-                            queue_out,
-                            i,
-                            next_check,
-                            bru_insn_out_t
-                        );
-                        cur_bru_check = next_check;
+                        if (bru_ready_in) begin
+                            insn_check(
+                                cur_bru_check,
+                                cur_entry,
+                                queue_size,
+                                queue_out,
+                                i,
+                                next_check,
+                                bru_insn_out_t
+                            );
+                            cur_bru_check = next_check;
+                        end
                     end
                 endcase
             end

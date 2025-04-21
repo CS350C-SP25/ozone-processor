@@ -113,9 +113,11 @@ module frl #(
         register[0] <= first_free_reg;
       end
       // free logic
-
-
-
+      
+      if (valid[0])
+        register[freeing_registers][0] <= '0;
+      if (valid[1])
+        register[freeing_registers][1] <= '1;
 
       // technically we could check if there are newly freed entries on the same cycle as an allocation is needed, but lowkey, we shouldn't need that very often, and it would only complicate the logic further.
     end
