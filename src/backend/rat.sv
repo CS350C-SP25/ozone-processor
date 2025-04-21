@@ -73,55 +73,63 @@ endmodule
 // priority encoder w/ a NUM_PHYS_REG array vs a stack/queue w/ NUM_PHYS_REG * $clog2(NUM_PHYS_REG) array as implementation
 module frl #(
 ) (
-    input clk,
-    input rst,
-
-    // consumer - RAT
-    input logic [1:0] taken,  // does not have any meaning if reg == false
-    output logic [1:0][$clog2(NUM_PHYS_REGS) - 1:0] register,
-    output logic stall,  // all regs are full already, just wait it out
-    // technically we could make this granular, but tbh stalling if we only have one dest reg is fine for simplicity
-
-    // connect to RRAT to free evicted entries (WAR/WAW)
-    input logic [1:0] valid,
-    input logic [1:0][$clog2(NUM_PHYS_REGS) - 1:0] freeing_registers
-
-    // 
+    input logic clk,
+    input logic rst,
+    input logic [1:0] acquire_valid_in,
+    input logic [1:0] free_valid_in,
+    input logic [1:0][$clog2(NUM_PHYS_REGS) - 1:0] freeing_registers,
+    output logic [1:0][$clog2(NUM_PHYS_REGS) - 1:0] registers_out,
 );
+  
+  // TODO: This module will break if the list is overfilled or overfreed
+  // Does not support freeing and acquiring a register in the same cycle
 
-  logic [NUM_PHYS_REGS - 1 : 0] in_use;
-  logic [$clog2(NUM_PHYS_REGS)-1:0] first_free_reg;
-  logic found_free_reg;
+  // Implementation: Use a bitmap to represent all physical registers.
+  // Use a circular queue to represent all free registers
+  // Output a signal indicating number of free registers
+  // When a register is used, increment head and output the head's index
+  // When a register is freed, replace that index with the tail increment the tail
+  // Compute difference between head and tail to find number of free registers
 
-  first_bit_finder #() f (
-      .in_use     (in_use),
-      .find_true  (0),
-      // 1: find first true bit, 0: find first false bit
-      .first_index(first_free_reg),
-      // 1: valid index found, 0: no valid index (all bits are the same)
-      .valid      (found_free_reg)
-  );
+  logic [NUM_PHYS_REGS-1:0] phys_regs; // Bitmap representing all physical registers
+  logic [$clog2(NUM_PHYS_REGS)-1:0] head, // Points to the next free entry
+                                    tail; // Points to the next entry to free
+
   always_ff @(posedge clk) begin
-    if (!rst) begin
+
+    if (rst) begin
+      // Initialize queue to empty with head and tail at beginning index
+      phys_regs <= '0;
+      head <= '0;
+      tail <= '0;
     end else begin
-      assert(!(|taken && stall)); // if we are stalled, and consumer still takes the branch, it's invalid
-
-      // allocate logic
-
-      if (found_free_reg) begin
-        in_use[first_free_reg] <= 0;
-        register[0] <= first_free_reg;
+      // If freeing
+      if (free_valid_in[1] || free_valid_in[0]) begin
+        for (int i = 0; i < 2; i++) begin
+          if (free_valid_in[i]) begin
+            phys_regs[freeing_registers[i]] <= phys_regs[tail]; // Replace with tail
+            phys_regs[tail] <= '0; // Free this 
+            tail <= tail + 1;
+          end
+        end
       end
-      // free logic
-      
-      if (valid[0])
-        register[freeing_registers][0] <= '0;
-      if (valid[1])
-        register[freeing_registers][1] <= '1;
+      else begin // Get free register (and trust that there is even a register to get)
+        for (int i = 0; i < 2; i++) begin
+          if (acquire_valid_in[i]) begin
+            registers_out[i] <= head; // Recall that head points to next free register
+            phys_regs[head] <= 1; // Mark as used
+            head <= head + 1;
+          end
+        end
+      end
 
-      // technically we could check if there are newly freed entries on the same cycle as an allocation is needed, but lowkey, we shouldn't need that very often, and it would only complicate the logic further.
+      // Logic for computing number of free registers
+      if (tail > head) begin
+        assign num_free_regs = head + (128 - tail); // Parentheses to not overflow head before subtracting tail
+      else
+        assign num_free_regs = head - tail;
+
     end
-
   end
 
 endmodule
