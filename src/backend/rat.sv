@@ -15,6 +15,7 @@ module rat #(
 
 
     // coming from instr queue, will need an adapter
+    input logic q_has_more,
     input uop_insn [1:0] instr,
     input logic [63:0][1:0] pc,
     output logic ready_to_receive_more,
@@ -30,6 +31,7 @@ module rat #(
     input logic all_reg_full_stall,  // all regs are full already, just wait it out
 );
 
+  logic making_progress;
   logic [$clog2(NUM_ARCH_REGS) - 1:0][$clog2(NUM_PHYS_REGS) - 1:0] store;
   logic [$clog2(NUM_ARCH_REGS) - 1:0] reg_valid;  // for debugging
 
@@ -57,7 +59,11 @@ module rat #(
 
         outputs[0].r1_reg_phys   <= store[regs_in.src1.gpr];
         outputs[0].r2_reg_phys   <= store[regs_in.src2.gpr];
-        outputs[0].dest_reg_phys <= store[regs_in.src2.gpr];
+        outputs[0].dest_reg_phys <= free_register[0];
+
+        making_progress = q_has_more && !all_reg_full_stall && !rob_stall;
+        taken[0] <= making_progress;
+        valid_output[0] <= making_progress;
       end
     end
   end
