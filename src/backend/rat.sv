@@ -1,170 +1,117 @@
 `include "./rob_pkg.sv"
+`include "./reg_pkg.sv"
 
-import rob_pkg::*;
-
-package renaming;
-
-endpackage
 // ASSUME implementing w/
 
 module rat #(
-    parameter a = 1
+    parameter NUM_PHYS_REGS = reg_pkg::NUM_PHYS_REGS,
+    parameter NUM_ARCH_REGS = reg_pkg::NUM_ARCH_REGS
 ) (
     input clk,
     input rst,
 
 
     // coming from instr queue, will need an adapter
-    input logic q_has_more,
-    input uop_insn [1:0] instr,
-    input logic [63:0][1:0] pc,
-    output logic ready_to_receive_more,
+    input logic q_valid,
+    input rob_pkg::uop_insn [1:0] instr,
+    output logic q_increment_ready,
 
     // output to rob
-    output rob_entry [1:0] rob_out,
-    output logic [1:0] valid_output,
-    input logic rob_stall,
+    output rob_pkg::rob_entry [1:0] rob_data,
+    output logic rob_data_valid,
+    input logic rob_ready,
 
     // from FRL
-    output logic [1:0] taken,  // does not have any meaning if reg == false
-    input logic [1:0][$clog2(NUM_PHYS_REGS) - 1:0] free_register,
-    input logic all_reg_full_stall,  // all regs are full already, just wait it out
+    output logic [3:0] frl_ready,  // we consumed the values
+    input logic [1:0][$clog2(NUM_PHYS_REGS) - 1:0] free_register_data,
+    input logic frl_valid,  // all regs are full already, just wait it out
+
+    // for intermediate writing
+    output reg_pkg::RegFileWritePort[1:0] regfile
 );
+  import rob_pkg::*;
+  import uop_pkg::*;
 
   logic making_progress;
   logic [$clog2(NUM_ARCH_REGS) - 1:0][$clog2(NUM_PHYS_REGS) - 1:0] store;
   logic [$clog2(NUM_ARCH_REGS) - 1:0] reg_valid;  // for debugging
 
   rob_entry [1:0] outputs;
-  assign rob_out = outputs;
+  assign rob_data = outputs;
+  uop_rr regs_rr_in[1:0];
+  uop_ri regs_ri_in[1:0];
+
+  reg_pkg::RegFileWritePort [1:0] regFileOut;
+  assign regfile = regFileOut;
 
   always_ff @(posedge clk) begin
     if (!rst) begin
       reg_valid <= 0;
     end else begin
+      making_progress = q_valid && frl_valid && rob_ready;
 
-      if (instr[0].valb_sel) begin
-        uop_rr regs_in;
-        get_data_rr(instr[0].data, regs_in);
+      rob_data_valid <= making_progress;
+      q_increment_ready <= making_progress;
 
-        //regs.dst.gpr;
-        //regs.src1.gpr;
-        //regs.src2.gpr;
 
-        // for debugging
-        if (!reg_valid[regs_in.src1.gpr] || !reg_valid[regs_in.src1.gpr]) begin
-          $display(
-              "UH OH THIS REG DOESNT HAVE ANYTHING VALID IN IT; basically NOBODYS USED IT YET");
-        end
+      for (int i = 0; i < 2; i++) begin
+        uop_reg dst;
+        uop_reg src1;
+        uop_reg src2;
+        if (instr[i].valb_sel) begin  // valb is a register
+          get_data_rr(instr[i].data, regs_rr_in[i]);
 
-        outputs[0].r1_reg_phys   <= store[regs_in.src1.gpr];
-        outputs[0].r2_reg_phys   <= store[regs_in.src2.gpr];
-        outputs[0].dest_reg_phys <= free_register[0];
-
-        making_progress = q_has_more && !all_reg_full_stall && !rob_stall;
-        taken[0] <= making_progress;
-        valid_output[0] <= making_progress;
-      end
-    end
-  end
-endmodule
-
-// TODO: implement this
-// priority encoder w/ a NUM_PHYS_REG array vs a stack/queue w/ NUM_PHYS_REG * $clog2(NUM_PHYS_REG) array as implementation
-module frl #(
-) (
-    input logic clk,
-    input logic rst,
-    input logic [1:0] acquire_valid_in,
-    input logic [1:0] free_valid_in,
-    input logic [1:0][$clog2(NUM_PHYS_REGS) - 1:0] freeing_registers,
-    output logic [1:0][$clog2(NUM_PHYS_REGS) - 1:0] registers_out,
-);
-  
-  // TODO: This module will break if the list is overfilled or overfreed
-  // Does not support freeing and acquiring a register in the same cycle
-
-  // Implementation: Use a bitmap to represent all physical registers.
-  // Use a circular queue to represent all free registers
-  // Output a signal indicating number of free registers
-  // When a register is used, increment head and output the head's index
-  // When a register is freed, replace that index with the tail increment the tail
-  // Compute difference between head and tail to find number of free registers
-
-  logic [NUM_PHYS_REGS-1:0] phys_regs; // Bitmap representing all physical registers
-  logic [$clog2(NUM_PHYS_REGS)-1:0] head, // Points to the next free entry
-                                    tail; // Points to the next entry to free
-
-  always_ff @(posedge clk) begin
-
-    if (rst) begin
-      // Initialize queue to empty with head and tail at beginning index
-      phys_regs <= '0;
-      head <= '0;
-      tail <= '0;
-    end else begin
-      // If freeing
-      if (free_valid_in[1] || free_valid_in[0]) begin
-        for (int i = 0; i < 2; i++) begin
-          if (free_valid_in[i]) begin
-            phys_regs[freeing_registers[i]] <= phys_regs[tail]; // Replace with tail
-            phys_regs[tail] <= '0; // Free this 
-            tail <= tail + 1;
+          // for debugging
+          if (!reg_valid[regs_rr_in[i].src1.gpr] || !reg_valid[regs_rr_in[i].src1.gpr]) begin
+            $display(
+                "UH OH THIS REG DOESNT HAVE ANYTHING VALID IN IT; basically NOBODYS USED IT YET");
           end
-        end
-      end
-      else begin // Get free register (and trust that there is even a register to get)
-        for (int i = 0; i < 2; i++) begin
-          if (acquire_valid_in[i]) begin
-            registers_out[i] <= head; // Recall that head points to next free register
-            phys_regs[head] <= 1; // Mark as used
-            head <= head + 1;
+
+          dst = regs_rr_in[i].dst;
+          src1 = regs_rr_in[i].src1;
+          src2 = regs_rr_in[i].src2;
+
+          regFileOut[i] <= reg_pkg::RegFileWritePort'{
+            index_in: 0,
+            en: 0,
+            data_in: 0
+          };
+        end else begin  // we have an intermediate
+          get_data_ri(instr[i].data, regs_ri_in[i]);
+
+          // for debugging
+          if (!reg_valid[regs_ri_in[i].src.gpr]) begin
+            $display(
+                "UH OH THIS REG DOESNT HAVE ANYTHING VALID IN IT; basically NOBODYS USED IT YET");
           end
+
+          dst = regs_ri_in[i].dst;
+          src1 = regs_ri_in[i].src;
+          src2 = free_register_data[2 + i];
+
+          regFileOut[i] <= reg_pkg::RegFileWritePort'{
+            index_in: free_register_data[2+i],
+            en: 1,
+            data_in: 64'(regs_ri_in[i].imm)
+          };
+        end
+        frl_ready[i] <= making_progress; // reg i is always used up, since we always have a dst
+        frl_ready[2+i] <= making_progress && !instr[i].valb_sel; // if intermediate, we mark the 2+i reg is as used too
+
+        outputs[i] <= rob_entry'{
+            pc: instr[i].pc,
+            next_pc: instr[i].pc,  // TODO: WHAT
+            uop: instr[i],
+            r1_reg_phys: store[src1],
+            r2_reg_phys: store[src2],
+            dest_reg_phys: free_register_data[i],
+            status: ISSUED
+        };
+        if (making_progress) begin
+          reg_valid[dst.gpr] <= 1;  // for debug
+          store[dst.gpr] <= free_register_data[i];
         end
       end
-
-      // Logic for computing number of free registers
-      if (tail > head) begin
-        assign num_free_regs = head + (128 - tail); // Parentheses to not overflow head before subtracting tail
-      else
-        assign num_free_regs = head - tail;
-
     end
   end
-
-endmodule
-
-
-// Written by Claude 3.7
-// extremely simple implementation, might not scale well w/ so many bits 
-// to fpga, so ask Claude to implement binary search or smth
-module first_bit_finder #(
-) (
-    input logic [NUM_PHYS_REGS-1:0] in_use,
-    input logic find_true,  // 1: find first true bit, 0: find first false bit
-    output logic [$clog2(NUM_PHYS_REGS)-1:0] first_index,
-    output logic valid  // 1: valid index found, 0: no valid index (all bits are the same)
-);
-
-  logic [NUM_PHYS_REGS-1:0] target_bits;
-
-  // Invert if looking for first false bit
-  always_comb begin
-    target_bits = find_true ? in_use : ~in_use;
-  end
-
-  // Priority encoder implementation
-  always_comb begin
-    valid = 1'b0;
-    first_index = '0;
-
-    for (int i = 0; i < NUM_PHYS_REGS; i++) begin
-      if (target_bits[i]) begin
-        first_index = i;
-        valid = 1'b1;
-        break;
-      end
-    end
-  end
-
 endmodule
