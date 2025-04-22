@@ -10,10 +10,7 @@ import reg_pkg::*;
 import is_pkg::*;
 import rob_pkg::*;
 
-module bru_ins_decoder #(
-    parameter Q_DEPTH = is_pkg::FQ_ENTRIES,
-    parameter Q_WIDTH = is_pkg::FQ_EL_SIZE
-) (
+module bru_ins_decoder (
 
     // From ROB
     input  rob_issue insn_in,

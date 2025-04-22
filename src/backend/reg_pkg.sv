@@ -23,4 +23,9 @@ package reg_pkg;
         // OUTS
         // no outputs, can assume the write is made by the next positive clock edge
     } RegFileWritePort;
+
+    typedef struct packed {
+        logic valid;
+        logic [3:0] nzcv; // N Z C V
+    } NZCVWritePort;
 endpackage

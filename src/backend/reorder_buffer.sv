@@ -67,7 +67,11 @@ module reorder_buffer #(
     input rob_entry [Q_WIDTH-1:0] q_in,
     input logic [$clog2(Q_WIDTH+1)-1:0] enq_in,
 
-    // ** INPUTS FROM INSTR_SCHEDULER
+    // ** INPUTS FROM BRANCH UNIT **
+    input logic flush_in, // fed from either RESET or branch misprediction
+    input logic [ADDR_BITS-1:0] target_pc, // if branch misprediction, this is the target pc
+
+    // ** INPUTS FROM INSTR_SCHEDULER **
     input logic alu_ready_in,
     input logic fpu_ready_in,
     input logic lsu_ready_in,
@@ -88,11 +92,13 @@ module reorder_buffer #(
     output rob_issue lsu_insn_out,
     output rob_issue bru_insn_out, 
     output rob_issue alu_insn_out, 
-    output rob_issue fpu_insn_out
+    output rob_issue fpu_insn_out,
+
+    output rob_entry [1:0] rrat_update_out, // update the rrat mapping for the physical reg to arch reg mapping
+    output logic [1:0] rrat_update_valid_out, // 1 if the rrat update is valid
 );
     // ** REORDER_BUFFER_QUEUE PARAMS **
     // queue input
-    logic flush_in;
     logic [$clog2(Q_WIDTH+1)-1:0] deq_in;
     // queue output
     rob_entry [Q_DEPTH-1:0] queue_out;
@@ -108,6 +114,8 @@ module reorder_buffer #(
     logic cur_alu_check;
     logic cur_fpu_check;
     logic next_check;
+    logic next_rrat_ptr; // idx for rrat update
+
     // registers
     rob_issue lsu_insn_out_t;
     rob_issue bru_insn_out_t;
@@ -186,33 +194,39 @@ module reorder_buffer #(
         cur_bru_check = '0;
         cur_alu_check = '0;
         cur_fpu_check = '0;
+        next_rrat_ptr = '0;
 
         lsu_insn_out_t = '0;
         bru_insn_out_t = '0;
         alu_insn_out_t = '0;
         fpu_insn_out_t = '0;
-        
+        valid_pc_out = flush_in;
+        pc_out = target_pc;        
         if (!queue_empty) begin
             // ** INSTRUCTION WINDOW COMMIT **
             if (queue_size >= uop_pkg::INSTR_Q_WIDTH) begin
                 for (int i = 0; i < uop_pkg::INSTR_Q_WIDTH; i++) begin
-                    case (queue_out[i])
-                        DONE: begin
-                            if (queue_out[i].uop.uopcode == UOP_STORE) begin // only str on commit
-                                valid_str_out[i] = 1'b1;
-                                get_data_rr(queue_out[i].uop.data, cur_uop);
-                                str_addr_reg_out[i] = cur_uop.dst.gpr;
-                                str_addr_reg_off_out[i] = cur_uop.src2.gpr;
-                                str_val_reg_out[i] = cur_uop.src1.gpr;
-                            end
-                            deq_in += 1;
-                            // TODO update RRAT mapping to match architectural state
+                    if (queue_out[i].status == DONE) begin
+                        if (queue_out[i].uop.uopcode == UOP_STORE) begin // only str on commit
+                            valid_str_out[i] = 1'b1;
+                            get_data_rr(queue_out[i].uop.data, cur_uop);
+                            str_addr_reg_out[i] = cur_uop.dst.gpr;
+                            str_addr_reg_off_out[i] = cur_uop.src2.gpr;
+                            str_val_reg_out[i] = cur_uop.src1.gpr;
                         end
-                        EXCEPTION, INTERRUPT, TRAP: begin
-                            // normally would be separated but for the sake of demonstration just turn on a LED or smth
-                        end
-                        default: break;
-                    endcase
+                        deq_in += 1;
+                        // update RRAT mapping to match architectural state
+                        rrat_update_out[next_rrat_ptr] = queue_out[i];
+                    end else if (
+                        queue_out[i].status == EXCEPTION || 
+                        queue_out[i].status == INTERRUPT || 
+                        queue_out[i].status == TRAP) begin
+                        // normally would be separated but for the sake of demonstration just turn on a LED or smth
+                    end
+                    if (queue_out[i].status == READY || next_rrat_ptr == 1) begin
+                        break;
+                    end
+                    next_rrat_ptr = 1; // shortcut for addition since its only 2-issue
                 end
             end
             // ** PROVIDE ISSUE INSN OPTIONS FOR EXEC **

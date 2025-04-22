@@ -1,5 +1,10 @@
 `include "./rob_pkg.sv"
 `include "./reg_pkg.sv"
+`include "../util/uop_pkg.sv"
+
+import uop_pkg::*;
+import reg_pkg::*;
+import rob_pkg::*;
 
 module rrat #(
     parameter NUM_PHYS_REGS = reg_pkg::NUM_PHYS_REGS,
@@ -18,6 +23,7 @@ module rrat #(
 );
     // the retirement RAT: arch_reg->phys_reg
     logic [$clog2(NUM_PHYS_REGS)-1:0] rrat_table [NUM_ARCH_REGS-1:0];
+    uop_rr rr;
 
     always_ff @(posedge clk) begin
         if (rst) begin
@@ -31,8 +37,7 @@ module rrat #(
             for (int i = 0; i < 2; i++) begin
                 if (rob_entry_valid[i]) begin
                     // save the arch_reg->phys_reg mapping
-                    uop_rr rr;
-                    get_data_rr(rob_data[i].data, rr);
+                    get_data_rr(rob_data[i].uop.data, rr);
 
                     rrat_table[rr.dst.gpr] <= rob_data[i].dest_reg_phys;
                     rrat_table[rr.src1.gpr] <= rob_data[i].r1_reg_phys;
