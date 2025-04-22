@@ -1,5 +1,4 @@
 `include "./rob_pkg.sv"
-`include "./reg_pkg.sv"
 
 // ASSUME implementing w/
 
@@ -13,7 +12,7 @@ module rat #(
 
     // coming from instr queue, will need an adapter
     input logic q_valid,
-    input rob_pkg::uop_insn [1:0] instr,
+    input uop_pkg::uop_insn [1:0] instr,
     output logic q_increment_ready,
 
     // output to rob
@@ -23,18 +22,19 @@ module rat #(
 
     // from FRL
     output logic [3:0] frl_ready,  // we consumed the values
-    input logic [1:0][$clog2(NUM_PHYS_REGS) - 1:0] free_register_data,
+    input logic [3:0][$clog2(NUM_PHYS_REGS) - 1:0] free_register_data,
     input logic frl_valid,  // all regs are full already, just wait it out
 
     // for intermediate writing
-    output reg_pkg::RegFileWritePort[1:0] regfile
+    output reg_pkg::RegFileWritePort [1:0] regfile
 );
   import rob_pkg::*;
   import uop_pkg::*;
 
   logic making_progress;
+  assign making_progress = q_valid && frl_valid && rob_ready;
   logic [$clog2(NUM_ARCH_REGS) - 1:0][$clog2(NUM_PHYS_REGS) - 1:0] store;
-  logic [$clog2(NUM_ARCH_REGS) - 1:0] reg_valid;  // for debugging
+  logic [NUM_ARCH_REGS  - 1:0] reg_valid;  // for debugging
 
   rob_entry [1:0] outputs;
   assign rob_data = outputs;
@@ -48,13 +48,12 @@ module rat #(
     if (!rst) begin
       reg_valid <= 0;
     end else begin
-      making_progress = q_valid && frl_valid && rob_ready;
-
       rob_data_valid <= making_progress;
       q_increment_ready <= making_progress;
 
-
       for (int i = 0; i < 2; i++) begin
+ 
+
         uop_reg dst;
         uop_reg src1;
         uop_reg src2;
@@ -67,15 +66,11 @@ module rat #(
                 "UH OH THIS REG DOESNT HAVE ANYTHING VALID IN IT; basically NOBODYS USED IT YET");
           end
 
-          dst = regs_rr_in[i].dst;
+          dst  = regs_rr_in[i].dst;
           src1 = regs_rr_in[i].src1;
           src2 = regs_rr_in[i].src2;
 
-          regFileOut[i] <= reg_pkg::RegFileWritePort'{
-            index_in: 0,
-            en: 0,
-            data_in: 0
-          };
+          // regFileOut[i] <= reg_pkg::RegFileWritePort'{index_in: 0, en: 0, data_in: 0};
         end else begin  // we have an intermediate
           get_data_ri(instr[i].data, regs_ri_in[i]);
 
@@ -85,28 +80,28 @@ module rat #(
                 "UH OH THIS REG DOESNT HAVE ANYTHING VALID IN IT; basically NOBODYS USED IT YET");
           end
 
-          dst = regs_ri_in[i].dst;
+          dst  = regs_ri_in[i].dst;
           src1 = regs_ri_in[i].src;
-          src2 = free_register_data[2 + i];
+          src2 = free_register_data[2+i];
 
-          regFileOut[i] <= reg_pkg::RegFileWritePort'{
-            index_in: free_register_data[2+i],
-            en: 1,
-            data_in: 64'(regs_ri_in[i].imm)
-          };
+          // regFileOut[i] <= reg_pkg::RegFileWritePort'{
+              // index_in: free_register_data[2+i],
+              // en: 1,
+              // data_in: 64'(regs_ri_in[i].imm)
+          // };
         end
-        frl_ready[i] <= making_progress; // reg i is always used up, since we always have a dst
+        frl_ready[i] <= making_progress;  // reg i is always used up, since we always have a dst
         frl_ready[2+i] <= making_progress && !instr[i].valb_sel; // if intermediate, we mark the 2+i reg is as used too
 
-        outputs[i] <= rob_entry'{
-            pc: instr[i].pc,
-            next_pc: instr[i].pc,  // TODO: WHAT
-            uop: instr[i],
-            r1_reg_phys: store[src1],
-            r2_reg_phys: store[src2],
-            dest_reg_phys: free_register_data[i],
-            status: ISSUED
-        };
+        // outputs[i] <= rob_entry'{
+            // pc: instr[i].pc,
+            // next_pc: instr[i].pc,  // TODO: WHAT
+            // uop: instr[i],
+            // r1_reg_phys: store[src1],
+            // r2_reg_phys: store[src2],
+            // dest_reg_phys: free_register_data[i],
+            // status: ISSUED
+        // };
         if (making_progress) begin
           reg_valid[dst.gpr] <= 1;  // for debug
           store[dst.gpr] <= free_register_data[i];

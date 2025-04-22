@@ -1,8 +1,12 @@
+`timescale 1ns/1ps
+
 package uop_pkg;
 
     // Parameters for queue depth/width
+    /* verilator lint_off UNUSEDPARAM */
     parameter int INSTR_Q_DEPTH = 32;
     parameter int INSTR_Q_WIDTH = 5;
+    /* verilator lint_on UNUSEDPARAM */
 
     typedef enum logic[4:0] {
         UOP_LOAD,
@@ -71,7 +75,9 @@ package uop_pkg;
     } uop_insn;
 
     function automatic void get_data_rr (
+        /* verilator lint_off UNUSEDSIGNAL */
         input logic[$bits(uop_branch)-1:0] in,
+        /* verilator lint_on UNUSEDSIGNAL */
         output uop_rr out
     );
         out = in[$bits(uop_rr)-1:0];
@@ -85,7 +91,9 @@ package uop_pkg;
     endfunction
 
     function automatic void get_data_ri (
+        /* verilator lint_off UNUSEDSIGNAL */
         input logic[$bits(uop_branch)-1:0] in,
+        /* verilator lint_on UNUSEDSIGNAL */
         output uop_ri out
     );
         out = in[$bits(uop_ri)-1:0];
