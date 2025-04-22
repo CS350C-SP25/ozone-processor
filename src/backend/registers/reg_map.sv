@@ -38,7 +38,7 @@ module reg_map #(
                             register_mapping[read_arch_in[2]],
                             register_mapping[read_arch_in[1]],
                             register_mapping[read_arch_in[0]]
-                        }
+                        };
         
     end
 
