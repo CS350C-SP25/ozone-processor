@@ -1,4 +1,4 @@
-`include "../util/uop_pkg.sv"
+`include "../../util/uop_pkg.sv"
 `include "./reg_pkg.sv"
 `include "./rob_pkg.sv"
 

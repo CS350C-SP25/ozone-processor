@@ -1,5 +1,5 @@
-`include "../util/uop_pkg.sv"
-`include "../backend/reg_pkg.sv"
+`include "../../util/uop_pkg.sv"
+`include "./reg_pkg.sv"
 
 
 package rob_pkg;

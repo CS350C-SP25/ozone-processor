@@ -1,4 +1,4 @@
-`include "./rob_pkg.sv"
+`include "../packages/rob_pkg.sv"
 
 // ASSUME implementing w/
 
