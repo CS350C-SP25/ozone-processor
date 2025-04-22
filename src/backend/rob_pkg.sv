@@ -1,10 +1,12 @@
 `include "../util/uop_pkg.sv"
 `include "../backend/reg_pkg.sv"
 
+
+package rob_pkg;
 import uop_pkg::*;
 import reg_pkg::*;
 
-package rob_pkg;
+
     parameter int ROB_ENTRIES = 128;
 
     typedef enum logic [2:0] {
