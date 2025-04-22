@@ -243,7 +243,7 @@ module reorder_buffer #(
                         end
                     end
                     UOP_ADD, UOP_SUB, UOP_AND, UOP_ORR, 
-                    UOP_XOR, UOP_EOR, UOP_MVN, UOP_UBFM, 
+                    UOP_EOR, UOP_MVN, UOP_UBFM, 
                     UOP_ASR, UOP_MOVZ, UOP_MOVK: begin
                         if (alu_ready_in) begin
                             insn_check(
@@ -273,7 +273,7 @@ module reorder_buffer #(
                             cur_fpu_check = next_check;
                         end
                     end
-                    UOP_BRANCH: begin
+                    UOP_BCOND: begin
                         if (bru_ready_in) begin
                             insn_check(
                                 cur_bru_check,
