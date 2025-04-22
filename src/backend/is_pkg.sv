@@ -1,3 +1,7 @@
+`include "../util/uop_pkg.sv"
+`include "./reg_pkg.sv"
+`include "./rob_pkg.sv"
+
 import uop_pkg::*;
 import reg_pkg::*;
 import rob_pkg::*;

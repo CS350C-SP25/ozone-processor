@@ -1,10 +1,11 @@
-`include "../rob_pkg.sv"
+`include "../reg_pkg.sv"
+import reg_pkg::*;
 
 // used for the RAT + RRAT
 // input arch register, output corresponding physical register
 module reg_map #(
-    parameter NUM_ARCH_REGS = rob_pkg::NUM_ARCH_REGS,
-    parameter NUM_PHYS_REGS = rob_pkg::NUM_PHYS_REGS
+    parameter NUM_ARCH_REGS = reg_pkg::NUM_ARCH_REGS,
+    parameter NUM_PHYS_REGS = reg_pkg::NUM_PHYS_REGS
 )(
     input   logic                               clk,
     input   logic                               rst, // Set all mappings to default
