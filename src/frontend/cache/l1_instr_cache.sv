@@ -1,21 +1,7 @@
+
 /*
- The L1 Data cache is expected to be:
- - PIPT. However the addresses it accepts are virtual, so it must interface with
-   the MMU
- - Non-blocking. Meaning a miss should not block the cache from recieving new inputs.
-   This will require use of the MSHRs, which store their addresses using CAMs.
- - Write-back. Dirty cache lines should be written back on an eviction.
- It is important to note that a cache line returning from a lower-level cache
- may cause an eviction.
- - Should a cache perform an eviction, it will need to writeback to memory. This
-   is different from a regular write, because nothing is expected to be returned from
-   DRAM.
- - Evicting can be thought of as a special case of a write which does not return a
-   cache line.
- - Storing the instructions tags in the MSHR is necessary. Consider that there
-   could be 3 different writes in the LSQ. When returning a write, we
- A fun issue is that the LSU expects a virtual address to be returned to it, but
- this is a PIPT cache. Maybe the MSHRs can help?
+ The L1 I cache is expected to be:
+- No need for writing from L0, this is read-only. Don't need MSHRs, is going to be accessed in order.
  */
 
 // all this module needs to do is keep tracking mshr matching, that's all.
@@ -37,8 +23,8 @@ module l1_instr_cache #(
     // signals that go to l0
     output logic l0_valid_out,
     output logic l0_ready_out,
-    output logic [63:0] l0_addr_out,
-    output logic [63:0] l0_value_out,
+    output logic [8*B-1:0] l0_addr_out,
+    output logic [8*B-1:0] l0_value_out,
     // Inputs from LLC
     input logic lc_ready_in,
     input logic lc_valid_in,
@@ -93,7 +79,7 @@ module l1_instr_cache #(
   reg bp_valid_in_reg;
   reg l0_ready_in_reg;
   reg [63:0] l0_addr_in_reg;
-  reg [63:0] bp_value_in_reg;
+  reg [8*B-1:0] bp_value_in_reg;
   reg [TAG_BITS-1:0] lsu_tag_in_reg;
   reg lsu_we_in_reg;
   reg lc_ready_in_reg;
@@ -104,7 +90,7 @@ module l1_instr_cache #(
   reg l0_valid_out_reg;
   reg l0_ready_out_reg;
   reg [63:0] l0_addr_out_reg;
-  reg [63:0] l0_value_out_reg;
+  reg [8*B-1:0] l0_value_out_reg;
   reg [TAG_BITS-1:0] lsu_tag_out_reg;
   reg lsu_write_complete_out_reg;
   reg lc_valid_out_reg;
@@ -120,7 +106,7 @@ module l1_instr_cache #(
   logic l0_valid_out_comb;
   logic l0_ready_out_comb;
   logic [63:0] l0_addr_out_comb;
-  logic [63:0] l0_value_out_comb;
+  logic [8*B-1:0] l0_value_out_comb;
   logic lsu_write_complete_out_comb;
   logic lc_valid_out_comb;
   logic lc_ready_out_comb;
@@ -648,7 +634,7 @@ module l1_instr_cache #(
       .A(A),
       .B(B),
       .C(C),
-      .W(64),
+      .W(512),
       .ADDR_BITS(PADDR_BITS)
   ) cache_module (
       .rst_N_in(rst_N_in),

@@ -31,7 +31,8 @@ module fpu_ins_decoder #(
     // outputs to FPU
     output logic [reg_pkg::WORD_SIZE-1:0] fpu_a_out,
     output logic [reg_pkg::WORD_SIZE-1:0] fpu_b_out,
-    output logic fpu_valid_out
+    output logic fpmult_valid_out,
+    output logic fpadder_valid_out
 );
     logic [31:0] cycle_count;
     logic [31:0] cycle_expiration;
@@ -50,7 +51,8 @@ module fpu_ins_decoder #(
     assign fpu_b_out = is_fadd ? insn_in.r2_val :
                        is_fsub ? ~insn_in.r2_val + 1 :
                        is_fmul ? insn_in.r2_val : '0;
-    assign fpu_valid_out = is_fadd | is_fsub | is_fmul;
+    assign fpadder_valid_out = is_fadd | is_fsub;
+    assign fpmult_valid_out = is_fmul;
 
     always_ff @(posedge clk_in or negedge rst_N_in) begin
         if (!rst_N_in || flush_in) begin
