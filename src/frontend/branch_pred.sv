@@ -1,5 +1,6 @@
 `include "../util/uop_pkg.sv"
 `include "../util/op_pkg.sv"
+`include"./cache/l0_instr_cache.sv"
 import uop_pkg::*;
 import op_pkg::*;
 
@@ -13,7 +14,7 @@ module branch_pred #(
     parameter PHT_N = 8,
     parameter L0_WAYS = 8
 ) (
-    //TODO also include inputs for GHR updates.
+    // TODO also include inputs for GHR updates.
     input clk_in,
     input rst_N_in,
     input logic l1i_valid,
@@ -88,8 +89,8 @@ module branch_pred #(
       .l1i_pc(l1i_addr_awaiting),  // address we check cache for
       .l1_valid(l1i_valid),  // if the l1 is ready to give us data
       .l1_data(l1i_cacheline),  // data coming in from L1
+      .bp_pc(l1i_addr_out_next), // ?
       .bp_pred_pc(l1i_addr_out_next),        // the next pc of the bp (this is what we are checking hit for actually)
-
       .cache_line(l0_cacheline_next),  // data output to branch predictor
       .cache_hit(l0_hit)  // high on a hit, low on a miss (this is for the next cycle)
   );
@@ -281,7 +282,7 @@ module branch_pred #(
       // how do we wait for next clock cycle
     end
 
-    if (pc_incorrect) begin
+    if (x_pc_incorrect) begin
         if (instructions_inflight && !l1i_valid) begin
             // we have instructions in flight and they arent valid we need to stall until they expire we need to supress the next l1i return
             l1i_q_next = {1'b1, x_pc + {{45{x_correction_offset[18]}}, x_correction_offset}};
