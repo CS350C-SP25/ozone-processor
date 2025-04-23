@@ -1,4 +1,7 @@
+ozone.vo
+c5_pin_model_dump.txt
 .vscode/
+
 obj_dir/
 *.vcd
 db/*
@@ -47,8 +50,6 @@ l1d.sh
 *.html
 *.jdi
 *.jpg
-*.qpf
-*.qsf
 # *.mif
 *.pin
 *.pof

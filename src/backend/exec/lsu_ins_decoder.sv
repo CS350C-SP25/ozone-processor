@@ -1,11 +1,13 @@
 `include "../../util/uop_pkg.sv"
 `include "../packages/rob_pkg.sv"
+`include "../packages/is_pkg.sv"
 `include "../../fpu/fpmult.sv"
 `include "../../fpu/fpadder.sv"
 
 import uop_pkg::*;
 import reg_pkg::*;
 import rob_pkg::*;
+import is_pkg::*;
 
 module lsu_ins_decoder #(
     parameter LQ_SIZE = 8
@@ -15,7 +17,7 @@ module lsu_ins_decoder #(
     input  logic flush_in,
 
     // From ROB
-    input  rob_issue insn_in,
+    input  exec_packet insn_in,
 
     // D-cache response
     input  logic [reg_pkg::WORD_SIZE-1:0] mem_data_in,

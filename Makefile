@@ -165,3 +165,9 @@ clean-l1d-llc:
 	rm -rf obj_dir/Vl1d_llc_tb *.log *.dmp *.vcd
 
 .PHONY: all clean run dimm scheduler sdram cache llc_dimm clean-dimm clean-scheduler clean-sdram clean-cache clean-sd-ctrl-dimm
+
+quartus-build-rtl:
+	quartus_map --read_settings_files=on --write_settings_files=off ozone -c ozone
+	quartus_npp ozone -c ozone --netlist_type=sgate
+
+

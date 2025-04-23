@@ -1,16 +1,18 @@
 `include "../../util/uop_pkg.sv"
 `include "../packages/rob_pkg.sv"
+`include "../packages/is_pkg.sv"
 `include "../../fpu/fpmult.sv"
 `include "../../fpu/fpadder.sv"
 
 import uop_pkg::*;
 import reg_pkg::*;
 import rob_pkg::*;
+import is_pkg::*;
 
 module bru_ins_decoder (
 
     // From ROB
-    input  rob_issue insn_in,
+    input  exec_packet insn_in,
 
     // Current PC
     input  logic [63:0] curr_pc,
