@@ -7,7 +7,7 @@ import op_pkg::*;
 module fetch #(
     parameter INSTRUCTION_WIDTH = op_pkg::INSTRUCTION_WIDTH,
     parameter SUPER_SCALAR_WIDTH = op_pkg::SUPER_SCALAR_WIDTH,
-    parameter CACHE_LINE_WIDTH = 64, 
+    parameter CACHE_LINE_WIDTH = 64
 ) (
     input logic clk_in,                                      // clock signal
     input logic rst_N_in,                                    // reset signal, active low       
@@ -96,11 +96,16 @@ module align_instructions #(
 
     generate
         for (genvar i = 0; i < SUPER_SCALAR_WIDTH; i++) begin : instr_extract
-            assign instr_out[i] = {
+            assign instr_out[i] = offset + i < CACHE_LINE_WIDTH ? {
                 cacheline[offset + (i*4) + 3],
                 cacheline[offset + (i*4) + 2],
                 cacheline[offset + (i*4) + 1],
                 cacheline[offset + (i*4) + 0]
+            } : {
+                8'hD5,
+                8'h03,
+                8'h20,
+                8'h1F
             };
         end
     endgenerate

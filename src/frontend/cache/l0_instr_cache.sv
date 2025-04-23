@@ -9,11 +9,11 @@ module l0_instruction_cache #(
     parameter int A = 1,
     parameter int PC_SIZE = 64
 ) (
-    input logic [PC_SIZE-1:0] li1_pc,  // address we check cache for
+    input logic [PC_SIZE-1:0] l1i_pc,  // address we check cache for
     input logic l1_valid,  // if the l1 is ready to give us data
     input logic [LINE_SIZE_BYTES*8-1:0] l1_data,  // data coming in from L1
-    input logic [PC_SIZE-1:0] bp_pc,
-    input logic [PC_SIZE-1:0] bp_pred_pc,
+    input logic [PC_SIZE-1:0] bp_pc, // ????
+    input logic [PC_SIZE-1:0] bp_pred_pc, // ?? 
 
     output logic [LINE_SIZE_BYTES*8-1:0] cache_line,  // data output to branch predictor
     output logic cache_hit  // high on a hit, low on a miss
@@ -44,7 +44,7 @@ module l0_instruction_cache #(
   tag_entry                      tag_entry_temp;
 
   // address breakdown; for readability's sake
-  logic     [SET_INDEX_BITS-1:0] li1_index;
+  logic     [SET_INDEX_BITS-1:0] l1i_index;
   logic     [      TAG_BITS-1:0] l1i_tag;
   logic     [SET_INDEX_BITS-1:0] bp_index;
   logic     [      TAG_BITS-1:0] bp_tag;
@@ -52,8 +52,8 @@ module l0_instruction_cache #(
   logic     [      TAG_BITS-1:0] pred_tag;
   
   
-  assign li1_index = li1_pc[BLOCK_OFFSET_BITS+:SET_INDEX_BITS];
-  assign li1_tag   = li1_pc[PC_SIZE-1:BLOCK_OFFSET_BITS+SET_INDEX_BITS];
+  assign l1i_index = l1i_pc[BLOCK_OFFSET_BITS+:SET_INDEX_BITS];
+  assign l1i_tag   = l1i_pc[PC_SIZE-1:BLOCK_OFFSET_BITS+SET_INDEX_BITS];
   assign pred_index = bp_pred_pc[BLOCK_OFFSET_BITS+:SET_INDEX_BITS];
   assign pred_tag   = bp_pred_pc[PC_SIZE-1:BLOCK_OFFSET_BITS+SET_INDEX_BITS];
 
@@ -64,9 +64,9 @@ module l0_instruction_cache #(
   // update l0 with l1i information
   always_latch begin
     if (l1_valid) begin  // if data came in from the l1 cache, we update our data in this cache.
-      cache_data[0][index] = l1_data;
-      tag_array[0][index].valid = 1'b1;
-      tag_array[0][index].tag = tag;
+      cache_data[0][l1i_index] = l1_data;  // assumption index the same
+      tag_array[0][l1i_index].valid = 1'b1;
+      tag_array[0][l1i_index].tag = l1i_tag;
     end
   end
 

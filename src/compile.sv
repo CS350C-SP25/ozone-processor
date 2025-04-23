@@ -1,8 +1,32 @@
 `include "./backend/rat.sv"
 
-module a (
+module compile (
     // Define ports here if needed
+     input clk,
+    input rst,
+
+
+    // coming from instr queue, will need an adapter
+    input logic q_valid,
+    input uop_pkg::uop_insn [0:0] instr,
+    output logic q_increment_ready,
+
+    // output to rob
+    output rob_pkg::rob_entry [0:0] rob_data,
+    output logic rob_data_valid,
+    input logic rob_ready,
+
+    // from FRL
+    output logic [0:0] frl_ready,  // we consumed the values
+    input logic [0:0][0:0] free_register_data,
+    input logic frl_valid,  // all regs are full already, just wait it out
+
+    // for intermediate writing
+    output reg_pkg::RegFileWritePort [1:0] regfile
+
 );
+
+   
 
     rat #(
         .NUM_PHYS_REGS     (reg_pkg::NUM_PHYS_REGS),

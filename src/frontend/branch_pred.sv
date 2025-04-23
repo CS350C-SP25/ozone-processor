@@ -1,3 +1,6 @@
+`include "../util/uop_pkg.sv"
+`include "../util/op_pkg.sv"
+`include"./cache/l0_instr_cache.sv"
 import uop_pkg::*;
 import op_pkg::*;
 
@@ -9,24 +12,26 @@ module branch_pred #(
     parameter BTB_ENTRIES = 128,
     parameter GHR_K = 8,
     parameter PHT_N = 8,
-    parameter L0_WAYS = 8;
+    parameter L0_WAYS = 8
 ) (
-    //TODO also include inputs for GHR updates.
+    // TODO also include inputs for GHR updates.
     input clk_in,
     input rst_N_in,
     input logic l1i_valid,
     input logic l1i_ready,
+    input logic x_bcond_resolved,
     input logic x_pc_incorrect,  // this means that the PC that we had originally predicted was incorrect. We need to fix.
     input logic x_taken,  // if the branch resolved as taken or not -- to update PHT and GHR
     input logic [63:0] x_pc, // pc that is currently in the exec phase (the one that just was resolved)
     input logic [18:0] x_correction_offset, // the offset of the correction from x_pc (could change this to be just the actual correct PC instead ??)
-    input logic [7:0] l1i_cacheline[CACHE_LINE_WIDTH-1:0],
+    input logic [7:0] l1i_cacheline [CACHE_LINE_WIDTH-1:0],
     output logic [63:0] pred_pc,  //goes into the fetch
-    output uop_branch [SUPER_SCALAR_WIDTH-1:0] decode_branch_data, //goes straight into decode. what the branches are and if the super scalar needs to be squashed
+    output uop_branch  decode_branch_data [SUPER_SCALAR_WIDTH-1:0], //goes straight into decode. what the branches are and if the super scalar needs to be squashed
     output logic pc_valid_out,  // sending a predicted instruction address. 
     output logic bp_l1i_valid_out, //fetch uses this + pc valid out to determine if waiting for l1i or 
+    output logic bp_l0_valid,
     output logic [63:0] l1i_addr_out,
-    output logic [7:0] l0_cacheline [CACHE_LINE_WIDTH-1:0]; // this gets fed to fetch
+    output logic [7:0] l0_cacheline [CACHE_LINE_WIDTH-1:0] // this gets fed to fetch
 );
   // GHR and PHT logic
   localparam int PHT_SIZE = 1 << (PHT_N + GHR_K);
@@ -37,14 +42,14 @@ module branch_pred #(
   // FSM control
   logic [63:0] current_pc;  // pc register
   logic [63:0] l1i_addr_awaiting;  //address we are waiting on from cache; register
-  uop_branch [SUPER_SCALAR_WIDTH-1:0] branch_data_next;
-  uop_branch [SUPER_SCALAR_WIDTH-1:0] branch_data_buffer;
-  uop_branch [SUPER_SCALAR_WIDTH-1:0] branch_data_buffer_next;
+  uop_branch branch_data_next [SUPER_SCALAR_WIDTH-1:0];
+  uop_branch branch_data_buffer [SUPER_SCALAR_WIDTH-1:0];
+  uop_branch branch_data_buffer_next [SUPER_SCALAR_WIDTH-1:0];
   logic [7:0] l0_cacheline_next [CACHE_LINE_WIDTH-1:0]; // wire (saved to the fetch out and local)
   logic [7:0] l0_cacheline_local [CACHE_LINE_WIDTH-1:0]; // register
   logic l0_hit;
   logic pc_valid_out_next;
-  logic [k-1:0] ghr_next;
+  logic [GHR_K-1:0] ghr_next;
   logic [1:0] pht_next[PHT_SIZE-1:0];
   logic instructions_inflight;
   logic instructions_inflight_next;
@@ -84,8 +89,8 @@ module branch_pred #(
       .l1i_pc(l1i_addr_awaiting),  // address we check cache for
       .l1_valid(l1i_valid),  // if the l1 is ready to give us data
       .l1_data(l1i_cacheline),  // data coming in from L1
+      .bp_pc(l1i_addr_out_next), // ?
       .bp_pred_pc(l1i_addr_out_next),        // the next pc of the bp (this is what we are checking hit for actually)
-
       .cache_line(l0_cacheline_next),  // data output to branch predictor
       .cache_hit(l0_hit)  // high on a hit, low on a miss (this is for the next cycle)
   );
@@ -104,13 +109,13 @@ module branch_pred #(
                                      output logic branch_taken, output logic pred_pc);
     // get n bits from pc
     logic [PHT_N-1:0] pc_n_bits;
+    logic [PHT_N+GHR_K-1:0] pht_index;
+    logic [1:0] counter;
     pc_n_bits = pc[PHT_N-1:0];
 
     // make the index
-    logic [PHT_N+GHR_K-1:0] pht_index;
     pht_index = {ghr, pc_n_bits};
 
-    logic [1:0] counter;
     counter = pht[pht_index];
 
     branch_taken = (counter >= 2);  // this is prob wrong
@@ -128,8 +133,12 @@ module branch_pred #(
 
   function automatic void process_pc (
     input logic [7:0] cacheline[CACHE_LINE_WIDTH-1:0],
+    input logic [63:0] pc,
+    input logic [PHT_N+GHR_K-1:0] pht_index,
+    output logic [63:0] l1i_addr_out_next
   );
     logic done = 1'b0;
+    // TODO multiply by 4 and handle sign extensions
     for (int instr_idx = 0; instr_idx < SUPER_SCALAR_WIDTH; instr_idx++) begin
       if (current_pc[5:0]+(instr_idx<<2) <= CACHE_LINE_WIDTH - INSTRUCTION_WIDTH && !done) begin
           if (get_instr_bits(
@@ -182,16 +191,19 @@ module branch_pred #(
             done = 1;
           end else if (get_instr_bits(
                   cacheline, current_pc, instr_idx
-              ) [31:24] == 8'b01010100) begin
+              ) [31:24] == 8'b01010100) begin // assumption is bcond
             // done = branch_taken;
             // for now lets just always assume branch not taken we can adjust this later with a GHR and PHT
+            // offset is 5-23
             branch_data_next[instr_idx].branch_target = pc +
                 {{45{get_instr_bits(cacheline, current_pc, instr_idx) [23]}},
                 get_instr_bits(cacheline, current_pc, instr_idx) [23:5]} +
-                (instr_idx << 2);
+                (instr_idx << 2); // this needs to be extended
             branch_data_next[instr_idx].condition =
                 get_instr_bits(cacheline, current_pc, instr_idx) [3:0];
-            branch_data_next[instr_idx].predict_taken = 1'b0;
+            branch_data_next[instr_idx].predict_taken = pht[pht_index] > 1; 
+            // predicting always not taken, prediction should be based on value
+            // after indexing into PHT with p and k bits in the instr and ghr
           end
       end
     end
@@ -205,7 +217,7 @@ module branch_pred #(
   always_ff @(posedge clk_in) begin
     if (rst_N_in) begin //not reset. this is the good stuff
       if (pc_valid_out_next) begin // we processed instruction bits. (data from the cache was returned)
-        current_pc <= l1i_addr_out_next;
+        current_pc <= l1i_addr_out_next; 
         pred_pc <= l1i_addr_out_next;
         l1i_addr_out <= l1i_addr_out_next;
         bp_l1i_valid_out <= ~l0_hit; // if we hit in l0 for this new predicted PC then we dont send to l1i;
@@ -223,6 +235,7 @@ module branch_pred #(
       pht <= pht_next;
       l0_cacheline_local <= l0_cacheline_next;
       l0_cacheline <= l0_cacheline_next;
+      bp_l0_valid <= pc_valid_out_next & l0_hit;
     end else begin
       current_pc <= '0;
       pred_pc <= '0;
@@ -239,6 +252,8 @@ module branch_pred #(
     end
   end
 
+  logic [PHT_N+GHR_K-1:0] pht_index_update;
+  logic [PHT_N-1:0] pc_index_update;
   always_comb begin
     pht_next = pht;
     ghr_next = ghr;
@@ -249,10 +264,8 @@ module branch_pred #(
       // TODO only do this on flush otherwise it should come from the output of pred_pc on this cycle
       // i think the if statement should be if branch prediction correction || initial startup
       // TODO stall if we have instruction inflight from l1ic
-      logic [PHT_N-1:0] pc_index_update;
-      pc_index_update = x_pc[PHT_N-1:0];
 
-      logic [PHT_N+PHT_K-1:0] pht_index_update;
+      pc_index_update = x_pc[PHT_N-1:0];
       pht_index_update = {ghr, pc_index_update};
 
       // now that we have our pht index
@@ -265,16 +278,16 @@ module branch_pred #(
         pht_next[pht_index_update] = pht[pht_index_update] == 0 ? 0 : pht[pht_index_update] - 1; // prevent underflow
       end
 
-      ghr_next = {ghr[PHT_K-2:0], x_taken};
+      ghr_next = {ghr[GHR_K-2:0], x_taken};
       // how do we wait for next clock cycle
     end
 
-    if (pc_incorrect) begin
+    if (x_pc_incorrect) begin
         if (instructions_inflight && !l1i_valid) begin
             // we have instructions in flight and they arent valid we need to stall until they expire we need to supress the next l1i return
-            l1i_q_next = {1'b1, x_pc + {45{x_correction_offset[18]}, x_correction_offset}};
+            l1i_q_next = {1'b1, x_pc + {{45{x_correction_offset[18]}}, x_correction_offset}};
         end else begin
-           l1i_addr_out_next = {x_pc + {45{x_correction_offset[18]}, x_correction_offset}};
+           l1i_addr_out_next = {x_pc + {{45{x_correction_offset[18]}}, x_correction_offset}};
            pc_valid_out_next = 1'b1;
         end
     end else begin
