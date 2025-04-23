@@ -1,12 +1,14 @@
 `include "../../util/uop_pkg.sv"
 `include "../packages/reg_pkg.sv"
 `include "../packages/rob_pkg.sv"
+`include "../packages/is_pkg.sv"
 `include "../../fpu/fpmult.sv"
 `include "../../fpu/fpadder.sv"
 
 import uop_pkg::*;
 import reg_pkg::*;
 import rob_pkg::*;
+import is_pkg::*;
 
 /*
 When ins_sched receives ins from rob, it immediately schedules. This is the simplest and cheapest way to do it. 
@@ -15,7 +17,7 @@ We have schedulers for each functional unit to make life easier.
 */
 module alu_ins_decoder (
     input  logic clk_in,
-    input  rob_issue insn_in,
+    input  exec_packet insn_in,
     output logic ready_out,
     output RegFileWritePort reg_pkt_out,
     output NZCVWritePort nzcv_out

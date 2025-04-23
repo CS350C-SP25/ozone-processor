@@ -16,7 +16,9 @@ module fpadder #(
 ) (
     input logic [FloatBitWidth-1:0] a,
     input logic [FloatBitWidth-1:0] b,
+    input logic valid_in,
     output logic [FloatBitWidth-1:0] out,
+    output logic valid_out,
 
     // Subtraction flag
     input subtract,
@@ -168,11 +170,13 @@ module fpadder #(
         additional_mantissa_bits = {RoundingBits{1'bx}};
         temp_exponent = {(EXPONENT_WIDTH + 2) {1'bx}};
         negate_exponent_update = 1'bx;
+        valid_out = '0;
 
         if (is_signaling_nan_a || is_signaling_nan_b || is_quiet_nan_a || is_quiet_nan_b) begin
             // Result is QNaN due to one or both of the operands being NaN
 
             out = quiet_nan;
+            valid_out = valid_in;
 
             if ((is_signaling_nan_a || is_signaling_nan_b) || ((is_quiet_nan_a && (!is_signaling_nan_b && !is_quiet_nan_b)) || (is_quiet_nan_b && (!is_signaling_nan_a && !is_quiet_nan_a)))) begin
                 invalid_operation_flag = 1'b1;
@@ -187,6 +191,7 @@ module fpadder #(
             // Result is QNaN due to the fact that two opposite infinities were added
 
             out = quiet_nan;
+            valid_out = valid_in;
 
             invalid_operation_flag = 1'b1;
         end else
@@ -196,6 +201,7 @@ module fpadder #(
             // Overflow detected
 
             out = {a_sign, {EXPONENT_WIDTH{1'b1}}, {MANTISSA_WIDTH{1'b0}}};
+            valid_out = valid_in;
 
             overflow_flag = 1'b1;
         end else
@@ -294,6 +300,7 @@ module fpadder #(
             end
 
             out = {out_sign, out_exponent, out_mantissa};
+            valid_out = valid_in;
         end
     end
 

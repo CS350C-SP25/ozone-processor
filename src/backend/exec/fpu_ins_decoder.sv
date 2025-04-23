@@ -1,11 +1,13 @@
 `include "../../util/uop_pkg.sv"
 `include "../packages/rob_pkg.sv"
+`include "../packages/is_pkg.sv"
 `include "../../fpu/fpmult.sv"
 `include "../../fpu/fpadder.sv"
 
 import uop_pkg::*;
 import reg_pkg::*;
 import rob_pkg::*;
+import is_pkg::*;
 
 module fpu_ins_decoder #(
     parameter FP_MULT_LATENCY = 13,
@@ -16,7 +18,7 @@ module fpu_ins_decoder #(
     input  logic flush_in,
 
     // ins from ROB
-    input  rob_issue insn_in,
+    input  exec_packet insn_in,
 
     // input from FPU
     input  logic [reg_pkg::WORD_SIZE-1:0] fpu_result,
