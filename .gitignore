@@ -50,6 +50,8 @@ l1d.sh
 *.html
 *.jdi
 *.jpg
+*.qpf
+*.qsf
 # *.mif
 *.pin
 *.pof

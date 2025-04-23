@@ -1,4 +1,4 @@
-`timescale 1ns/1ps
+`include "../packages/reg_pkg.sv"
 
 import reg_pkg::*;
 
@@ -11,13 +11,13 @@ module reg_file #(
     input  logic clk,
     input  logic rst,
     // Read control signals: an array of read enable signals
-    input  logic read_en [NUM_READ_PORTS],
+    input  logic [NUM_READ_PORTS-1:0] read_en,
     // Array of read index signals. Each element determines which register to read.
-    input  logic [$clog2(NUM_PHYS_REGS)-1:0] read_index [NUM_READ_PORTS],
+    input  logic [$clog2(NUM_PHYS_REGS)-1:0] read_index [NUM_READ_PORTS-1:0],
     // Read data outputs: an array to output the register contents
-    output logic [WORD_SIZE-1:0] read_data [NUM_READ_PORTS],
+    output logic [WORD_SIZE-1:0] read_data [NUM_READ_PORTS-1:0],
     // Write ports as defined in the package
-    input  RegFileWritePort write_ports [NUM_WRITE_PORTS]
+    input  RegFileWritePort [NUM_WRITE_PORTS-1:0] write_ports
 );
 
     import reg_pkg::*;

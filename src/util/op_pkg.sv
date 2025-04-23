@@ -1,7 +1,7 @@
 package op_pkg;
 
     parameter int INSTRUCTION_WIDTH = 32;
-    parameter int SUPER_SCALAR_WIDTH = 2,
+    parameter int SUPER_SCALAR_WIDTH = 2;
 
     typedef enum logic[6:0] {
         // Data transfer
@@ -66,7 +66,7 @@ package op_pkg;
                 return OPCODE_MOVK;
             11'b110100101??: //MOVZ
                 return OPCODE_MOVZ;
-            11'b1??10000????: //ADRP
+            11'b1??10000???: //ADRP
                 return OPCODE_ADRP;
             11'b1001000100?: // ADD
                 return OPCODE_ADD;
@@ -85,7 +85,7 @@ package op_pkg;
             11'b11101010000: // ANDS / TST
                 return &instruction[4:0] ? OPCODE_TST : OPCODE_ANDS;
             11'b1101001101?: // LSL LSR UBFM
-                return &instruction[15:10] ? OPCODE_LSR : (instruction[15:10] + 6'h01 == instruction[21:16]) ? OPCODE_LSL ? OPCODE_UBFM;
+                return &instruction[15:10] ? OPCODE_LSR : (instruction[15:10] + 6'h01 == instruction[21:16]) ? OPCODE_LSL : OPCODE_UBFM;
             11'b1001001101?: // ASR
                 return OPCODE_ASR;
             11'b000101?????: // B
@@ -106,7 +106,7 @@ package op_pkg;
                 return OPCODE_F_STUR;
             11'b00011110011: // FMOV - FCMP
                 return instruction[15-:6] == 6'b010000 ? (!|instruction[20-:5] ? OPCODE_FMOV : instruction[20-:5] == 5'b00001 ? OPCODE_FNEG : OPCODE_ERROR) : 
-                    instruction[15-:6] == 6'b001000 ? (!|instruction[20-:5] && instruction[4:0] == 5'b01000 ? OPCODE_FCMP : !|instruction[4:0] ? OPCODE_FCMPR : OPCODE_ERROR) :
+                    instruction[15-:6] == 6'b001000 ? (!|instruction[20-:5] && instruction[4:0] == 5'b01000 ? OPCODE_FCMPI : !|instruction[4:0] ? OPCODE_FCMPR : OPCODE_ERROR) :
                     instruction[15-:6] == 6'b001110 ? OPCODE_FSUB : instruction[15-:6] == 6'b000010 ? OPCODE_FMUL : instruction[15-:6] == 6'b001010 ? OPCODE_FADD : OPCODE_ERROR;
             default: 
                 return OPCODE_ERROR;
