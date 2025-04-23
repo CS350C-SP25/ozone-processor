@@ -11,7 +11,6 @@ package uop_pkg;
         UOP_SUB,
         UOP_AND,
         UOP_ORR,
-        UOP_XOR,
         UOP_EOR,
         UOP_MVN,
         UOP_UBFM,

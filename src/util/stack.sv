@@ -1,6 +1,6 @@
 module stack #(
-    parameter STACK_DEPTH = 8;
-    parameter ENTRY_SIZE = 64;
+    parameter STACK_DEPTH = 8,
+    parameter ENTRY_SIZE = 64
 ) (
     input logic clk_in,
     input logic rst_N_in,

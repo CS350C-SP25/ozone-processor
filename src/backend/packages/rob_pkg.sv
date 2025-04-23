@@ -1,10 +1,12 @@
-`include "../util/uop_pkg.sv"
-`include "../backend/reg_pkg.sv"
+`include "../../util/uop_pkg.sv"
+`include "./reg_pkg.sv"
 
+
+package rob_pkg;
 import uop_pkg::*;
 import reg_pkg::*;
 
-package rob_pkg;
+
     parameter int ROB_ENTRIES = 128;
 
     typedef enum logic [2:0] {
@@ -31,5 +33,9 @@ package rob_pkg;
         logic valid;
         uop_insn uop;
         logic [$clog2(ROB_ENTRIES)-1:0] ptr; // ptr to entry in the ROB
+        logic [$clog2(reg_pkg::NUM_PHYS_REGS)-1:0] dest_reg_phys; // forward these values from ROB to save on wires
+        logic [reg_pkg::WORD_SIZE-1:0] r0_val;
+        logic [reg_pkg::WORD_SIZE-1:0] r1_val;
+        logic [reg_pkg::WORD_SIZE-1:0] r2_val;
     } rob_issue; // struct for issuing insn from the ROB
 endpackage

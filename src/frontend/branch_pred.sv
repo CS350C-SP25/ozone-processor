@@ -23,7 +23,7 @@ module branch_pred #(
     input logic [7:0] l1i_cacheline[CACHE_LINE_WIDTH-1:0],
     output logic [63:0] pred_pc,  //goes into the fetch
     output uop_branch [SUPER_SCALAR_WIDTH-1:0] decode_branch_data, //goes straight into decode. what the branches are and if the super scalar needs to be squashed
-    output logic [$clog2(SUPER_SCALAR_WIDTH+1)-1:0] pc_valid_out,  // sending a predicted instruction address. 
+    output logic pc_valid_out,  // sending a predicted instruction address. 
     output logic bp_l1i_valid_out, //fetch uses this + pc valid out to determine if waiting for l1i or 
     output logic [63:0] l1i_addr_out,
     output logic [7:0] l0_cacheline [CACHE_LINE_WIDTH-1:0]; // this gets fed to fetch
@@ -37,14 +37,19 @@ module branch_pred #(
   // FSM control
   logic [63:0] current_pc;  // pc register
   logic [63:0] l1i_addr_awaiting;  //address we are waiting on from cache; register
-  logic bp_l1i_valid_out_next;  //wire
   uop_branch [SUPER_SCALAR_WIDTH-1:0] branch_data_next;
+  uop_branch [SUPER_SCALAR_WIDTH-1:0] branch_data_buffer;
+  uop_branch [SUPER_SCALAR_WIDTH-1:0] branch_data_buffer_next;
+  logic [7:0] l0_cacheline_next [CACHE_LINE_WIDTH-1:0]; // wire (saved to the fetch out and local)
+  logic [7:0] l0_cacheline_local [CACHE_LINE_WIDTH-1:0]; // register
+  logic l0_hit;
+  logic pc_valid_out_next;
   logic [k-1:0] ghr_next;
   logic [1:0] pht_next[PHT_SIZE-1:0];
-    logic instructions_inflight;
-    logic instructions_inflight_next;
-    logic [64:0] l1i_q;
-    logic [64:0] l1i_q_next;
+  logic instructions_inflight;
+  logic instructions_inflight_next;
+  logic [64:0] l1i_q;
+  logic [64:0] l1i_q_next;
 
   // RAS
   logic ras_push;
@@ -70,6 +75,20 @@ module branch_pred #(
       .stack_out(ras_top)
   );
 
+  l0_instruction_cache #(
+      .SETS(8),
+      .LINE_SIZE_BYTES(64),
+      .A(1),
+      .PC_SIZE(64)
+  ) l0 (
+      .l1i_pc(l1i_addr_awaiting),  // address we check cache for
+      .l1_valid(l1i_valid),  // if the l1 is ready to give us data
+      .l1_data(l1i_cacheline),  // data coming in from L1
+      .bp_pred_pc(l1i_addr_out_next),        // the next pc of the bp (this is what we are checking hit for actually)
+
+      .cache_line(l0_cacheline_next),  // data output to branch predictor
+      .cache_hit(l0_hit)  // high on a hit, low on a miss (this is for the next cycle)
+  );
 
 
 
@@ -108,40 +127,115 @@ module branch_pred #(
   endfunction
 
   function automatic void process_pc (
-    input [63:0] pc,
-    output logic done //tbd
+    input logic [7:0] cacheline[CACHE_LINE_WIDTH-1:0],
   );
-    
+    logic done = 1'b0;
+    for (int instr_idx = 0; instr_idx < SUPER_SCALAR_WIDTH; instr_idx++) begin
+      if (current_pc[5:0]+(instr_idx<<2) <= CACHE_LINE_WIDTH - INSTRUCTION_WIDTH && !done) begin
+          if (get_instr_bits(
+                  cacheline, current_pc, instr_idx
+              ) [31:21] == 11'b11010110010) begin  //RET
+            // pop off RAS, if RAS is empty, sucks to be us. 
+            branch_data_next[instr_idx].branch_target = ras_top;
+            //these 2 fields are the register put together (its a union but quartus doesnt support unions)
+            branch_data_next[instr_idx].condition =
+                get_instr_bits(cacheline, current_pc, instr_idx) [4:1];
+            branch_data_next[instr_idx].predict_taken =
+                get_instr_bits(cacheline, current_pc, instr_idx) [0];
+            l1i_addr_out_next = ras_top;  //fetch the next address
+            ras_pop_next = 1'b1;
+            done = 1;
+          end else if (get_instr_bits(
+                  cacheline, current_pc, instr_idx
+              ) [31:26] == 6'b000101) begin  //B
+            // decode the predicted PC and do the add
+            // store branching info, ignore the remaining
+            // set branch data for this index
+            branch_data_next[instr_idx].branch_target = pc +
+                {{38{get_instr_bits(cacheline, current_pc, instr_idx) [25]}},
+                get_instr_bits(cacheline, current_pc, instr_idx) [25:0]} +
+                (instr_idx << 2);
+            // set the next l1i target to the predicted PC
+            l1i_addr_out_next = pc +
+                {{38{get_instr_bits(cacheline, current_pc, instr_idx) [25]}},
+                get_instr_bits(cacheline, current_pc, instr_idx) [25:0]} +
+                (instr_idx << 2);
+            done = 1;
+          end else if (get_instr_bits(
+                  cacheline, current_pc, instr_idx
+              ) [31:26] == 6'b100101) begin  // BL (same as B but we need to push to RAS)
+            // push to RAS current_pc[5:0]+(instr_idx<<2) + 4
+            ras_push_next = 1'b1;
+            ras_next_push_next = current_pc[5:0] + (instr_idx << 2) + 4;  // return address
+            // decode the predicted PC and do the add
+            // store branching info, ignore the remaining
+            // set branch data for this index
+            branch_data_next[instr_idx].branch_target = pc +
+                {{38{get_instr_bits(cacheline, current_pc, instr_idx) [25]}},
+                get_instr_bits(cacheline, current_pc, instr_idx) [25:0]} +
+                (instr_idx << 2);
+            // set the next l1i target to the predicted PC
+            l1i_addr_out_next = pc +
+                {{38{get_instr_bits(cacheline, current_pc, instr_idx) [25]}},
+                get_instr_bits(cacheline, current_pc, instr_idx) [25:0]} +
+                (instr_idx << 2);
+            done = 1;
+          end else if (get_instr_bits(
+                  cacheline, current_pc, instr_idx
+              ) [31:24] == 8'b01010100) begin
+            // done = branch_taken;
+            // for now lets just always assume branch not taken we can adjust this later with a GHR and PHT
+            branch_data_next[instr_idx].branch_target = pc +
+                {{45{get_instr_bits(cacheline, current_pc, instr_idx) [23]}},
+                get_instr_bits(cacheline, current_pc, instr_idx) [23:5]} +
+                (instr_idx << 2);
+            branch_data_next[instr_idx].condition =
+                get_instr_bits(cacheline, current_pc, instr_idx) [3:0];
+            branch_data_next[instr_idx].predict_taken = 1'b0;
+          end
+      end
+    end
+    if (!done) begin
+      // two cases: cut short by cacheline alignment OR full super scalar. set pred PC accordingly and ensure l1i is ready
+      l1i_addr_out_next = current_pc + current_pc[5:0] <= 64 - (SUPER_SCALAR_WIDTH << 2) ? SUPER_SCALAR_WIDTH << 2 : (64 - current_pc[5:0]) >> 2;
+    end
   endfunction
 
-  function automatic logic l0_match (
-    input logic [63:0] addr,
-    output logic [$clog2(L0_WAYS)-1:0] way,
-  );
-    logic hit = 1'b0;
-    // TODO implement l0.
-
-
-
-    return hit;
-  endfunction
 
   always_ff @(posedge clk_in) begin
-    if (rst_N_in) begin
-      current_pc <= l1i_addr_out_next;
-      l1i_addr_awaiting <= l1i_addr_out_next; //uh we could prob turn this all into cur pc but im not sure if theyll diverge
-      pred_pc <= l1i_addr_out_next;  // "
-      decode_branch_data <= branch_data_next;
+    if (rst_N_in) begin //not reset. this is the good stuff
+      if (pc_valid_out_next) begin // we processed instruction bits. (data from the cache was returned)
+        current_pc <= l1i_addr_out_next;
+        pred_pc <= l1i_addr_out_next;
+        l1i_addr_out <= l1i_addr_out_next;
+        bp_l1i_valid_out <= ~l0_hit; // if we hit in l0 for this new predicted PC then we dont send to l1i;
+        instructions_inflight <= ~l0_hit; // """
+        decode_branch_data <= branch_data_next; // this is the data we just decoded, we will pass this to decode for better decoding
+      end else begin
+        current_pc <= current_pc;
+        pred_pc <= pred_pc;
+        bp_l1i_valid_out <= 1'b0;
+        instructions_inflight <= instructions_inflight;
+        decode_branch_data <= branch_data_next;
+      end
+      pc_valid_out <= pc_valid_out_next;
       ghr <= ghr_next;
       pht <= pht_next;
+      l0_cacheline_local <= l0_cacheline_next;
+      l0_cacheline <= l0_cacheline_next;
     end else begin
       current_pc <= '0;
-      l1i_addr_awaiting <= '0;
       pred_pc <= '0;
       decode_branch_data <= '0;
       pc_valid_out <= '0;
-      bp_l1i_valid_out <= '0;
       l1i_addr_out <= '0;
+      bp_l1i_valid_out <= '0;
+      instructions_inflight <= 1'b0;
+      decode_branch_data <= '0;
+      l0_cacheline_local <= '0;
+      l0_cacheline <= '0;
+      ghr <= '0;
+      pht <= '0;
     end
   end
 
@@ -180,93 +274,23 @@ module branch_pred #(
             // we have instructions in flight and they arent valid we need to stall until they expire we need to supress the next l1i return
             l1i_q_next = {1'b1, x_pc + {45{x_correction_offset[18]}, x_correction_offset}};
         end else begin
-            // process the corrected PC
+           l1i_addr_out_next = {x_pc + {45{x_correction_offset[18]}, x_correction_offset}};
+           pc_valid_out_next = 1'b1;
         end
     end else begin
         if (l1i_valid && l1i_q[64]) begin
+            l1i_addr_out_next = l1i_q[63:0];
             l1i_q_next = '0; //we skip this guy and now we can send proccess this current PC
-            // process li1_q[63:0]; (check l0 then stall for l1i if needed)
+            pc_valid_out_next = 1'b1;
         end else if (l1i_valid) begin // we got the instruction bits back. predecode, update ras, pred_pc, look up ghr, etc
             // this processes a cacheline from l1i
-            // TODO add cl in to l0
             // TODO dont directly send pred pc to l1i, check if the pred pc tag matches. 
-            done = 1'b0;
-            for (int instr_idx = 0; instr_idx < SUPER_SCALAR_WIDTH; instr_idx++) begin
-            if (l1i_addr_awaiting[5:0]+(instr_idx<<2) <= CACHE_LINE_WIDTH - INSTRUCTION_WIDTH && !done) begin
-                if (get_instr_bits(
-                        l1i_cacheline, l1i_addr_awaiting, instr_idx
-                    ) [31:21] == 11'b11010110010) begin  //RET
-                // pop off RAS, if RAS is empty, sucks to be us. 
-                branch_data_next[instr_idx].branch_target = ras_top;
-                //these 2 fields are the register put together (its a union but quartus doesnt support unions)
-                branch_data_next[instr_idx].condition =
-                    get_instr_bits(l1i_cacheline, l1i_addr_awaiting, instr_idx) [4:1];
-                branch_data_next[instr_idx].predict_taken =
-                    get_instr_bits(l1i_cacheline, l1i_addr_awaiting, instr_idx) [0];
-                pc_valid_out_next = instr_idx + 1; //this is the last relevant address we have branched away from this cacheline (prob)
-                l1i_addr_out_next = ras_top;  //fetch the next address
-                ras_pop_next = 1'b1;
-                done = 1;
-                end else if (get_instr_bits(
-                        l1i_cacheline, l1i_addr_awaiting, instr_idx
-                    ) [31:26] == 6'b000101) begin  //B
-                // decode the predicted PC and do the add
-                // store branching info, ignore the remaining
-                // set branch data for this index
-                branch_data_next[instr_idx].branch_target = pc +
-                    {{38{get_instr_bits(l1i_cacheline, l1i_addr_awaiting, instr_idx) [25]}},
-                    get_instr_bits(l1i_cacheline, l1i_addr_awaiting, instr_idx) [25:0]} +
-                    (instr_idx << 2);
-                pc_valid_out_next = instr_idx + 1; //this is the last relevant address we have branched away from this cacheline (prob)
-                // set the next l1i target to the predicted PC
-                l1i_addr_out_next = pc +
-                    {{38{get_instr_bits(l1i_cacheline, l1i_addr_awaiting, instr_idx) [25]}},
-                    get_instr_bits(l1i_cacheline, l1i_addr_awaiting, instr_idx) [25:0]} +
-                    (instr_idx << 2);
-                done = 1;
-                end else if (get_instr_bits(
-                        l1i_cacheline, l1i_addr_awaiting, instr_idx
-                    ) [31:26] == 6'b100101) begin  // BL (same as B but we need to push to RAS)
-                // push to RAS l1i_addr_awaiting[5:0]+(instr_idx<<2) + 4
-                ras_push_next = 1'b1;
-                ras_next_push_next = l1i_addr_awaiting[5:0] + (instr_idx << 2) + 4;  // return address
-                // decode the predicted PC and do the add
-                // store branching info, ignore the remaining
-                // set branch data for this index
-                branch_data_next[instr_idx].branch_target = pc +
-                    {{38{get_instr_bits(l1i_cacheline, l1i_addr_awaiting, instr_idx) [25]}},
-                    get_instr_bits(l1i_cacheline, l1i_addr_awaiting, instr_idx) [25:0]} +
-                    (instr_idx << 2);
-                pc_valid_out_next = instr_idx + 1; //this is the last relevant address we have branched away from this cacheline (prob)
-                // set the next l1i target to the predicted PC
-                l1i_addr_out_next = pc +
-                    {{38{get_instr_bits(l1i_cacheline, l1i_addr_awaiting, instr_idx) [25]}},
-                    get_instr_bits(l1i_cacheline, l1i_addr_awaiting, instr_idx) [25:0]} +
-                    (instr_idx << 2);
-                done = 1;
-                end else if (get_instr_bits(
-                        l1i_cacheline, l1i_addr_awaiting, instr_idx
-                    ) [31:24] == 8'b01010100) begin
-                // done = branch_taken;
-                // for now lets just always assume branch not taken we can adjust this later with a GHR and PHT
-                branch_data_next[instr_idx].branch_target = pc +
-                    {{45{get_instr_bits(l1i_cacheline, l1i_addr_awaiting, instr_idx) [23]}},
-                    get_instr_bits(l1i_cacheline, l1i_addr_awaiting, instr_idx) [23:5]} +
-                    (instr_idx << 2);
-                branch_data_next[instr_idx].condition =
-                    get_instr_bits(l1i_cacheline, l1i_addr_awaiting, instr_idx) [3:0];
-                branch_data_next[instr_idx].predict_taken = 1'b0;
-                end
-            end
-            end
-            if (!done) begin
-            // two cases: cut short by cacheline alignment OR full super scalar. set pred PC accordingly and ensure l1i is ready
-            pc_valid_out_next = l1i_addr_awaiting[5:0] <= 64 - (SUPER_SCALAR_WIDTH << 2) ? SUPER_SCALAR_WIDTH : (64 - l1i_addr_awaiting[5:0]) >> 2;
-            l1i_addr_out_next = l1i_addr_awaiting + (pc_valid_out_next << 2);
-            end
-            bp_l1i_valid_out_next = 1'b1;
-        end else begin
+            process_pc(.cacheline(l1i_cacheline));
+            pc_valid_out_next = 1'b1;
+        end else if (!instructions_inflight) begin
             //l1i was not valid, we check if any instructions are in flight if so stall otherwise we must be in l0.
+            process_pc(.cacheline(l0_cacheline_local));
+            pc_valid_out_next = 1'b1;
         end
     end
   end

@@ -1,7 +1,7 @@
 package op_pkg;
 
     parameter int INSTRUCTION_WIDTH = 32;
-    parameter int SUPER_SCALAR_WIDTH = 2,
+    parameter int SUPER_SCALAR_WIDTH = 2;
 
     typedef enum logic[6:0] {
         // Data transfer
