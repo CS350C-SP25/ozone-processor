@@ -52,7 +52,7 @@ module rat #(
       q_increment_ready <= making_progress;
 
       for (int i = 0; i < 2; i++) begin
- 
+
 
         uop_reg dst;
         uop_reg src1;
@@ -66,11 +66,13 @@ module rat #(
                 "UH OH THIS REG DOESNT HAVE ANYTHING VALID IN IT; basically NOBODYS USED IT YET");
           end
 
-          dst  = regs_rr_in[i].dst;
-          src1 = regs_rr_in[i].src1;
-          src2 = regs_rr_in[i].src2;
+          dst                    = regs_rr_in[i].dst;
+          src1                   = regs_rr_in[i].src1;
+          src2                   = regs_rr_in[i].src2;
 
-          // regFileOut[i] <= reg_pkg::RegFileWritePort'{index_in: 0, en: 0, data_in: 0};
+          regFileOut[i].index_in <= free_register_data[2+i];
+          regFileOut[i].en       <= 1;
+          regFileOut[i].data_in  <= 64'(regs_ri_in[i].imm);
         end else begin  // we have an intermediate
           get_data_ri(instr[i].data, regs_ri_in[i]);
 
@@ -80,28 +82,24 @@ module rat #(
                 "UH OH THIS REG DOESNT HAVE ANYTHING VALID IN IT; basically NOBODYS USED IT YET");
           end
 
-          dst  = regs_ri_in[i].dst;
-          src1 = regs_ri_in[i].src;
-          src2 = free_register_data[2+i];
+          dst                    = regs_ri_in[i].dst;
+          src1                   = regs_ri_in[i].src;
+          src2                   = free_register_data[2+i];
 
-          // regFileOut[i] <= reg_pkg::RegFileWritePort'{
-              // index_in: free_register_data[2+i],
-              // en: 1,
-              // data_in: 64'(regs_ri_in[i].imm)
-          // };
+          regFileOut[i].index_in <= 0;
+          regFileOut[i].en       <= 0;
+          regFileOut[i].data_in  <= 0;
         end
         frl_ready[i] <= making_progress;  // reg i is always used up, since we always have a dst
         frl_ready[2+i] <= making_progress && !instr[i].valb_sel; // if intermediate, we mark the 2+i reg is as used too
 
-        // outputs[i] <= rob_entry'{
-            // pc: instr[i].pc,
-            // next_pc: instr[i].pc,  // TODO: WHAT
-            // uop: instr[i],
-            // r1_reg_phys: store[src1],
-            // r2_reg_phys: store[src2],
-            // dest_reg_phys: free_register_data[i],
-            // status: ISSUED
-        // };
+        outputs[i].pc            <= instr[i].pc;
+        outputs[i].next_pc       <= instr[i].pc;  // TODO: WHAT
+        outputs[i].uop           <= instr[i];
+        outputs[i].r1_reg_phys   <= store[src1];
+        outputs[i].r2_reg_phys   <= store[src2];
+        outputs[i].dest_reg_phys <= free_register_data[i];
+        outputs[i].status        <= ISSUED;
         if (making_progress) begin
           reg_valid[dst.gpr] <= 1;  // for debug
           store[dst.gpr] <= free_register_data[i];
