@@ -1,3 +1,5 @@
+`include "../util/uop_pkg.sv"
+`include "../util/op_pkg.sv"
 import uop_pkg::*;
 import op_pkg::*;
 
@@ -46,7 +48,7 @@ module branch_pred #(
   logic [7:0] l0_cacheline_local [CACHE_LINE_WIDTH-1:0]; // register
   logic l0_hit;
   logic pc_valid_out_next;
-  logic [k-1:0] ghr_next;
+  logic [GHR_K-1:0] ghr_next;
   logic [1:0] pht_next[PHT_SIZE-1:0];
   logic instructions_inflight;
   logic instructions_inflight_next;
@@ -130,8 +132,12 @@ module branch_pred #(
 
   function automatic void process_pc (
     input logic [7:0] cacheline[CACHE_LINE_WIDTH-1:0],
+    input logic [63:0] pc,
+    input logic [PHT_N+GHR_K-1:0] pht_index,
+    output logic [63:0] l1i_addr_out_next
   );
     logic done = 1'b0;
+    // TODO multiply by 4 and handle sign extensions
     for (int instr_idx = 0; instr_idx < SUPER_SCALAR_WIDTH; instr_idx++) begin
       if (current_pc[5:0]+(instr_idx<<2) <= CACHE_LINE_WIDTH - INSTRUCTION_WIDTH && !done) begin
           if (get_instr_bits(
@@ -184,16 +190,19 @@ module branch_pred #(
             done = 1;
           end else if (get_instr_bits(
                   cacheline, current_pc, instr_idx
-              ) [31:24] == 8'b01010100) begin
+              ) [31:24] == 8'b01010100) begin // assumption is bcond
             // done = branch_taken;
             // for now lets just always assume branch not taken we can adjust this later with a GHR and PHT
+            // offset is 5-23
             branch_data_next[instr_idx].branch_target = pc +
                 {{45{get_instr_bits(cacheline, current_pc, instr_idx) [23]}},
                 get_instr_bits(cacheline, current_pc, instr_idx) [23:5]} +
-                (instr_idx << 2);
+                (instr_idx << 2); // this needs to be extended
             branch_data_next[instr_idx].condition =
                 get_instr_bits(cacheline, current_pc, instr_idx) [3:0];
-            branch_data_next[instr_idx].predict_taken = 1'b0;
+            branch_data_next[instr_idx].predict_taken = pht[pht_index] > 1; 
+            // predicting always not taken, prediction should be based on value
+            // after indexing into PHT with p and k bits in the instr and ghr
           end
       end
     end
@@ -207,7 +216,7 @@ module branch_pred #(
   always_ff @(posedge clk_in) begin
     if (rst_N_in) begin //not reset. this is the good stuff
       if (pc_valid_out_next) begin // we processed instruction bits. (data from the cache was returned)
-        current_pc <= l1i_addr_out_next;
+        current_pc <= l1i_addr_out_next; 
         pred_pc <= l1i_addr_out_next;
         l1i_addr_out <= l1i_addr_out_next;
         bp_l1i_valid_out <= ~l0_hit; // if we hit in l0 for this new predicted PC then we dont send to l1i;
@@ -242,7 +251,7 @@ module branch_pred #(
     end
   end
 
-  logic [PHT_N+PHT_K-1:0] pht_index_update;
+  logic [PHT_N+GHR_K-1:0] pht_index_update;
   logic [PHT_N-1:0] pc_index_update;
   always_comb begin
     pht_next = pht;
@@ -268,7 +277,7 @@ module branch_pred #(
         pht_next[pht_index_update] = pht[pht_index_update] == 0 ? 0 : pht[pht_index_update] - 1; // prevent underflow
       end
 
-      ghr_next = {ghr[PHT_K-2:0], x_taken};
+      ghr_next = {ghr[GHR_K-2:0], x_taken};
       // how do we wait for next clock cycle
     end
 

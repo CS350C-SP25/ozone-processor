@@ -1,7 +1,8 @@
-import op_pkg::*;
-import uop_pkg::*;
 `include "../util/stack.sv"
 `include "./branch_pred.sv"
+import op_pkg::*;
+import uop_pkg::*;
+
 
 // top level module of the frontend, communicates with backend's top level module through instruction queue
 module frontend #(
