@@ -79,7 +79,7 @@ module l1_instr_cache #(
   reg bp_valid_in_reg;
   reg l0_ready_in_reg;
   reg [63:0] l0_addr_in_reg;
-  reg [63:0] bp_value_in_reg;
+  reg [8*B-1:0] bp_value_in_reg;
   reg [TAG_BITS-1:0] lsu_tag_in_reg;
   reg lsu_we_in_reg;
   reg lc_ready_in_reg;
@@ -90,7 +90,7 @@ module l1_instr_cache #(
   reg l0_valid_out_reg;
   reg l0_ready_out_reg;
   reg [63:0] l0_addr_out_reg;
-  reg [63:0] l0_value_out_reg;
+  reg [8*B-1:0] l0_value_out_reg;
   reg [TAG_BITS-1:0] lsu_tag_out_reg;
   reg lsu_write_complete_out_reg;
   reg lc_valid_out_reg;
@@ -106,7 +106,7 @@ module l1_instr_cache #(
   logic l0_valid_out_comb;
   logic l0_ready_out_comb;
   logic [63:0] l0_addr_out_comb;
-  logic [63:0] l0_value_out_comb;
+  logic [8*B-1:0] l0_value_out_comb;
   logic lsu_write_complete_out_comb;
   logic lc_valid_out_comb;
   logic lc_ready_out_comb;
@@ -634,7 +634,7 @@ module l1_instr_cache #(
       .A(A),
       .B(B),
       .C(C),
-      .W(64),
+      .W(512),
       .ADDR_BITS(PADDR_BITS)
   ) cache_module (
       .rst_N_in(rst_N_in),
