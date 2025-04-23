@@ -13,7 +13,14 @@ import rob_pkg::*;
 
 module backend(
     input logic clk_in,
-    input logic rst_N_in
+    input logic rst_N_in,
+
+    // ** Signals to Branch Predictor **
+    output logic bcond_resolved_out,
+    output logic pc_incorrect_out,  // this means that the PC that we had originally predicted was incorrect. We need to fix.
+    output logic taken_out,  // if the branch resolved as taken or not -- to update PHT and GHR
+    output logic [63:0] pc_out, // pc that is currently in the exec phase (the one that just was resolved)
+    output logic [18:0] correction_offset_out, // the offset of the correction from x_pc (could change this to be just the actual correct PC instead ??)
 );
 
     // Interconnect signals (a subset, connect as needed)
@@ -246,8 +253,13 @@ module backend(
 
     // BRU
     RegFileWritePort bru_reg_pkt;
-    logic [63:0] branch_target;
+    logic [18:0] branch_offset;
     logic branch_taken;
+    assign taken_out = branch_taken;
+    assign pc_out = bru_insn_pkt.uop.pc;
+    assign correction_offset_out = branch_offset;
+    assign pc_incorrect_out = bru_insn_pkt.uop.data.predict_taken != branch_taken;
+    assign bcond_resolved_out = bru_insn_pkt.valid;
 
     bru_ins_decoder bru_decoder (
         .insn_in(bru_insn_pkt),
@@ -255,7 +267,7 @@ module backend(
         .NZCV_flags(alu_nzcv.nzcv),
         .ready_out(bru_ready),
         .branch_taken(branch_taken),
-        .branch_target(branch_target),
+        .branch_offset(branch_offset),
         .reg_pkt_out(bru_reg_pkt)
     );
 

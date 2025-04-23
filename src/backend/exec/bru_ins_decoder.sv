@@ -23,7 +23,7 @@ module bru_ins_decoder (
     // Outputs to ROB / frontend
     output logic ready_out,
     output logic branch_taken,
-    output logic [63:0] branch_target,
+    output logic [18:0] branch_offset,
 
     // Only used for BL (writing return addr)
     output RegFileWritePort reg_pkt_out
@@ -33,7 +33,7 @@ module bru_ins_decoder (
     assign is_bcond = insn_in.uop.uopcode == UOP_BCOND;
     assign is_bl    = insn_in.uop.uopcode == UOP_BL;
 
-    logic [63:0] offset = $signed(insn_in.r2_val) << 2; // Shift left by 2 for ARM instruction set
+    logic [18:0] offset = $signed(insn_in.r2_val) << 2; // Shift left by 2 for ARM instruction set
     logic [3:0] cond    = insn_in.uop.data.condition;
     logic flag_Z, flag_N, flag_V;
     assign flag_Z = NZCV_flags[1];
@@ -55,12 +55,12 @@ module bru_ins_decoder (
     always_comb begin
         reg_pkt_out = '0;
         branch_taken = 0;
-        branch_target = '0;
+        branch_offset = '0;
         ready_out = insn_in.valid;
 
         if (insn_in.valid && is_bl) begin
             branch_taken = 1;
-            branch_target = curr_pc + offset;
+            branch_offset = offset;
 
             // Write return address to X30
             reg_pkt_out.index_in = insn_in.dest_reg_phys; // this register should be mapped to X30 in the RAT. 
@@ -69,7 +69,7 @@ module bru_ins_decoder (
 
         end else if (insn_in.valid && is_bcond) begin
             branch_taken = cond_passed(cond);
-            branch_target = curr_pc + offset;
+            branch_offset = branch_taken ? offset : 19'b0100;
 
             // We will handle mispredictions in the ROB
         end
