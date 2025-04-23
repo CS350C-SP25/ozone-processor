@@ -25,6 +25,7 @@ import reg_pkg::*;
         logic [$clog2(reg_pkg::NUM_PHYS_REGS)-1:0] r1_reg_phys; // To operate on
         logic [$clog2(reg_pkg::NUM_PHYS_REGS)-1:0] r2_reg_phys; // To operate on
         logic [$clog2(reg_pkg::NUM_PHYS_REGS)-1:0] dest_reg_phys; // To operate on
+        logic [$clog2(reg_pkg::NUM_PHYS_REGS)-1:0] nzcv_reg_phys; // To operate on
         logic [1:0][$clog2(ROB_ENTRIES):0] dependent_entries; // there are 2 possible insn/regs that the uop can be dependent on. these will be stored as idxes in the ROB. 
         status_t status;
     } rob_entry;

@@ -15,8 +15,7 @@ module reorder_buffer_queue #(
     input logic clk_in,
     input logic rst_N_in,                       // resets the q completely, empty, 0 size, etc.
     input logic flush_in,                       // same function as reset
-    input rob_entry [Q_WIDTH-1:0] q_in,
-    input logic [$clog2(Q_WIDTH+1)-1:0] enq_in, // how many to push IMPORTANT, IT IS ENQERS JOB TO DETERMINE HOW MANY IS SAFE TO ENQ
+    input rob_entry [Q_WIDTH-1:0] q_in, // enq signals come from instr_queue_in[i].uop.valid
     input logic [$clog2(Q_WIDTH+1)-1:0] deq_in, // how many to pop IMPORTANT, IT IS DEQERS JOB TO DETERMINE HOW MANY IS SAFE TO DEQ (USE SIZE)
 
     output rob_entry [Q_DEPTH-1:0] q_out,       // the top width elements of the queue
@@ -34,10 +33,10 @@ module reorder_buffer_queue #(
     always_ff @( posedge clk_in ) begin : instruction_queue_fsm
         if (rst_N_in && !flush_in) begin
             for (int i = 0; i < Q_WIDTH; i++) begin
-                q[tail + i] <= size_incr > i ? q_next[i] : q[tail];
+                q[tail + 1] <= q_next[i].uop.valid ? q_next[i] : q[tail];
+                tail <= q_next[i].uop.valid ? tail + 1 : tail;
             end
             head <= head + size_decr;
-            tail <= tail + size_incr;
             size <= tail - head + size_incr - size_decr;
         end else begin
             head <= '0;
@@ -48,7 +47,6 @@ module reorder_buffer_queue #(
 
     always_comb begin : instruction_queue_next_state
         q_next = q_in;
-        size_incr = flush_in ? 0 : enq_in;
         size_decr = flush_in ? tail - head : deq_in;
     end
     assign q_out = q;
@@ -65,7 +63,6 @@ module reorder_buffer #(
     input logic clk_in,
     input logic rst_N_in,
     input rob_entry [Q_WIDTH-1:0] q_in,
-    input logic [$clog2(Q_WIDTH+1)-1:0] enq_in,
 
     // ** INPUTS FROM BRANCH UNIT **
     input logic flush_in, // fed from either RESET or branch misprediction
@@ -131,7 +128,6 @@ module reorder_buffer #(
         rst_N_in,
         flush_in,
         q_in,
-        enq_in,
         deq_in,
         // ** OUTPUTS **
         queue_out,

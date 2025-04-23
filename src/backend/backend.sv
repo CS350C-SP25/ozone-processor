@@ -25,15 +25,15 @@ module backend(
 
     // Interconnect signals (a subset, connect as needed)
 
-    logic [1:0] rrat_update_valid;
-    rob_pkg::rob_entry [1:0] rrat_update_entries;
+    logic [uop_pkg::INSTR_Q_WIDTH-1:0] rrat_update_valid;
+    rob_pkg::rob_entry [uop_pkg::INSTR_Q_WIDTH-1:0] rrat_update_entries;
 
-    logic [3:0][$clog2(reg_pkg::NUM_PHYS_REGS)-1:0] frl_registers;
-    logic [3:0] frl_ready;
+    logic [2*uop_pkg::INSTR_Q_WIDTH+1:0][$clog2(reg_pkg::NUM_PHYS_REGS)-1:0] frl_registers;
+    logic [2*uop_pkg::INSTR_Q_WIDTH+1:0] frl_ready;
     logic frl_valid;
 
-    logic [5:0][$clog2(reg_pkg::NUM_PHYS_REGS)-1:0] rrat_free_regs;
-    logic [5:0] rrat_free_valid;
+    logic [2*uop_pkg::INSTR_Q_WIDTH+1:0][$clog2(reg_pkg::NUM_PHYS_REGS)-1:0] rrat_free_regs;
+    logic [2*uop_pkg::INSTR_Q_WIDTH+1:0] rrat_free_valid;
 
     logic [11:0] read_en;
     logic [$clog2(reg_pkg::NUM_PHYS_REGS)-1:0] read_index[11:0];
@@ -111,12 +111,12 @@ module backend(
 
     // RAT
     logic q_valid;
-    uop_pkg::uop_insn [1:0] instr_queue;
+    uop_pkg::uop_insn [uop_pkg::INSTR_Q_WIDTH-1:0] instr_queue;
     logic rat_q_ready;
-    rob_pkg::rob_entry [1:0] rob_entries_out;
+    rob_pkg::rob_entry [uop_pkg::INSTR_Q_WIDTH-1:0] rob_entries_out;
     logic rob_data_valid;
     logic rob_ready;
-    reg_pkg::RegFileWritePort [1:0] regfile_ports;
+    reg_pkg::RegFileWritePort [uop_pkg::INSTR_Q_WIDTH-1:0] regfile_ports;
 
     rat rat_inst (
         .clk(clk_in),
@@ -137,8 +137,7 @@ module backend(
     reorder_buffer rob_inst (
         .clk_in(clk_in),
         .rst_N_in(rst_N_in),
-        .q_in(),
-        .enq_in(),
+        .q_in(rob_entries_out),
         .flush_in(1'b0),
         .target_pc(), // if branch misprediction, this is the target pc
 
