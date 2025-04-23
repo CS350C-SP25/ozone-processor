@@ -9,17 +9,14 @@ module l0_instruction_cache #(
     parameter int A = 1,
     parameter int PC_SIZE = 64
 ) (
-    input logic [PC_SIZE-1:0] pc,  // address we check cache for
-    input logic l1_ready,  // if the l1 is ready to receive
+    input logic [PC_SIZE-1:0] li1_pc,  // address we check cache for
     input logic l1_valid,  // if the l1 is ready to give us data
     input logic [LINE_SIZE_BYTES*8-1:0] l1_data,  // data coming in from L1
+    input logic [PC_SIZE-1:0] bp_pc,
+    input logic [PC_SIZE-1:0] bp_pred_pc,
 
     output logic [LINE_SIZE_BYTES*8-1:0] cache_line,  // data output to branch predictor
-    output logic cache_hit,  // high on a hit, low on a miss
-
-    output logic l1_out_ready,  // if we are ready to receive l1 data
-    output logic l1_out_valid,  // if we are ready to give l1 data
-    output logic [PC_SIZE-1:0] l1_out_addr
+    output logic cache_hit  // high on a hit, low on a miss
 );
 
   localparam int BLOCK_OFFSET_BITS = $clog2(LINE_SIZE_BYTES);
@@ -46,34 +43,25 @@ module l0_instruction_cache #(
   tag_way                        tag_array      [A-1:0];
   tag_entry                      tag_entry_temp;
 
-  // address breakdown
-  logic     [SET_INDEX_BITS-1:0] index;
-  logic     [      TAG_BITS-1:0] tag;
+  // address breakdown; for readability's sake
+  logic     [SET_INDEX_BITS-1:0] li1_index;
+  logic     [      TAG_BITS-1:0] l1i_tag;
+  logic     [SET_INDEX_BITS-1:0] bp_index;
+  logic     [      TAG_BITS-1:0] bp_tag;
+  logic     [SET_INDEX_BITS-1:0] pred_index;
+  logic     [      TAG_BITS-1:0] pred_tag;
+  
+  
+  assign li1_index = li1_pc[BLOCK_OFFSET_BITS+:SET_INDEX_BITS];
+  assign li1_tag   = li1_pc[PC_SIZE-1:BLOCK_OFFSET_BITS+SET_INDEX_BITS];
+  assign pred_index = bp_pred_pc[BLOCK_OFFSET_BITS+:SET_INDEX_BITS];
+  assign pred_tag   = bp_pred_pc[PC_SIZE-1:BLOCK_OFFSET_BITS+SET_INDEX_BITS];
 
-  assign index = pc[BLOCK_OFFSET_BITS+:SET_INDEX_BITS];
-  assign tag   = pc[PC_SIZE-1:BLOCK_OFFSET_BITS+SET_INDEX_BITS];
+  // outputs:
+  assign cache_hit = tag_array[0][pred_index].valid & tag_array[0][pred_index].tag == pred_tag;
+  assign cache_line = cache_data[0][pred_index];
 
-  always_comb begin : l0_combinational_block
-    // default vals
-    cache_hit = 1'b0;
-    l1_out_valid = 1'b0;
-    l1_out_ready = 1'b0;
-    cache_line = '0;
-    l1_out_addr = '0;
-    // lookup
-    if (tag_array[0][index].valid && tag_array[0][index].tag == tag) begin
-      // cache hit
-      cache_hit  = 1'b1;
-      cache_line = cache_data[0][index];
-    end else begin
-      // cache miss
-      l1_out_valid = 1'b1;  // READY VALID LOGIC SHAKEY, ONLY ONE LATCHES SO 
-                            // WE WONT NEED BOTH, BUT JUST IN CASE ITS HERE
-      l1_out_ready = 1'b1;  // we can only send one at a time 
-      l1_out_addr  = pc;
-    end
-  end
-
+  // update l0 with l1i information
   always_latch begin
     if (l1_valid) begin  // if data came in from the l1 cache, we update our data in this cache.
       cache_data[0][index] = l1_data;

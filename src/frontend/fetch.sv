@@ -1,66 +1,107 @@
 import uop_pkg::*;
 import op_pkg::*;
 
-// fetch logic unit frfr
-// we will generate multiple of these in our top level module to simulate the multiple instn fetch
-// one module of this will only fetch one instruction at a time
+// fetch logic unit.
+// will choose from the cacheline received from branch predictor and the pc which instructions
+// to send over to decode at most in super_scalar_width.
 module fetch #(
     parameter INSTRUCTION_WIDTH = op_pkg::INSTRUCTION_WIDTH,
     parameter SUPER_SCALAR_WIDTH = op_pkg::SUPER_SCALAR_WIDTH,
-    parameter CACHE_LINE_WIDTH = 64, // TODO: waiting for the l1 i$ to be added to change this
+    parameter CACHE_LINE_WIDTH = 64, 
 ) (
     input logic clk_in,                                      // clock signal
-    input logic rst_N_in,                                    // reset signal, active low I assume?
+    input logic rst_N_in,                                    // reset signal, active low       
+    input logic flush_in,                                    // signal for misprediction                          
+    input logic [7:0] l0_cacheline [CACHE_LINE_WIDTH-1:0],   // cacheline sent from l0
+    input logic [7:0] l1i_cacheline [CACHE_LINE_WIDTH-1:0],   // cacheline sent from l0
+    input logic bp_l0_valid,                                 // branch prediction's cacheline is valid
     input logic l1i_valid,
-    input logic l1i_ready,
-    input logic [7:0] l1i_cacheline [CACHE_LINE_WIDTH-1:0],  // cacheline sent from icache
-    input logic bp_l1i_valid_in,
-    input logic[$clog2(SUPER_SCALAR_WIDTH+1)-1:0] pc_valid_in, // vector for all the pc's being valid???
-    input logic[63:0] l1i_addr_out,
-    output logic [INSTRUCTION_WIDTH-1:0] fetched_cacheline [SUPER_SCALAR_WIDTH-1:0],
-    output logic fetch_valid,                                // valid when done
-    output logic [63:0] next_pc                             // next PC, predicted from BTB to decode
+    input logic pc_valid,  // all pcs valid
+    input logic [63:0] pred_pc,                              // predicted pc
+    output logic [INSTRUCTION_WIDTH-1:0] fetched_instrs [SUPER_SCALAR_WIDTH-1:0], // instrns to send to decode
+    output logic fetch_valid,                                // valid when done (sent to decode)
+    output logic fetch_ready,                                // fetch is ready to receive cacheline (sent to bp)
+    output logic [63:0] next_pc                              // next PC, predicted from bp to decode
 );
 
-logic [63:0] last_pc;
-int last_instr_block;
+    localparam int BLOCK_OFFSET_BITS = $clog2(CACHE_LINE_WIDTH);
+    logic buffer_done;
+    logic l1i_waiting;
+    logic l1i_waiting_next;
+    logic [INSTRUCTION_WIDTH-1:0] l1i_fetched_instrs [SUPER_SCALAR_WIDTH-1:0];
+    logic [INSTRUCTION_WIDTH-1:0] l0_fetched_instrs [SUPER_SCALAR_WIDTH-1:0];
 
-// req to icache when we receive a valid pc
-// update the pc through the btb/ist
-always_comb begin: fetch_comb_logic
-    if (l1i_valid) begin
-        // aligning cacheline fetched to desired super scalar width
-        // assuming that total size of instructions fetched at once for super scalar < CACHE_LINE_WIDTH
-        for (int i = 0; i < SUPER_SCALAR_WIDTH; i++) begin
-            if (last_instr_block == 16) begin
-                // consecutive instructions are spanning two diff cachelines
-                // need to stall for next cacheline ?? is this how you stall idk lol
-                last_instr_block = '0;
-            end else begin
-                for (int j = 0; j < INSTRUCTION_WIDTH; j = j + 8) begin // 1 byte at a time
-                    fetched_cacheline [i] = l1i_cacheline [last_instr_block * 4:(last_instr_block * 4) + 4];
-                    last_instr_block = last_instr_block + 1;
-                end
-            end
+
+    align_instructions #(
+        .SUPER_SCALAR_WIDTH(SUPER_SCALAR_WIDTH),
+        .CACHE_LINE_WIDTH(CACHE_LINE_WIDTH),
+        .INSTRUCTION_WIDTH(INSTRUCTION_WIDTH)
+    ) l1i_align (
+        .offset(pred_pc),
+        .cacheline(l1i_cacheline),
+        output logic [INSTRUCTION_WIDTH-1:0] l1i_fetched_instrs [SUPER_SCALAR_WIDTH-1:0]
+    );
+
+    align_instructions #(
+        .SUPER_SCALAR_WIDTH(SUPER_SCALAR_WIDTH),
+        .CACHE_LINE_WIDTH(CACHE_LINE_WIDTH),
+        .INSTRUCTION_WIDTH(INSTRUCTION_WIDTH)
+    ) l0_align (
+        .offset(pred_pc),
+        .cacheline(l0_cacheline),
+        output logic [INSTRUCTION_WIDTH-1:0] l0_fetched_instrs [SUPER_SCALAR_WIDTH-1:0]
+    );
+
+
+    // start copying over instructions when received a valid cacheline and pc
+    // pass off the the next predicted pc to decode
+    assign fetch_valid_next = ~flush_in & ((bp_l0_valid & pc_valid) | (l1i_valid & ~discard_l1i));
+    assign discard_l1i_next = flush_in ? (l1i_waiting_next & ~l1i_valid) : (l1i_valid || (bp_l0_valid && pc_valid)) ? 1'b0 : discard_l1i;
+    assign ready_next = 1'b1;
+    // we got a new l1i request, we are waiting for an l1i request, the l1i request hasnt been resolved, the discard one needs to be handled first
+    assign l1i_waiting_next = (((pc_valid & ~bp_l0_valid) | l1i_waiting) & ~l1i_valid) | discard_l1i;
+    assign pc_next = pred_pc;
+    assign next_instrs = flush_in ? '0 : l1i_valid ? l1i_fetched_instrs : bp_l0_valid && pc_valid ? l0_fetched_instrs : fetched_instrs;
+
+    // ctrl signals to keep checking for on every posedge of the clock
+    always_ff@(posedge clk_in) begin
+        if (rst_N_in) begin
+            fetched_instrs <= next_instrs;
+            fetch_valid <= fetch_valid_next;
+            discard_l1i <= discard_l1i_next;
+            fetch_ready <= ready_next;
+            next_pc <= pc_next;
+            l1i_waiting <= l1i_waiting_next;
+        end else begin
+            fetched_instrs <= '0;
+            fetch_valid <= '0;
+            discard_l1i <= '0;
+            fetch_ready <= '0;
+            next_pc <= '0;
+            l1i_waiting <= '0;
         end
-        fetch_valid = 1;
-    end else begin
-        // stall waiting for l1i cacheline given to be valid
     end
-    if (bp_l1i_valid_in && pc_valid_in) begin
-        last_pc = l1i_addr_out;
-    end
-end
 
-// keep da pipeline pipelining
-always_ff@(posedge clk_in) begin
-    if (rst_N_in) begin
-        next_pc <= last_pc;
-    end else begin
-        fetch_valid <= '0;
-        last_instr_block <= '0;
-    end
-end
+endmodule
 
+module align_instructions #(
+    parameter SUPER_SCALAR_WIDTH = op_pkg::SUPER_SCALAR_WIDTH,
+    parameter CACHE_LINE_WIDTH   = 64,
+    parameter INSTRUCTION_WIDTH  = op_pkg::INSTRUCTION_WIDTH
+)(
+    input  logic [$clog2(CACHE_LINE_WIDTH)-1:0] offset,
+    input  logic [7:0] cacheline [CACHE_LINE_WIDTH-1:0],
+    output logic [INSTRUCTION_WIDTH-1:0] instr_out [SUPER_SCALAR_WIDTH-1:0]
+);
 
+    generate
+        for (genvar i = 0; i < SUPER_SCALAR_WIDTH; i++) begin : instr_extract
+            assign instr_out[i] = {
+                cacheline[offset + (i*4) + 3],
+                cacheline[offset + (i*4) + 2],
+                cacheline[offset + (i*4) + 1],
+                cacheline[offset + (i*4) + 0]
+            };
+        end
+    endgenerate
 endmodule
