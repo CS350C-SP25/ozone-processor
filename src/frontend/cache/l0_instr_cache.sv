@@ -11,7 +11,7 @@ module l0_instruction_cache #(
 ) (
     input logic [PC_SIZE-1:0] l1i_pc,  // address we check cache for
     input logic l1_valid,  // if the l1 is ready to give us data
-    input logic [LINE_SIZE_BYTES*8-1:0] l1_data,  // data coming in from L1
+    input logic [7:0] l1_data [LINE_SIZE_BYTES*8-1:0],  // data coming in from L1
     input logic [PC_SIZE-1:0] bp_pc, // ????
     input logic [PC_SIZE-1:0] bp_pred_pc, // ?? 
 

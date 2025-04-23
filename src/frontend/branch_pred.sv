@@ -80,6 +80,7 @@ module branch_pred #(
       .stack_out(ras_top)
   );
 
+
   l0_instruction_cache #(
       .SETS(8),
       .LINE_SIZE_BYTES(64),
@@ -96,41 +97,13 @@ module branch_pred #(
   );
 
 
-
-
   function automatic logic [INSTRUCTION_WIDTH-1:0] get_instr_bits(
       input logic [CACHE_LINE_WIDTH-1:0][7:0] cacheline, input logic [63:0] starting_addr,
       input int instr_idx);
     return cacheline[starting_addr[5:0]+(instr_idx<<2)+3:starting_addr[5:0]+(instr_idx<<2)];
   endfunction
 
-  function automatic void pred_bcond(input logic [63:0] pc,
-                                     input logic signed [18:0] offset,  // takes a signed offset
-                                     output logic branch_taken, output logic pred_pc);
-    // get n bits from pc
-    logic [PHT_N-1:0] pc_n_bits;
-    logic [PHT_N+GHR_K-1:0] pht_index;
-    logic [1:0] counter;
-    pc_n_bits = pc[PHT_N-1:0];
-
-    // make the index
-    pht_index = {ghr, pc_n_bits};
-
-    counter = pht[pht_index];
-
-    branch_taken = (counter >= 2);  // this is prob wrong
-
-    // pred_pc
-    if (branch_taken) begin
-      pred_pc = pc + 64'(offset);  // this needs to be signed sooo
-      // offset is 19 bits long
-      // how do we add that to pc
-      // pc is 64 bits
-    end else begin
-      pred_pc = pc + 64'h4;
-    end
-  endfunction
-
+  // PRE - DECODE
   function automatic void process_pc (
     input logic [7:0] cacheline[CACHE_LINE_WIDTH-1:0],
     input logic [63:0] pc,
@@ -250,14 +223,18 @@ module branch_pred #(
       ghr <= '0;
       pht <= '0;
     end
-  end
+  end 
+
+  // todo ready valid for bp
+  // todo sign extend
+  // todo comp erfrors
 
   logic [PHT_N+GHR_K-1:0] pht_index_update;
   logic [PHT_N-1:0] pc_index_update;
   always_comb begin
     pht_next = pht;
     ghr_next = ghr;
-
+   
     if (x_bcond_resolved) begin
       // we got a PC and resolution from the execution phase.
       // we have gotten a valid pc from the pc, lets fetch the instruction bits from the l1i. 
@@ -291,9 +268,9 @@ module branch_pred #(
            pc_valid_out_next = 1'b1;
         end
     end else begin
-        if (l1i_valid && l1i_q[64]) begin
+        if (l1i_valid && l1i_q[64]) begin // shouldnt it be l0? im confused
             l1i_addr_out_next = l1i_q[63:0];
-            l1i_q_next = '0; //we skip this guy and now we can send proccess this current PC
+            l1i_q_next = '0; // we skip this guy and now we can send proccess this current PC
             pc_valid_out_next = 1'b1;
         end else if (l1i_valid) begin // we got the instruction bits back. predecode, update ras, pred_pc, look up ghr, etc
             // this processes a cacheline from l1i
@@ -308,3 +285,32 @@ module branch_pred #(
     end
   end
 endmodule
+
+
+  // // LEGACY ??
+  // function automatic void pred_bcond(input logic [63:0] pc,
+  //                                    input logic signed [18:0] offset,  // takes a signed offset
+  //                                    output logic branch_taken, output logic pred_pc);
+  //   // get n bits from pc
+  //   logic [PHT_N-1:0] pc_n_bits;
+  //   logic [PHT_N+GHR_K-1:0] pht_index;
+  //   logic [1:0] counter;
+  //   pc_n_bits = pc[PHT_N-1:0];
+
+  //   // make the index
+  //   pht_index = {ghr, pc_n_bits};
+
+  //   counter = pht[pht_index];
+
+  //   branch_taken = (counter >= 2);  // this is prob wrong
+
+  //   // pred_pc
+  //   if (branch_taken) begin
+  //     pred_pc = pc + 64'(offset);  // this needs to be signed sooo
+  //     // offset is 19 bits long
+  //     // how do we add that to pc
+  //     // pc is 64 bits
+  //   end else begin
+  //     pred_pc = pc + 64'h4;
+  //   end
+  // endfunction
