@@ -7,7 +7,7 @@ module rat #(
     parameter NUM_ARCH_REGS = reg_pkg::NUM_ARCH_REGS
 ) (
     input clk,
-    input rst,
+    input rst_N_in,
 
 
     // coming from instr queue, will need an adapter
@@ -45,7 +45,7 @@ module rat #(
   assign regfile = regFileOut;
 
   always_ff @(posedge clk) begin
-    if (!rst) begin
+    if (!rst_N_in) begin
       reg_valid <= 0;
     end else begin
       rob_data_valid <= making_progress;
