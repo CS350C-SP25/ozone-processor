@@ -1,13 +1,10 @@
 `include "../../util/uop_pkg.sv"
-`include "../reg_pkg.sv"
-`include "../rob_pkg.sv"
-`include "../is_pkg.sv"
+`include "../packages/rob_pkg.sv"
 `include "../../fpu/fpmult.sv"
 `include "../../fpu/fpadder.sv"
 
 import uop_pkg::*;
 import reg_pkg::*;
-import is_pkg::*;
 import rob_pkg::*;
 
 module lsu_ins_decoder #(
