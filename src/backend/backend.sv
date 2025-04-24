@@ -35,27 +35,28 @@ module backend(
     logic [2*uop_pkg::INSTR_Q_WIDTH+1:0][$clog2(reg_pkg::NUM_PHYS_REGS)-1:0] rrat_free_regs;
     logic [2*uop_pkg::INSTR_Q_WIDTH+1:0] rrat_free_valid;
 
-    logic [11:0] read_en;
-    logic [$clog2(reg_pkg::NUM_PHYS_REGS)-1:0] read_index[11:0];
-    logic [reg_pkg::WORD_SIZE-1:0] read_data[11:0];
+    logic [15:0] read_en;
+    logic [$clog2(reg_pkg::NUM_PHYS_REGS)-1:0] read_index[15:0];
+    logic [reg_pkg::WORD_SIZE-1:0] read_data[15:0];
 
     // ROB <-> Scheduler signals (can be broken out further)
     rob_pkg::rob_issue alu_insn, fpu_insn, lsu_insn, bru_insn;
     is_pkg::exec_packet alu_insn_pkt, fpu_insn_pkt, lsu_insn_pkt, bru_insn_pkt;
     logic alu_ready, fpu_ready, lsu_ready, bru_ready;
 
-    assign read_en = {{3{alu_insn.valid}}, {3{fpu_insn.valid}}, {3{lsu_insn.valid}}, {3{bru_insn.valid}}};
+    assign read_en = {{4{alu_insn.valid}}, {3{fpu_insn.valid}}, 1'b0, {3{lsu_insn.valid}}, 1'b0, {4{bru_insn.valid}}};
     assign read_index = {
-        alu_insn.dest_reg_phys, alu_insn.r1_reg_phys, alu_insn.r2_reg_phys,
-        fpu_insn.dest_reg_phys, fpu_insn.r1_reg_phys, fpu_insn.r2_reg_phys,
-        lsu_insn.dest_reg_phys, lsu_insn.r1_reg_phys, lsu_insn.r2_reg_phys,
-        bru_insn.dest_reg_phys, bru_insn.r1_reg_phys, bru_insn.r2_reg_phys
+        alu_insn.dest_reg_phys, alu_insn.r1_reg_phys, alu_insn.r2_reg_phys, alu_insn.nzcv_reg_phys,
+        fpu_insn.dest_reg_phys, fpu_insn.r1_reg_phys, fpu_insn.r2_reg_phys, fpu_insn.nzcv_reg_phys,
+        lsu_insn.dest_reg_phys, lsu_insn.r1_reg_phys, lsu_insn.r2_reg_phys, lsu_insn.nzcv_reg_phys,
+        bru_insn.dest_reg_phys, bru_insn.r1_reg_phys, bru_insn.r2_reg_phys, bru_insn.nzcv_reg_phys
     };
     assign alu_insn_pkt = {
         alu_insn.valid, 
         alu_insn.uop, 
         alu_insn.ptr, 
         alu_insn.dest_reg_phys, 
+        alu_insn.nzcv_reg_phys,
         read_data[0], 
         read_data[1],
         read_data[2]
@@ -65,27 +66,30 @@ module backend(
         fpu_insn.uop, 
         fpu_insn.ptr, 
         fpu_insn.dest_reg_phys, 
-        read_data[3], 
-        read_data[4],
-        read_data[5]
+        fpu_insn.nzcv_reg_phys,
+        read_data[4], 
+        read_data[5],
+        read_data[6]
     };
     assign lsu_insn_pkt = {
         lsu_insn.valid, 
         lsu_insn.uop, 
         lsu_insn.ptr, 
-        lsu_insn.dest_reg_phys, 
-        read_data[6], 
-        read_data[7],
-        read_data[8]
+        lsu_insn.dest_reg_phys,
+        lsu_insn.nzcv_reg_phys, 
+        read_data[8], 
+        read_data[9],
+        read_data[10]
     };
     assign bru_insn_pkt = {
         bru_insn.valid, 
         bru_insn.uop, 
         bru_insn.ptr, 
         bru_insn.dest_reg_phys, 
-        read_data[9], 
-        read_data[10],
-        read_data[11]
+        bru_insn.nzcv_reg_phys,
+        read_data[12], 
+        read_data[13],
+        read_data[14]
     };
 
     // RRAT
@@ -165,13 +169,15 @@ module backend(
     );
 
     // ALU
-    logic alu_ready_out;
     RegFileWritePort alu_reg_pkt;
     NZCVWritePort alu_nzcv;
+    logic [3:0] alu_nzcv_flags;
+    assign alu_nzcv_flags = read_data[3][3:0]; // NZCV flags from the register file
 
     alu_ins_decoder alu_decoder (
         .clk_in(clk_in),
         .insn_in(alu_insn_pkt),
+        .nzcv_in(alu_nzcv_flags),
         .ready_out(alu_ready),
         .reg_pkt_out(alu_reg_pkt),
         .nzcv_out(alu_nzcv)
@@ -254,16 +260,18 @@ module backend(
     RegFileWritePort bru_reg_pkt;
     logic [18:0] branch_offset;
     logic branch_taken;
+    logic [3:0] bru_nzcv_flags;
     assign taken_out = branch_taken;
     assign pc_out = bru_insn_pkt.uop.pc;
     assign correction_offset_out = branch_offset;
     assign pc_incorrect_out = bru_insn_pkt.uop.data.predict_taken != branch_taken;
     assign bcond_resolved_out = bru_insn_pkt.valid;
+    assign bru_nzcv_flags = read_data[15][3:0]; // NZCV flags from the register file
 
     bru_ins_decoder bru_decoder (
         .insn_in(bru_insn_pkt),
         .curr_pc(64'h0), // stub
-        .NZCV_flags(alu_nzcv.nzcv),
+        .NZCV_flags(bru_nzcv_flags),
         .ready_out(bru_ready),
         .branch_taken(branch_taken),
         .branch_offset(branch_offset),
@@ -272,7 +280,7 @@ module backend(
 
     // Regfile (stub wiring)
     reg_file  #(
-        .NUM_READ_PORTS(12), // 4 functional units * 3 (rd, r1, r2) registers
+        .NUM_READ_PORTS(16), // 4 functional units * 4 (rd, r1, r2, nzcv) registers
         .NUM_WRITE_PORTS(4) // 4 functional units for dest regs
     ) regfile_inst (
         .clk(clk_in),
@@ -280,7 +288,8 @@ module backend(
         .read_en(read_en), 
         .read_index(read_index),
         .read_data(read_data),
-        .write_ports('{alu_reg_pkt, fpu_reg_pkt, lsu_reg_pkt, bru_reg_pkt})
+        .write_ports('{alu_reg_pkt, fpu_reg_pkt, lsu_reg_pkt, bru_reg_pkt}),
+        .nzcv_write_port(alu_nzcv)
     );
 
 endmodule

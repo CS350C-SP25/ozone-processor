@@ -37,5 +37,6 @@ import reg_pkg::*;
         logic [$clog2(reg_pkg::NUM_PHYS_REGS)-1:0] dest_reg_phys; // forward these values from ROB to save on wires
         logic [$clog2(reg_pkg::NUM_PHYS_REGS)-1:0] r1_reg_phys; // To operate on
         logic [$clog2(reg_pkg::NUM_PHYS_REGS)-1:0] r2_reg_phys; // To operate on
+        logic [$clog2(reg_pkg::NUM_PHYS_REGS)-1:0] nzcv_reg_phys; // To operate on
     } rob_issue; // struct for issuing insn from the ROB
 endpackage

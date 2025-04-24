@@ -17,7 +17,8 @@ module reg_file #(
     // Read data outputs: an array to output the register contents
     output logic [WORD_SIZE-1:0] read_data [NUM_READ_PORTS-1:0],
     // Write ports as defined in the package
-    input  RegFileWritePort [NUM_WRITE_PORTS-1:0] write_ports
+    input  RegFileWritePort [NUM_WRITE_PORTS-1:0] write_ports,
+    input NZCVWritePort nzcv_write_port // NZCV write port
 );
 
     import reg_pkg::*;
@@ -49,6 +50,10 @@ module reg_file #(
                 if (write_ports[i].en) begin
                     registers[ write_ports[i].index_in ] <= write_ports[i].data_in;
                 end
+            end
+            if (nzcv_write_port.valid) begin
+                // Write to NZCV register if valid
+                registers[nzcv_write_port.index_in] <= nzcv_write_port.nzcv;
             end
         end
     end

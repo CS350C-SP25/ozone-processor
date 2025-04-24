@@ -91,8 +91,8 @@ module reorder_buffer #(
     output rob_issue alu_insn_out, 
     output rob_issue fpu_insn_out,
 
-    output rob_entry [1:0] rrat_update_out, // update the rrat mapping for the physical reg to arch reg mapping
-    output logic [1:0] rrat_update_valid_out // 1 if the rrat update is valid
+    output rob_entry [uop_pkg::INSTR_Q_WIDTH-1:0] rrat_update_out, // update the rrat mapping for the physical reg to arch reg mapping
+    output logic [uop_pkg::INSTR_Q_WIDTH-1:0] rrat_update_valid_out // 1 if the rrat update is valid
 );
     // ** REORDER_BUFFER_QUEUE PARAMS **
     // queue input
@@ -164,6 +164,7 @@ module reorder_buffer #(
                 insn_out_t.dest_reg_phys = cur_entry.dest_reg_phys;
                 insn_out_t.r1_reg_phys = cur_entry.r1_reg_phys;
                 insn_out_t.r2_reg_phys = cur_entry.r2_reg_phys;
+                insn_out_t.nzcv_reg_phys = cur_entry.nzcv_reg_phys;
             end
         end
     endfunction
