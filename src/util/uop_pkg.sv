@@ -1,3 +1,5 @@
+`ifndef UOP_PKG_SV
+`define UOP_PKG_SV
 package uop_pkg;
 
     // Parameters for queue depth/width
@@ -112,3 +114,5 @@ package uop_pkg;
         out = in;
     endfunction
 endpackage
+
+`endif // UOP_PKG_SV

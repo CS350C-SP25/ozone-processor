@@ -18,8 +18,8 @@ module rat #(
     input logic rob_ready,
 
     // from FRL
-    output logic [2*uop_pkg::INSTR_Q_WIDTH+1:0] frl_ready,  // we consumed the values (6 per cycle)
-    input logic [2*uop_pkg::INSTR_Q_WIDTH+1:0][$clog2(NUM_PHYS_REGS) - 1:0] free_register_data,
+    output logic [3*uop_pkg::INSTR_Q_WIDTH-1:0] frl_ready,  // we consumed the values (6 per cycle)
+    input logic [3*uop_pkg::INSTR_Q_WIDTH-1:0][$clog2(NUM_PHYS_REGS) - 1:0] free_register_data,
     input logic frl_valid,  // all regs are full already, just wait it out
 
     // for intermediate writing
@@ -55,10 +55,12 @@ module rat #(
         uop_reg dst;
         uop_reg src1;
         uop_reg src2;
+        logic set_nzcv;
+
+        get_data_rr(instr[i].data, regs_rr_in[i]);
+        get_data_ri(instr[i].data, regs_ri_in[i]);
 
         if (instr[i].valb_sel) begin  // valb is a register
-          get_data_rr(instr[i].data, regs_rr_in[i]);
-
           if (!reg_valid[regs_rr_in[i].src1.gpr] || !reg_valid[regs_rr_in[i].src2.gpr]) begin
             $display("UH OH THIS REG DOESNT HAVE ANYTHING VALID IN IT; basically NOBODYS USED IT YET");
           end
@@ -66,30 +68,30 @@ module rat #(
           dst  = regs_rr_in[i].dst;
           src1 = regs_rr_in[i].src1;
           src2 = regs_rr_in[i].src2;
+          set_nzcv = regs_rr_in[i].set_nzcv;
 
-          regFileOut[i].index_in <= free_register_data[2+i];
-          regFileOut[i].en       <= 1;
-          regFileOut[i].data_in  <= 64'(regs_ri_in[i].imm);
-        end else begin  // we have an intermediate
-          get_data_ri(instr[i].data, regs_ri_in[i]);
-
+          regFileOut[i].index_in <= 0;
+          regFileOut[i].en       <= 0;
+          regFileOut[i].data_in  <= 0;
+       end else begin  // we have an intermediate
           if (!reg_valid[regs_ri_in[i].src.gpr]) begin
             $display("UH OH THIS REG DOESNT HAVE ANYTHING VALID IN IT; basically NOBODYS USED IT YET");
           end
 
           dst  = regs_ri_in[i].dst;
           src1 = regs_ri_in[i].src;
+          set_nzcv = regs_ri_in[i].set_nzcv;
           src2 = free_register_data[2+i];  // intermediate phys reg
 
-          regFileOut[i].index_in <= 0;
-          regFileOut[i].en       <= 0;
-          regFileOut[i].data_in  <= 0;
+          regFileOut[i].index_in <= free_register_data[2+i];
+          regFileOut[i].en       <= 1;
+          regFileOut[i].data_in  <= 64'(regs_ri_in[i].imm);
         end
 
         // Mark FRL consumption
-        frl_ready[i]     <= making_progress;                        // dst reg used
-        frl_ready[2+i]   <= making_progress && !instr[i].valb_sel; // intermediate only if RI
-        frl_ready[4+i]   <= making_progress;                        // NZCV reg always used
+        frl_ready[0*uop_pkg::INSTR_Q_WIDTH+i]   <= making_progress;                        // dst reg used
+        frl_ready[1*uop_pkg::INSTR_Q_WIDTH+i]   <= making_progress && !instr[i].valb_sel; // intermediate only if RI
+        frl_ready[2*uop_pkg::INSTR_Q_WIDTH+i]   <= set_nzcv;                              // if nzcv reg used
 
         // Write ROB entry
         outputs[i].pc            <= instr[i].pc;
@@ -99,7 +101,8 @@ module rat #(
         outputs[i].uop           <= instr[i];
         outputs[i].r1_reg_phys   <= store[src1];
         outputs[i].r2_reg_phys   <= store[src2];
-        outputs[i].dest_reg_phys <= free_register_data[i];
+        outputs[i].dest_reg_phys <= free_register_data[0*uop_pkg::INSTR_Q_WIDTH+i];
+        outputs[i].nzcv_reg_phys <= set_nzcv ? free_register_data[2*uop_pkg::INSTR_Q_WIDTH+i] : store[NUM_ARCH_REGS];
         outputs[i].status        <= ISSUED;
 
         if (making_progress) begin
@@ -108,7 +111,7 @@ module rat #(
 
           // Allocate and map NZCV
           reg_valid[NUM_ARCH_REGS] <= 1;
-          store[NUM_ARCH_REGS]     <= free_register_data[2*uop_pkg::INSTR_Q_WIDTH+i];
+          if (set_nzcv) store[NUM_ARCH_REGS] <= free_register_data[2*uop_pkg::INSTR_Q_WIDTH+i];
         end
       end
     end
