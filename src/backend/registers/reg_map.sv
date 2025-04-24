@@ -1,4 +1,4 @@
-`include "../reg_pkg.sv"
+`include "../packages/reg_pkg.sv"
 import reg_pkg::*;
 
 // used for the RAT + RRAT

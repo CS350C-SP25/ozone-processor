@@ -14,6 +14,7 @@ module rrat #(
     input rst,
 
     // from reorder buffer
+    // rob_entry_valid is a bit vector indicating which entries are actual requests, or just empty for this clock cycle
     input [uop_pkg::INSTR_Q_WIDTH-1:0] rob_entry_valid,
     input rob_pkg::rob_entry [uop_pkg::INSTR_Q_WIDTH-1:0] rob_data,
 
@@ -25,35 +26,63 @@ module rrat #(
     // RRAT table: includes NZCV at index NUM_ARCH_REGS
     logic [$clog2(NUM_PHYS_REGS)-1:0] rrat_table [NUM_ARCH_REGS:0];
     uop_rr rr;
+    uop_ri ri;
     int base;
 
     always_ff @(posedge clk) begin
         if (rst) begin
-            for (int i = 0; i <= NUM_ARCH_REGS; i++) begin
+            for (int i = 0; i <= NUM_ARCH_REGS - 1; i++) begin
                 rrat_table[i] <= i;  // 1-to-1 initial mapping
             end
+            rrat_table[NUM_ARCH_REGS] <= NUM_ARCH_REGS; // NZCV
             free_registers_valid_out <= '0;
             register_mappings        <= '0;
         end else begin
             for (int i = 0; i < uop_pkg::INSTR_Q_WIDTH; i++) begin
                 if (rob_entry_valid[i]) begin
-                    get_data_rr(rob_data[i].uop.data, rr);
-
+                    logic set_nzcv;
                     // Update RRAT with latest committed physical mappings
-                    rrat_table[rr.dst.gpr]       <= rob_data[i].dest_reg_phys;
-                    rrat_table[rr.src1.gpr]      <= rob_data[i].r1_reg_phys;
-                    rrat_table[rr.src2.gpr]      <= rob_data[i].r2_reg_phys;
-                    rrat_table[NUM_ARCH_REGS]    <= rob_data[i].nzcv_reg_phys;
+                    // Update GPR mapping for both RR and RI formats
+                    if (rob_data[i].uop.valb_sel) begin
+                        // RR: two regsiter operands
+                        get_data_rr(rob_data[i].uop.data, rr);
+                        set_nzcv <= rr.set_nzcv;
+                        /* first, check if any of the architectural registers are mapped differently. If they are,
+                             we need to free the coresponding physical register before updating the mapping*/
+                        logic [$clog2(NUM_ARCH_REGS)-1:0] arch_dst = rr.dst.gpr;
+                        logic [$clog2(NUM_PHYS_REGS)-1:0] new_dest = rob_data[i].dest_reg_phys;
+                        logic [$clog2(NUM_PHYS_REGS)-1:0] old_dest = rrat_table[arch_dst];
 
-                    // Mark physical registers as free
-                    base = i * 3;
-                    free_registers_valid_out[base + 0] <= 1;
-                    free_registers_valid_out[base + 1] <= 1;
-                    free_registers_valid_out[base + 2] <= 1;
+                        if (old_dest != new_dest) begin
+                            // free the old destination register
+                            free_registers_valid_out[2*i] <= 1'b1;
+                            register_mappings[2*i] <= old_dest;
+                        end
 
-                    register_mappings[base + 0] <= rob_data[i].r1_reg_phys;
-                    register_mappings[base + 1] <= rob_data[i].r2_reg_phys;
-                    register_mappings[base + 2] <= rob_data[i].nzcv_reg_phys;
+                        rrat_table[rr.dst.gpr] <= rob_data[i].dest_reg_phys;
+                        rrat_table[rr.src1.gpr] <= rob_data[i].r1_reg_phys;
+                        rrat_table[rr.src2.gpr] <= rob_data[i].r2_reg_phys;
+                    end else begin
+                        // ri
+                        get_data_ri(rob_data[i].uop.data, ri);
+                        set_nzcv <= ri.set_nzcv;
+
+                        logic [$clog2(NUM_ARCH_REGS)-1:0] arch_dst = ri.dst.gpr;
+                        logic [$clog2(NUM_PHYS_REGS)-1:0] new_dest = rob_data[i].dest_reg_phys;
+                        logic [$clog2(NUM_PHYS_REGS)-1:0] old_dest = rrat_table[arch_dst];
+
+                        if (old_dest != new_dest) begin
+                            free_registers_valid_out[2*i+1]     <= 1'b1;
+                            register_mappings[2*i+1]           <= old_dest;
+                        end
+
+                        rrat_table[ri.dst.gpr] <= rob_data[i].dest_reg_phys;
+                        rrat_table[ri.src.gpr] <= rob_data[i].r1_reg_phys;
+                    end
+                    // Update NZCV mapping
+                    if (rob_data[i].uop.set_nzcv) begin
+                        rrat_table[NUM_ARCH_REGS] <= rob_data[i].nzcv_reg_phys;
+                    end
                 end
             end
         end
