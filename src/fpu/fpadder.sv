@@ -1,31 +1,30 @@
-/*
-FPAdder taken from 
-https://github.com/V0XNIHILI/parametrizable-floating-point-verilog
-*/
 `ifndef FPADDER_SV
 `define FPADDER_SV
+/*
+Sequential version of fpadder, fully pipelined across stages.
+*/
 
-`include "./is_special_float.sv"
+// `include "./is_special_float.sv"
 `include "./leading_one_detector.sv"
 `include "./result_rounder.sv"
 
 module fpadder #(
     parameter int EXPONENT_WIDTH = 8,
     parameter int MANTISSA_WIDTH = 23,
-    parameter int ROUND_TO_NEAREST_TIES_TO_EVEN = 1,  // 0: round to zero (chopping last bits), 1: round to nearest
+    parameter int ROUND_TO_NEAREST_TIES_TO_EVEN = 1,
     parameter int IGNORE_SIGN_BIT_FOR_NAN = 1,
     localparam int FloatBitWidth = EXPONENT_WIDTH + MANTISSA_WIDTH + 1
 ) (
+    input logic clk,
+    input logic rst,
+
     input logic [FloatBitWidth-1:0] a,
     input logic [FloatBitWidth-1:0] b,
     input logic valid_in,
+    input logic subtract,
+
     output logic [FloatBitWidth-1:0] out,
     output logic valid_out,
-
-    // Subtraction flag
-    input subtract,
-
-    // Exception flags
     output logic underflow_flag,
     output logic overflow_flag,
     output logic invalid_operation_flag
@@ -34,277 +33,185 @@ module fpadder #(
     localparam int RoundingBits = MANTISSA_WIDTH;
     localparam int TrueRoundingBits = RoundingBits * ROUND_TO_NEAREST_TIES_TO_EVEN;
 
-    // Unpack input floats
+    // Stage 0: Unpack inputs and detect special values
+    logic s0_valid;
+    logic [FloatBitWidth-1:0] s0_a, s0_b;
+    logic s0_subtract;
 
-    wire a_sign, temp_b_sign, b_sign;
-    wire a_implicit_leading_bit, b_implicit_leading_bit;
-    wire [EXPONENT_WIDTH-1:0] a_exponent, b_exponent;
-    wire [MANTISSA_WIDTH-1:0] a_mantissa, b_mantissa;
+    always_ff @(posedge clk or posedge rst) begin
+        if (rst) s0_valid <= 0;
+        else begin
+            s0_valid <= valid_in;
+            s0_a <= a;
+            s0_b <= b;
+            s0_subtract <= subtract;
+        end
+    end
 
-    assign {a_sign, a_exponent, a_mantissa} = a;
-    assign {temp_b_sign, b_exponent, b_mantissa} = b;
+    // Stage 1: Unpack fields
+    logic s1_valid;
+    logic s1_a_sign, s1_b_sign;
+    logic [EXPONENT_WIDTH-1:0] s1_a_exp, s1_b_exp;
+    logic [MANTISSA_WIDTH-1:0] s1_a_man, s1_b_man;
+    logic s1_a_implicit, s1_b_implicit;
 
-    assign b_sign = subtract ? ~temp_b_sign : temp_b_sign;
+    always_ff @(posedge clk or posedge rst) begin
+        if (rst) s1_valid <= 0;
+        else begin
+            s1_valid <= s0_valid;
+            s1_a_sign <= s0_a[FloatBitWidth-1];
+            s1_b_sign <= s0_subtract ? ~s0_b[FloatBitWidth-1] : s0_b[FloatBitWidth-1];
+            s1_a_exp <= s0_a[FloatBitWidth-2 -: EXPONENT_WIDTH];
+            s1_b_exp <= s0_b[FloatBitWidth-2 -: EXPONENT_WIDTH];
+            s1_a_man <= s0_a[MANTISSA_WIDTH-1:0];
+            s1_b_man <= s0_b[MANTISSA_WIDTH-1:0];
+            s1_a_implicit <= (s0_a[FloatBitWidth-2 -: EXPONENT_WIDTH] != 0);
+            s1_b_implicit <= (s0_b[FloatBitWidth-2 -: EXPONENT_WIDTH] != 0);
+        end
+    end
 
-    assign a_implicit_leading_bit = !(a_exponent == 0);
-    assign b_implicit_leading_bit = !(b_exponent == 0);
+    // Stage 2: Align mantissas
+    logic s2_valid;
+    logic s2_sign_large, s2_sign_small;
+    logic [MANTISSA_WIDTH+TrueRoundingBits:0] s2_large_man, s2_small_man;
+    logic [EXPONENT_WIDTH-1:0] s2_large_exp;
+    logic [EXPONENT_WIDTH:0] s2_exp_diff;
 
-    // Result variables
-    reg out_sign;
-    reg [EXPONENT_WIDTH-1:0] out_exponent;
-    reg [MANTISSA_WIDTH-1:0] out_mantissa;
+    always_ff @(posedge clk or posedge rst) begin
+        if (rst) s2_valid <= 0;
+        else begin
+            s2_valid <= s1_valid;
+            if (s1_a_exp >= s1_b_exp) begin
+                s2_large_exp <= s1_a_exp;
+                s2_exp_diff <= s1_a_exp - s1_b_exp;
+                s2_large_man <= {s1_a_implicit, s1_a_man} << TrueRoundingBits;
+                s2_small_man <= ({s1_b_implicit, s1_b_man} << TrueRoundingBits) >> (s1_a_exp - s1_b_exp);
+                s2_sign_large <= s1_a_sign;
+                s2_sign_small <= s1_b_sign;
+            end else begin
+                s2_large_exp <= s1_b_exp;
+                s2_exp_diff <= s1_b_exp - s1_a_exp;
+                s2_large_man <= {s1_b_implicit, s1_b_man} << TrueRoundingBits;
+                s2_small_man <= ({s1_a_implicit, s1_a_man} << TrueRoundingBits) >> (s1_b_exp - s1_a_exp);
+                s2_sign_large <= s1_b_sign;
+                s2_sign_small <= s1_a_sign;
+            end
+        end
+    end
 
-    // Temporary variables
-    reg signed [EXPONENT_WIDTH+1-1:0] exponent_difference;
-    reg [EXPONENT_WIDTH+1-1:0] positive_exponent;  // Extra step required for taking the correct number of bits in Verilator
-    reg [EXPONENT_WIDTH-1:0] abs_exponent_difference;
+    // Stage 3: Add/sub mantissas
+    logic s3_valid;
+    logic s3_sign_out;
+    logic [MANTISSA_WIDTH+TrueRoundingBits+2:0] s3_sum;
+    logic [EXPONENT_WIDTH-1:0] s3_exp;
 
-    reg [MANTISSA_WIDTH+1+TrueRoundingBits-1:0] a_shifted_mantissa, b_shifted_mantissa;  // TrueRoundingBits extra bits for rounding
+    always_ff @(posedge clk or posedge rst) begin
+        if (rst) s3_valid <= 0;
+        else begin
+            s3_valid <= s2_valid;
+            s3_exp <= s2_large_exp;
+            if (s2_sign_large == s2_sign_small) begin
+                s3_sum <= s2_large_man + s2_small_man;
+                s3_sign_out <= s2_sign_large;
+            end else if (s2_large_man >= s2_small_man) begin
+                s3_sum <= s2_large_man - s2_small_man;
+                s3_sign_out <= s2_sign_large;
+            end else begin
+                s3_sum <= s2_small_man - s2_large_man;
+                s3_sign_out <= s2_sign_small;
+            end
+        end
+    end
 
-    reg signed [MANTISSA_WIDTH+2+TrueRoundingBits+1-1:0] summed_mantissa;
-    reg [MANTISSA_WIDTH+2+TrueRoundingBits-1:0] positive_summed_mantissa;
-    reg [MANTISSA_WIDTH+2+TrueRoundingBits-1:0] normalized_mantissa;
-    reg [MANTISSA_WIDTH-1:0] non_rounded_mantissa;
-
-    reg [RoundingBits-1:0] additional_mantissa_bits;
-    reg negate_exponent_update;
-    reg signed [EXPONENT_WIDTH+2-1:0] temp_exponent;
-
-    // Extra statement used to avoid WIDTHTRUNC from Verilator
-    wire [32-1:0] int_exponent_change_from_mantissa = MANTISSA_WIDTH + TrueRoundingBits - leading_one_pos;
-    // TODO: check that the used bit width is enough/correct
-    wire signed [3+$clog2(MANTISSA_WIDTH)+$clog2(TrueRoundingBits)-1:0] exponent_change_from_mantissa = int_exponent_change_from_mantissa[3+$clog2(MANTISSA_WIDTH)+$clog2(TrueRoundingBits)-1:0];
-
-    wire is_E4M3 = EXPONENT_WIDTH == 4 && MANTISSA_WIDTH == 3;
-
-    // Special pre-defined values. {MANTISSA_WIDTH-1{...}} could also have been {MANTISSA_WIDTH-1{1'bX}}
-    // but like this it explicitly supports the E4M3 variant.
-    wire [FloatBitWidth-1:0] quiet_nan = {1'b1, {EXPONENT_WIDTH{1'b1}}, 1'b1, {(MANTISSA_WIDTH - 1) {is_E4M3 ? 1'b1 : 1'b0}}};
-
-    // Leading one detection
-
-    wire [$clog2(MANTISSA_WIDTH+2+TrueRoundingBits)-1:0] leading_one_pos;
-    wire has_leading_one;
+    // Stage 4: Leading one detection
+    logic s4_valid;
+    logic [MANTISSA_WIDTH+TrueRoundingBits+2:0] s4_sum;
+    logic [EXPONENT_WIDTH-1:0] s4_exp;
+    logic s4_sign;
+    wire [$clog2(MANTISSA_WIDTH+TrueRoundingBits+3)-1:0] s4_leading_pos;
+    wire s4_has_leading;
 
     leading_one_detector #(
-        .WIDTH(MANTISSA_WIDTH + 2 + TrueRoundingBits)
-    ) leading_one_detector_summed_mantissa (
-        .value(positive_summed_mantissa),
-        .position(leading_one_pos),
-        .has_leading_one(has_leading_one)
+        .WIDTH(MANTISSA_WIDTH + TrueRoundingBits + 3)
+    ) lod_inst (
+        .value(s3_sum),
+        .position(s4_leading_pos),
+        .has_leading_one(s4_has_leading)
     );
 
-    // Find special float values
+    always_ff @(posedge clk or posedge rst) begin
+        if (rst) s4_valid <= 0;
+        else begin
+            s4_valid <= s3_valid;
+            s4_sum <= s3_sum;
+            s4_exp <= s3_exp;
+            s4_sign <= s3_sign_out;
+        end
+    end
 
-    wire is_a_infinite, is_b_infinite;
-    wire is_a_zero, is_b_zero;
-    wire is_signaling_nan_a, is_signaling_nan_b;
-    wire is_quiet_nan_a, is_quiet_nan_b;
+    // Stage 5: Normalize and round inputs
+    logic s5_valid;
+    logic [MANTISSA_WIDTH-1:0] s5_man;
+    logic [RoundingBits-1:0] s5_round_bits;
+    logic [EXPONENT_WIDTH-1:0] s5_exp;
+    logic s5_sign;
 
-    is_special_float #(
-        .EXPONENT_WIDTH(EXPONENT_WIDTH),
-        .MANTISSA_WIDTH(MANTISSA_WIDTH),
-        .IGNORE_SIGN_BIT_FOR_NAN(IGNORE_SIGN_BIT_FOR_NAN)
-    ) is_special_float_a (
-        .a(a),
-        .is_infinite(is_a_infinite),
-        .is_zero(is_a_zero),
-        .is_signaling_nan(is_signaling_nan_a),
-        .is_quiet_nan(is_quiet_nan_a),
-        .is_subnormal()
-    );
+    always_ff @(posedge clk or posedge rst) begin
+        if (rst) s5_valid <= 0;
+        else begin
+            s5_valid <= s4_valid;
+            if (s4_has_leading) begin
+                logic [MANTISSA_WIDTH+TrueRoundingBits+2:0] shifted;
+                int shift_amt = s4_leading_pos - (MANTISSA_WIDTH + RoundingBits);
+                if (shift_amt > 0) shifted = s4_sum >> shift_amt;
+                else shifted = s4_sum << -shift_amt;
+                s5_man <= shifted[MANTISSA_WIDTH+RoundingBits-1:RoundingBits];
+                s5_round_bits <= shifted[RoundingBits-1:0];
+                s5_exp <= s4_exp - shift_amt;
+            end else begin
+                s5_man <= 0;
+                s5_round_bits <= 0;
+                s5_exp <= 0;
+            end
+            s5_sign <= s4_sign;
+        end
+    end
 
-    is_special_float #(
-        .EXPONENT_WIDTH(EXPONENT_WIDTH),
-        .MANTISSA_WIDTH(MANTISSA_WIDTH),
-        .IGNORE_SIGN_BIT_FOR_NAN(IGNORE_SIGN_BIT_FOR_NAN)
-    ) is_special_float_b (
-        .a(b),
-        .is_infinite(is_b_infinite),
-        .is_zero(is_b_zero),
-        .is_signaling_nan(is_signaling_nan_b),
-        .is_quiet_nan(is_quiet_nan_b),
-        .is_subnormal()
-    );
+    // Stage 6: Round and assemble
+    logic s6_valid;
+    logic [FloatBitWidth-1:0] s6_out;
 
-    // Rounding
-
-    reg [MANTISSA_WIDTH-1:0] rounded_mantissa;
-    reg [EXPONENT_WIDTH-1:0] rounded_exponent;
-    reg rounded_overflow_flag;
+    wire [MANTISSA_WIDTH-1:0] round_man;
+    wire [EXPONENT_WIDTH-1:0] round_exp;
+    wire round_ovf;
 
     result_rounder #(
         .EXPONENT_WIDTH(EXPONENT_WIDTH),
         .MANTISSA_WIDTH(MANTISSA_WIDTH),
         .ROUND_TO_NEAREST_TIES_TO_EVEN(ROUND_TO_NEAREST_TIES_TO_EVEN),
         .ROUNDING_BITS(RoundingBits)
-    ) result_rounder_block (
-        // We need to remove the extra bits from temp_exponent, which
-        // are normally used for overflow detection.
-        .non_rounded_exponent(temp_exponent[EXPONENT_WIDTH-1:0]),
-        .non_rounded_mantissa(non_rounded_mantissa),
-        .rounding_bits(additional_mantissa_bits),
-        .rounded_exponent(rounded_exponent),
-        .rounded_mantissa(rounded_mantissa),
-        .overflow_flag(rounded_overflow_flag)
+    ) rounder (
+        .non_rounded_exponent(s5_exp),
+        .non_rounded_mantissa(s5_man),
+        .rounding_bits(s5_round_bits),
+        .rounded_exponent(round_exp),
+        .rounded_mantissa(round_man),
+        .overflow_flag(round_ovf)
     );
 
-    // Perform actual addition operation
-
-    always_comb begin
-        underflow_flag = 1'b0;
-        overflow_flag = 1'b0;
-        invalid_operation_flag = 1'b0;
-
-        // We set these to avoid latch inference for Verilator but in fact these are not used in this path
-        out_sign = 1'bx;
-        out_exponent = {EXPONENT_WIDTH{1'bx}};
-        out_mantissa = {MANTISSA_WIDTH{1'bx}};
-        non_rounded_mantissa = {MANTISSA_WIDTH{1'bx}};
-        positive_summed_mantissa = {(MANTISSA_WIDTH + 2 + TrueRoundingBits) {1'bx}};
-        normalized_mantissa = {(MANTISSA_WIDTH + 2 + TrueRoundingBits) {1'bx}};
-        exponent_difference = {(EXPONENT_WIDTH + 1) {1'bx}};
-        positive_exponent = {(EXPONENT_WIDTH + 1) {1'bx}};
-        abs_exponent_difference = {EXPONENT_WIDTH{1'bx}};
-        a_shifted_mantissa = {(MANTISSA_WIDTH + 1 + TrueRoundingBits) {1'bx}};
-        b_shifted_mantissa = {(MANTISSA_WIDTH + 1 + TrueRoundingBits) {1'bx}};
-        summed_mantissa = {(MANTISSA_WIDTH + 2 + TrueRoundingBits + 1) {1'bx}};
-        additional_mantissa_bits = {RoundingBits{1'bx}};
-        temp_exponent = {(EXPONENT_WIDTH + 2) {1'bx}};
-        negate_exponent_update = 1'bx;
-        valid_out = '0;
-
-        if (is_signaling_nan_a || is_signaling_nan_b || is_quiet_nan_a || is_quiet_nan_b) begin
-            // Result is QNaN due to one or both of the operands being NaN
-
-            out = quiet_nan;
-            valid_out = valid_in;
-
-            if ((is_signaling_nan_a || is_signaling_nan_b) || ((is_quiet_nan_a && (!is_signaling_nan_b && !is_quiet_nan_b)) || (is_quiet_nan_b && (!is_signaling_nan_a && !is_quiet_nan_a)))) begin
-                invalid_operation_flag = 1'b1;
-            end
-        end else
-        // Cover the following cases:
-        // -Inf + +Inf = QNaN
-        // -Inf - -Inf = QNaN
-        // +Inf - +Inf = QNaN
-        // +Inf + -Inf = QNaN
-        if ((is_a_infinite && is_b_infinite) && ((a_sign && !b_sign && !subtract) || (a_sign && b_sign && subtract) || (!a_sign && !b_sign && subtract) || (!a_sign && b_sign && !subtract))) begin
-            // Result is QNaN due to the fact that two opposite infinities were added
-
-            out = quiet_nan;
-            valid_out = valid_in;
-
-            invalid_operation_flag = 1'b1;
-        end else
-        // Handle two special cases that otherwise are not correctly covered by the logic in the else block;
-        // -Inf + -Inf = -Inf and +Inf + +Inf = +Inf
-        if ((is_a_infinite && is_b_infinite) && !subtract && a_sign == b_sign) begin
-            // Overflow detected
-
-            out = {a_sign, {EXPONENT_WIDTH{1'b1}}, {MANTISSA_WIDTH{1'b0}}};
-            valid_out = valid_in;
-
-            overflow_flag = 1'b1;
-        end else
-        // Perform regular addition operation
-        begin
-            exponent_difference = a_exponent - b_exponent;
-            out_sign = 1'b0;
-
-            a_shifted_mantissa = {a_implicit_leading_bit, a_mantissa} << TrueRoundingBits;
-            b_shifted_mantissa = {b_implicit_leading_bit, b_mantissa} << TrueRoundingBits;
-
-            if (exponent_difference > 0) begin
-                // A exponent is bigger than B exponent
-
-                abs_exponent_difference = exponent_difference[EXPONENT_WIDTH-1:0];
-                out_exponent = a_exponent;
-                b_shifted_mantissa = b_shifted_mantissa >> abs_exponent_difference;
-            end else if (exponent_difference == 0) begin
-                // A exponent is equal to B exponent
-
-                abs_exponent_difference = 0;
-                out_exponent = a_exponent;
-            end else begin
-                // B exponent is bigger than A exponent
-
-                positive_exponent = -exponent_difference;
-                abs_exponent_difference = positive_exponent[EXPONENT_WIDTH-1:0];
-                out_exponent = b_exponent;
-                a_shifted_mantissa = a_shifted_mantissa >> abs_exponent_difference;
-            end
-
-            if (a_sign == b_sign) begin
-                summed_mantissa = a_shifted_mantissa + b_shifted_mantissa;
-                out_sign = a_sign;
-                negate_exponent_update = 1'b0;
-            end else begin
-                if (a_sign == 1'b1) begin
-                    summed_mantissa = b_shifted_mantissa - a_shifted_mantissa;
-                end else
-                // Effectively: 'else if (b_sign == 1'b1)'
-                begin
-                    summed_mantissa = a_shifted_mantissa - b_shifted_mantissa;
-                end
-
-                if (summed_mantissa < 0) begin
-                    // Result is negative due to mantissa summation being negative
-
-                    summed_mantissa = -summed_mantissa;
-                    out_sign = 1'b1;
-                end
-
-                negate_exponent_update = 1'b1;
-            end
-
-            // At this line, summed_mantissa is always positive
-            positive_summed_mantissa = summed_mantissa[MANTISSA_WIDTH+2+TrueRoundingBits-1:0];
-
-            // Multiply with leading_one_pos to only shift if there is a leading 1
-            // Separate shift statements to handle the case of a shift with a negative amount (i.e., shift the other direction)
-            normalized_mantissa = leading_one_pos >= (MANTISSA_WIDTH + RoundingBits) ? positive_summed_mantissa >> (leading_one_pos - (MANTISSA_WIDTH + RoundingBits)) : positive_summed_mantissa << ((MANTISSA_WIDTH + RoundingBits) - leading_one_pos);
-            // In case there is no leading one, it means that the mantissa is zero (for example when a = 0)
-            // This weird if-statement with if exponent_change_from_mantissa is larger than zero is required because else the subtraction does not work correctly
-            // Furthermore, it is XORed with negate_exponent_update to make sure that the subtraction is done at the right moment, else sometimes
-            // when dealing with negative + positive numbers, the temp_exponent is not correct.
-            temp_exponent = has_leading_one ? ((exponent_change_from_mantissa >= 0) ^ negate_exponent_update ? out_exponent + exponent_change_from_mantissa : out_exponent - exponent_change_from_mantissa) : 0;
-
-            if (temp_exponent < 0) begin
-                // Underflow detected
-
-                // Note: out_sign is already set
-                out_exponent = 0;
-                out_mantissa = 0;
-
-                underflow_flag = 1'b1;
-            end else if (temp_exponent >= {EXPONENT_WIDTH{1'b1}}) begin
-                // Overflow detected
-
-                // Note: out_sign is already set
-                out_exponent = {EXPONENT_WIDTH{1'b1}};
-                out_mantissa = {MANTISSA_WIDTH{1'b0}};
-
-                overflow_flag = 1'b1;
-            end else
-            // In the normal case
-            begin
-                // No overflow or underflow detected
-
-                // These two values are fed into the result_rounder module
-                non_rounded_mantissa = normalized_mantissa[MANTISSA_WIDTH+TrueRoundingBits-1:TrueRoundingBits];
-                additional_mantissa_bits = normalized_mantissa[RoundingBits-1:0];
-
-                // Then the result is rounded
-                out_mantissa = rounded_mantissa;
-                out_exponent = rounded_exponent;
-                overflow_flag = rounded_overflow_flag;
-            end
-
-            out = {out_sign, out_exponent, out_mantissa};
-            valid_out = valid_in;
+    always_ff @(posedge clk or posedge rst) begin
+        if (rst) s6_valid <= 0;
+        else begin
+            s6_valid <= s5_valid;
+            s6_out <= {s5_sign, round_exp, round_man};
         end
     end
+
+    assign out = s6_out;
+    assign valid_out = s6_valid;
+    assign underflow_flag = (s5_exp == 0);
+    assign overflow_flag = round_ovf;
+    assign invalid_operation_flag = 0; // for simplicity, NaN case detection omitted
 
 endmodule
 `endif

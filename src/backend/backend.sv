@@ -21,7 +21,7 @@ module backend(
     output logic pc_incorrect_out,  // this means that the PC that we had originally predicted was incorrect. We need to fix.
     output logic taken_out,  // if the branch resolved as taken or not -- to update PHT and GHR
     output logic [63:0] pc_out, // pc that is currently in the exec phase (the one that just was resolved)
-    output logic [18:0] correction_offset_out, // the offset of the correction from x_pc (could change this to be just the actual correct PC instead ??)
+    output logic [18:0] correction_offset_out // the offset of the correction from x_pc (could change this to be just the actual correct PC instead ??)
 );
 
     // Interconnect signals (a subset, connect as needed)
@@ -177,7 +177,7 @@ module backend(
 
     // FPU
     RegFileWritePort fpu_reg_pkt;
-    logic [reg_pkg::WORD_SIZE-1:0] fpu_result;
+    logic [reg_pkg::WORD_SIZE-1:0] fpmult_result, fpadder_result;
     logic [reg_pkg::WORD_SIZE-1:0] fpu_a_out;
     logic [reg_pkg::WORD_SIZE-1:0] fpu_b_out;
     logic fpmult_valid_out, fpadder_valid_out;
@@ -188,7 +188,7 @@ module backend(
         .rst_N_in(rst_N_in),
         .flush_in(1'b0),
         .insn_in(fpu_insn_pkt),
-        .fpu_result(fpu_result),
+        .fpu_result(fpmult_result_valid ? fpmult_result : fpadder_result),
         .fpu_valid(fpmult_result_valid | fpadder_result_valid),
         .ready_out(fpu_ready),
         .reg_pkt_out(fpu_reg_pkt),
@@ -211,7 +211,7 @@ module backend(
         .subtract('0),
 
         // Output signals
-        .out(fpu_result),
+        .out(fpadder_result),
         .valid_out(fpadder_result_valid),
         .underflow_flag(),
         .overflow_flag(),
@@ -226,7 +226,7 @@ module backend(
         .y_in(fpu_b_out),     // input Y: y_in[15] is the sign bit
         .round_in(1),  // rounding mode specifier
         .start_in(fpmult_valid_out),        // signal to start multiplication
-        .p_out(fpu_result),  // output P: p_out[15] is the sign bit
+        .p_out(fpmult_result),  // output P: p_out[15] is the sign bit
         .oor_out(), // out-of-range indicator vector
         .done_out(fpmult_result_valid)       // signal that outputs are ready
     );
