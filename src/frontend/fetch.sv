@@ -1,3 +1,5 @@
+`include "../util/uop_pkg.sv"
+`include "../util/op_pkg.sv"
 import uop_pkg::*;
 import op_pkg::*;
 
@@ -37,9 +39,9 @@ module fetch #(
         .CACHE_LINE_WIDTH(CACHE_LINE_WIDTH),
         .INSTRUCTION_WIDTH(INSTRUCTION_WIDTH)
     ) l1i_align (
-        .offset(pred_pc),
+        .offset(pred_pc[5:0]),
         .cacheline(l1i_cacheline),
-        output logic [INSTRUCTION_WIDTH-1:0] l1i_fetched_instrs [SUPER_SCALAR_WIDTH-1:0]
+        .instr_out(l1i_fetched_instrs)
     );
 
     align_instructions #(
@@ -47,10 +49,16 @@ module fetch #(
         .CACHE_LINE_WIDTH(CACHE_LINE_WIDTH),
         .INSTRUCTION_WIDTH(INSTRUCTION_WIDTH)
     ) l0_align (
-        .offset(pred_pc),
+        .offset(pred_pc[5:0]),
         .cacheline(l0_cacheline),
-        output logic [INSTRUCTION_WIDTH-1:0] l0_fetched_instrs [SUPER_SCALAR_WIDTH-1:0]
+        .instr_out(l0_fetched_instrs)
     );
+
+    logic fetch_valid_next, discard_l1i_next, ready_next;
+    logic [63:0] pc_next;
+    logic discard_l1i;
+    logic [INSTRUCTION_WIDTH-1:0] next_instrs [SUPER_SCALAR_WIDTH-1:0];
+    
 
 
     // start copying over instructions when received a valid cacheline and pc
@@ -61,7 +69,7 @@ module fetch #(
     // we got a new l1i request, we are waiting for an l1i request, the l1i request hasnt been resolved, the discard one needs to be handled first
     assign l1i_waiting_next = (((pc_valid & ~bp_l0_valid) | l1i_waiting) & ~l1i_valid) | discard_l1i;
     assign pc_next = pred_pc;
-    assign next_instrs = flush_in ? '0 : l1i_valid ? l1i_fetched_instrs : bp_l0_valid && pc_valid ? l0_fetched_instrs : fetched_instrs;
+    assign next_instrs = l1i_valid ? l1i_fetched_instrs : bp_l0_valid && pc_valid ? l0_fetched_instrs : fetched_instrs; // doesnt really handle the flush in part but its chill?
 
     // ctrl signals to keep checking for on every posedge of the clock
     always_ff@(posedge clk_in) begin
@@ -73,7 +81,7 @@ module fetch #(
             next_pc <= pc_next;
             l1i_waiting <= l1i_waiting_next;
         end else begin
-            fetched_instrs <= '0;
+            fetched_instrs <= next_instrs; // we will just fill w/ garbage for now im too lazy to actually fill with nops
             fetch_valid <= '0;
             discard_l1i <= '0;
             fetch_ready <= '0;

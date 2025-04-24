@@ -1,3 +1,5 @@
+`include "../util/uop_pkg.sv"
+`include "../util/op_pkg.sv"
 import uop_pkg::*;
 import op_pkg::*;
 
@@ -13,7 +15,7 @@ module decode #(
     input logic [INSTRUCTION_WIDTH-1:0] fetched_ops [SUPER_SCALAR_WIDTH-1:0],
     input uop_branch branch_data [SUPER_SCALAR_WIDTH-1:0],
     input logic [63:0] pc,
-    input logic[$clog2(SUPER_SCALAR_WIDTH+1)-1:0] fetch_valid, //how many instructions from fetch are valid TODO implement this change
+    input logic fetch_valid, //how many instructions from fetch are valid TODO implement this change
     input logic exe_ready,
     output logic decode_ready,
     output logic decode_valid,
@@ -28,7 +30,7 @@ module decode #(
     logic buffered;
 
     function automatic void decode_m_format_add(
-        input logic op_bits [INSTR_Q_WIDTH-1:0],
+        input logic [INSTRUCTION_WIDTH-1:0] op_bits,
         output uop_insn uop_out
     );
         uop_ri ri;
@@ -41,11 +43,11 @@ module decode #(
         ri.imm = {12'b0, op_bits[20:12]};
         ri.set_nzcv = '0;
         set_data_ri(ri, uop_out.data);
-        uop_out.valb_sel = '0 //use imm (there is no src2)
+        uop_out.valb_sel = '0; //use imm (there is no src2)
         uop_out.mem_read = '0;
         uop_out.mem_write = '0;
         uop_out.w_enable = '1;
-        uop_out.uop_code = op_bits[20] ? UOP_SUB : UOP_ADD; //add and sub are unsigned
+        uop_out.uopcode = op_bits[20] ? UOP_SUB : UOP_ADD; //add and sub are unsigned
         uop_out.tx_begin = 1'b1;
         uop_out.tx_end = 1'b0;
     endfunction
@@ -80,6 +82,7 @@ module decode #(
         ri.src.is_sp = '0;
         ri.src.is_fp = '0;
         ri.imm = {5'b0, op_bits[20:5]};
+        ri.hw = op_bits[22:21];
         ri.set_nzcv = '0;
         set_data_ri(ri, uop_out.data);
         uop_out.valb_sel = '0;
@@ -118,7 +121,7 @@ module decode #(
         output uop_insn uop_out
     );
         uop_rr rr;
-        rr.dst.gpr = op_bits[4:0];
+        rr.dst.gpr = istable(op_bits) == OPCODE_CMN ? 5'h1f : op_bits[4:0];
         rr.dst.is_sp = '0;
         rr.dst.is_fp = op_bits[26];
         rr.src1.gpr = op_bits[9:5];
@@ -127,7 +130,7 @@ module decode #(
         rr.src2.gpr = op_bits[20:16];
         rr.src2.is_sp = '0;
         rr.src2.is_fp = op_bits[26];
-        set_data_rr(ri, uop_out.data);
+        set_data_rr(rr, uop_out.data);
         uop_out.valb_sel = 1'b1;
         uop_out.mem_read = '0;
         uop_out.mem_write = '0;
@@ -191,8 +194,8 @@ module decode #(
                 end
             end
         end else begin
-            buffered = '0;
-            buffer_width = '0;
+            buffered <= '0;
+            buffer_width <= '0;
             decode_valid <= 1'b0;
             decode_ready <= 1'b0;
             instruction_queue_pushes <= '0;
@@ -200,194 +203,193 @@ module decode #(
     end
 
     logic done;
+    logic [$clog2(INSTR_Q_WIDTH)-1:0] enq_idx; //store cracked uops into enq next. 
     always_comb begin : decode_comb_logic
         done = 1'b0;
-        int enq_idx = 0; //store cracked uops into enq next. 
+        enq_idx = 0;
+        enq_width = '0;
+        for (int i = 0; i < INSTR_Q_WIDTH; i++) begin : fill_enq_next
+            enq_next[i] = '0;
+        end
         for (int instr_idx = 0; instr_idx < SUPER_SCALAR_WIDTH; instr_idx++) begin : super_scalar_decode
             if (!done) begin
                 case (istable(fetched_ops[instr_idx]))
                     // Data Transfer
-                    OPCODE_LDUR:
-                    OPCODE_STUR:
-                    OPCODE_F_LDUR:
-                    OPCODE_F_STUR:
-                        if (istable(fetched_ops[instr_idx])[20:12] != 0) begin
-                            decode_m_format_add(istable(fetched_ops[instr_idx]), enq_next[enq_idx]);
+                    OPCODE_LDUR, OPCODE_STUR, OPCODE_F_LDUR, OPCODE_F_STUR: begin
+                        if (fetched_ops[instr_idx][20:12] != 0) begin
+                            decode_m_format_add(fetched_ops[instr_idx], enq_next[enq_idx]);
                             enq_idx = enq_idx + 1;
                         end
-                        decode_m_format_mem(istable(fetched_ops[instr_idx]), enq_next[enq_idx]);
-                        enq_next[enq_idx].uop_code = istable(fetched_ops[instr_idx]) == OPCODE_LDUR || istable(fetched_ops[instr_idx]) == OPCODE_F_LDUR ? UOP_LOAD : UOP_STORE;
-                        enq_next[enq_idx].tx_begin = istable(fetched_ops[instr_idx])[20:12] == 0;
+                        decode_m_format_mem((fetched_ops[instr_idx]), enq_next[enq_idx]);
+                        enq_next[enq_idx].uopcode = istable(fetched_ops[instr_idx]) == OPCODE_LDUR || istable(fetched_ops[instr_idx]) == OPCODE_F_LDUR ? UOP_LOAD : UOP_STORE;
+                        enq_next[enq_idx].tx_begin = fetched_ops[instr_idx][20:12] == 0;
                         enq_next[enq_idx].tx_end = 1'b1;
                         enq_next[enq_idx].mem_read = istable(fetched_ops[instr_idx]) == OPCODE_LDUR || istable(fetched_ops[instr_idx]) == OPCODE_F_LDUR;
                         enq_next[enq_idx].mem_write = istable(fetched_ops[instr_idx]) == OPCODE_STUR || istable(fetched_ops[instr_idx]) == OPCODE_F_STUR;
                         enq_next[enq_idx].w_enable = istable(fetched_ops[instr_idx]) == OPCODE_LDUR || istable(fetched_ops[instr_idx]) == OPCODE_F_LDUR;
-                        enq_next[enq_idx].pc = pc + (instr_idx << 2);
+                        enq_next[enq_idx].pc = pc + 64'(instr_idx << 2);
                         enq_idx = enq_idx + 1;
-                        break;
+                    end
                     // Immediate moves
-                    OPCODE_MOVK:
-                    OPCODE_MOVZ:
-                        decode_i1_format(istable(fetched_ops[instr_idx]), enq_next[enq_idx]);
-                        enq_next[enq_idx].uop_code = istable(fetched_ops[instr_idx]) == OPCODE_MOVK ? OPCODE_MOVK : OPCODE_MOVZ;
-                        enq_next[enq_idx].hw = istable(fetched_ops[instr_idx]) == OPCODE_MOVK ? istable(fetched_ops[instr_idx])[22:21] : 2'b0;
-                        enq_next[enq_idx].pc = pc + (instr_idx << 2);
+                    OPCODE_MOVK, OPCODE_MOVZ: begin
+                        decode_i1_format(fetched_ops[instr_idx], enq_next[enq_idx]);
+                        enq_next[enq_idx].uopcode = istable(fetched_ops[instr_idx]) == OPCODE_MOVK ? UOP_MOVK : UOP_MOVZ;
+                        enq_next[enq_idx].pc = pc + 64'(instr_idx << 2);
                         enq_idx = enq_idx + 1;
-                        break;
-                    OPCODE_ADRP:
-                        decode_i2_format(istable(fetched_ops[instr_idx]), enq_next[enq_idx]);
-                        enq_next[enq_idx].pc = pc + (instr_idx << 2);
+                    end
+                    OPCODE_ADRP: begin
+                        decode_i2_format((fetched_ops[instr_idx]), enq_next[enq_idx]);
+                        enq_next[enq_idx].pc = pc + 64'(instr_idx << 2);
                         enq_idx = enq_idx + 1;
-                        break;
+                    end
                     // Integer ALU operations
-                    OPCODE_ADD:
-                        decode_ri_format(istable(fetched_ops[instr_idx]), enq_next[enq_idx]);
-                        enq_next[enq_idx].uop_code = UOP_ADD;
-                        enq_next[enq_idx].pc = pc + (instr_idx << 2);
+                    OPCODE_ADD: begin
+                        decode_ri_format((fetched_ops[instr_idx]), enq_next[enq_idx]);
+                        enq_next[enq_idx].uopcode = UOP_ADD;
+                        enq_next[enq_idx].pc = pc + 64'(instr_idx << 2);
                         enq_idx = enq_idx + 1;
-                        break;
-                    OPCODE_ADDS:
-                        ecode_rr_format(istable(fetched_ops[instr_idx]), enq_next[enq_idx]);
-                        enq_next[enq_idx].uop_code = UOP_ADD;
-                        enq_next[enq_idx].pc = pc + (instr_idx << 2);
+                    end
+                    OPCODE_ADDS: begin
+                        decode_rr_format((fetched_ops[instr_idx]), enq_next[enq_idx]);
+                        enq_next[enq_idx].uopcode = UOP_ADD;
+                        enq_next[enq_idx].pc = pc + 64'(instr_idx << 2);
                         enq_idx = enq_idx + 1;
-                        break;
-                    OPCODE_CMN:
-                        decode_rr_format(istable(fetched_ops[instr_idx]), enq_next[enq_idx]);
-                        enq_next[enq_idx].uop_code = UOP_ADD;
-                        enq_next[enq_idx].pc = pc + (instr_idx << 2);
-                        enq_next[enq_idx].dst.gpr = 5'h1f; // we discard the destination even though dst could? be non 0
+                    end
+                    OPCODE_CMN: begin
+                        decode_rr_format((fetched_ops[instr_idx]), enq_next[enq_idx]);
+                        enq_next[enq_idx].uopcode = UOP_ADD;
+                        enq_next[enq_idx].pc = pc + 64'(instr_idx << 2);
                         enq_idx = enq_idx + 1;
-                        break;
-                    OPCODE_SUB:
-                        decode_ri_format(istable(fetched_ops[instr_idx]), enq_next[enq_idx]);
-                        enq_next[enq_idx].uop_code = UOP_SUB;
-                        enq_next[enq_idx].pc = pc + (instr_idx << 2);
+                    end
+                    OPCODE_SUB: begin
+                        decode_ri_format((fetched_ops[instr_idx]), enq_next[enq_idx]);
+                        enq_next[enq_idx].uopcode = UOP_SUB;
+                        enq_next[enq_idx].pc = pc + 64'(instr_idx << 2);
                         enq_idx = enq_idx + 1;
-                        break;
-                    OPCODE_SUBS:
-                    OPCODE_CMP:
-                        ecode_rr_format(istable(fetched_ops[instr_idx]), enq_next[enq_idx]);
-                        enq_next[enq_idx].uop_code = UOP_SUB; //the dst is all 1s unlike cmn.
-                        enq_next[enq_idx].pc = pc + (instr_idx << 2);
+                    end
+                    OPCODE_SUBS, OPCODE_CMP: begin
+                        decode_rr_format((fetched_ops[instr_idx]), enq_next[enq_idx]);
+                        enq_next[enq_idx].uopcode = UOP_SUB; //the dst is all 1s unlike cmn.
+                        enq_next[enq_idx].pc = pc + 64'(instr_idx << 2);
                         enq_idx = enq_idx + 1;
-                        break;
-                    OPCODE_MVN:
-                        ecode_rr_format(istable(fetched_ops[instr_idx]), enq_next[enq_idx]);
-                        enq_next[enq_idx].uop_code = UOP_MVN;
-                        enq_next[enq_idx].pc = pc + (instr_idx << 2);
+                    end
+                    OPCODE_MVN: begin
+                        decode_rr_format((fetched_ops[instr_idx]), enq_next[enq_idx]);
+                        enq_next[enq_idx].uopcode = UOP_MVN;
+                        enq_next[enq_idx].pc = pc + 64'(instr_idx << 2);
                         enq_idx = enq_idx + 1;
-                        break;
-                    OPCODE_ORR:
-                        ecode_rr_format(istable(fetched_ops[instr_idx]), enq_next[enq_idx]);
-                        enq_next[enq_idx].uop_code = UOP_ORR;
-                        enq_next[enq_idx].pc = pc + (instr_idx << 2);
+                    end
+                    OPCODE_ORR: begin
+                        decode_rr_format((fetched_ops[instr_idx]), enq_next[enq_idx]);
+                        enq_next[enq_idx].uopcode = UOP_ORR;
+                        enq_next[enq_idx].pc = pc + 64'(instr_idx << 2);
                         enq_idx = enq_idx + 1;
-                        break;
-                    OPCODE_EOR:
-                        ecode_rr_format(istable(fetched_ops[instr_idx]), enq_next[enq_idx]);
-                        enq_next[enq_idx].uop_code = UOP_EOR;
-                        enq_next[enq_idx].pc = pc + (instr_idx << 2);
+                    end
+                    OPCODE_EOR: begin
+                        decode_rr_format((fetched_ops[instr_idx]), enq_next[enq_idx]);
+                        enq_next[enq_idx].uopcode = UOP_EOR;
+                        enq_next[enq_idx].pc = pc + 64'(instr_idx << 2);
                         enq_idx = enq_idx + 1;
-                        break;
-                    OPCODE_ANDS:
-                    OPCODE_TST:
-                        ecode_rr_format(istable(fetched_ops[instr_idx]), enq_next[enq_idx]);
-                        enq_next[enq_idx].uop_code = UOP_AND;
-                        enq_next[enq_idx].pc = pc + (instr_idx << 2);
+                    end
+                    OPCODE_ANDS, OPCODE_TST: begin
+                        decode_rr_format((fetched_ops[instr_idx]), enq_next[enq_idx]);
+                        enq_next[enq_idx].uopcode = UOP_AND;
+                        enq_next[enq_idx].pc = pc + 64'(instr_idx << 2);
                         enq_idx = enq_idx + 1;
-                        break;
-                    OPCODE_LSL:
-                    OPCODE_LSR:
-                    OPCODE_UBFM:
-                        decode_ri_format(istable(fetched_ops[instr_idx]), enq_next[enq_idx]);
-                        enq_next[enq_idx].uop_code = UOP_UBFM;
-                        enq_next[enq_idx].pc = pc + (instr_idx << 2);
+                    end
+                    OPCODE_LSL, OPCODE_LSR, OPCODE_UBFM: begin
+                        decode_ri_format((fetched_ops[instr_idx]), enq_next[enq_idx]);
+                        enq_next[enq_idx].uopcode = UOP_UBFM;
+                        enq_next[enq_idx].pc = pc + 64'(instr_idx << 2);
                         enq_idx = enq_idx + 1;
-                        break;
-                    OPCODE_ASR:
-                        decode_ri_format(istable(fetched_ops[instr_idx]), enq_next[enq_idx]);
-                        enq_next[enq_idx].uop_code = UOP_ASR;
-                        enq_next[enq_idx].pc = pc + (instr_idx << 2);
+                    end
+                    OPCODE_ASR: begin
+                        decode_ri_format((fetched_ops[instr_idx]), enq_next[enq_idx]);
+                        enq_next[enq_idx].uopcode = UOP_ASR;
+                        enq_next[enq_idx].pc = pc + 64'(instr_idx << 2);
                         enq_idx = enq_idx + 1;
-                        break;
+                    end
                     // Branching
-                    OPCODE_B:
+                    OPCODE_B: begin
                         done = 1'b1;
                         //this has no impact on the architectural state after fetch / predecode
-                        break;
-                    OPCODE_B_COND:
+                    end
+                    OPCODE_B_COND: begin
                         done = branch_data[instr_idx].predict_taken;
-                        enq_next[enq_idx].uop_code = UOP_BCOND;
+                        enq_next[enq_idx].uopcode = UOP_BCOND;
                         enq_next[enq_idx].data = branch_data[instr_idx]; // matches the uop_branch struct
-                        enq_next[enq_idx].pc = pc + (instr_idx << 2);
+                        enq_next[enq_idx].pc = pc + 64'(instr_idx << 2);
                         enq_next[enq_idx].valb_sel = '0;
                         enq_next[enq_idx].tx_begin = 1'b1;
                         enq_next[enq_idx].tx_end = 1'b1;
                         enq_idx = enq_idx + 1;
-                        break;
-                    OPCODE_BL:
+                    end
+                    OPCODE_BL: begin
                         done = 1'b1;
-                        enq_next[enq_idx].uop_code = UOP_BL;
+                        enq_next[enq_idx].uopcode = UOP_BL;
                         enq_next[enq_idx].data = branch_data[instr_idx]; //the branch target and the lower 5 bits are the register to store to (X30)
-                        enq_next[enq_idx].pc = pc + (instr_idx << 2);
+                        enq_next[enq_idx].pc = pc + 64'(instr_idx << 2);
                         enq_next[enq_idx].valb_sel = '0;
                         enq_next[enq_idx].tx_begin = 1'b1;
                         enq_next[enq_idx].tx_end = 1'b1;
                         enq_idx = enq_idx + 1;
-                        break;
-                    OPCODE_RET:
+                    end
+                    OPCODE_RET: begin
                         done = 1'b1;
-                        enq_next[enq_idx].uop_code = UOP_CHECK_RET;
+                        enq_next[enq_idx].uopcode = UOP_CHECK_RET;
                         enq_next[enq_idx].data = branch_data[instr_idx]; // the bottom 5 bits contain the register to return from
-                        enq_next[enq_idx].pc = pc + (instr_idx << 2);
+                        enq_next[enq_idx].pc = pc + 64'(instr_idx << 2);
                         enq_next[enq_idx].valb_sel = '0;
                         enq_next[enq_idx].tx_begin = 1'b1;
                         enq_next[enq_idx].tx_end = 1'b1;
                         enq_idx = enq_idx + 1;
                         break;
-                    // Misc
-                    OPCODE_NOP:
-                        break;
-                    OPCODE_HLT:
-                        enq_next[enq_idx].uop_code = UOP_HLT;
+                    end
+                    OPCODE_NOP: begin
+                    end
+                    OPCODE_HLT: begin
+                        enq_next[enq_idx].uopcode = UOP_HLT;
                         enq_next[enq_idx].tx_begin = 1'b1;
                         enq_next[enq_idx].tx_end = 1'b1;
                         enq_idx = enq_idx + 1;
-                        break;
-                    OPCODE_FMOV:
-                        decode_rr_format(istable(fetched_ops[instr_idx]), enq_next[enq_idx]);
-                        enq_next[enq_idx].uop_code = UOP_FMOV; 
+                    end
+                    OPCODE_FMOV: begin
+                        decode_rr_format((fetched_ops[instr_idx]), enq_next[enq_idx]);
+                        enq_next[enq_idx].uopcode = UOP_FMOV; 
+                        enq_next[enq_idx].pc = pc + 64'(instr_idx << 2);
                         enq_idx = enq_idx + 1;
-                        break;
-                    OPCODE_FNEG:
-                        decode_rr_format(istable(fetched_ops[instr_idx]), enq_next[enq_idx]);
-                        enq_next[enq_idx].uop_code = UOP_FNEG;
+                    end
+                    OPCODE_FNEG: begin
+                        decode_rr_format((fetched_ops[instr_idx]), enq_next[enq_idx]);
+                        enq_next[enq_idx].uopcode = UOP_FNEG;
+                        enq_next[enq_idx].pc = pc + 64'(instr_idx << 2);
                         enq_idx = enq_idx + 1;
-                        break;
-                    OPCODE_FADD:
-                        decode_rr_format(istable(fetched_ops[instr_idx]), enq_next[enq_idx]);
-                        enq_next[enq_idx].uop_code = UOP_FADD;
+                    end
+                    OPCODE_FADD: begin
+                        decode_rr_format((fetched_ops[instr_idx]), enq_next[enq_idx]);
+                        enq_next[enq_idx].uopcode = UOP_FADD;
+                        enq_next[enq_idx].pc = pc + 64'(instr_idx << 2);
                         enq_idx = enq_idx + 1;
-                        break;
-                    OPCODE_FMUL:
-                        decode_rr_format(istable(fetched_ops[instr_idx]), enq_next[enq_idx]);
-                        enq_next[enq_idx].uop_code = UOP_FMUL;
+                    end
+                    OPCODE_FMUL: begin
+                        decode_rr_format((fetched_ops[instr_idx]), enq_next[enq_idx]);
+                        enq_next[enq_idx].uopcode = UOP_FMUL;
+                        enq_next[enq_idx].pc = pc + 64'(instr_idx << 2);
                         enq_idx = enq_idx + 1;
-                        break;
-                    OPCODE_FSUB:
-                    OPCODE_FCMPR:
-                        decode_rr_format(istable(fetched_ops[instr_idx]), enq_next[enq_idx]);
-                        enq_next[enq_idx].uop_code = UOP_FSUB; 
+                    end
+                    OPCODE_FSUB, OPCODE_FCMPR: begin
+                        decode_rr_format((fetched_ops[instr_idx]), enq_next[enq_idx]);
+                        enq_next[enq_idx].uopcode = UOP_FSUB; 
+                        enq_next[enq_idx].pc = pc + 64'(instr_idx << 2);
                         enq_idx = enq_idx + 1;
-                        break;
-                    OPCODE_FCMPI:
-                        decode_ri_format(istable(fetched_ops[instr_idx]), enq_next[enq_idx]);
-                        enq_next[enq_idx].uop_code = UOP_FSUB; 
+                    end
+                    OPCODE_FCMPI: begin
+                        decode_ri_format((fetched_ops[instr_idx]), enq_next[enq_idx]);
+                        enq_next[enq_idx].uopcode = UOP_FSUB; 
+                        enq_next[enq_idx].pc = pc + 64'(instr_idx << 2);
                         enq_idx = enq_idx + 1;
-                        break;
+                    end
                     default: begin
-                        // oops?
                     end
                 endcase
             end

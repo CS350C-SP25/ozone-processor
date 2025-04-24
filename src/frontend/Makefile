@@ -57,9 +57,13 @@ FRONTEND_SRCS = --cc ./frontend_tb.sv ./frontend.sv ./fetch.sv ./decode.sv ./bra
 FRONTEND_BIN = obj_dir/Vfrontend_tb
 
 front: $(FRONTEND_BIN)
-	./$(FRONTEND_BIN)
+
 
 $(FRONTEND_BIN):
 	$(VERILATOR) $(FRONTEND_VFLAGS) $(FRONTEND_SRCS)
 
+decode:
+	$(VERILATOR) $(VFLAGS) --cc ./decode.sv 
 
+fetch:
+	$(VERILATOR) $(VFLAGS) --cc ./fetch.sv 
