@@ -7,12 +7,12 @@ module frl #(
 ) (
     input   logic clk,
     input   logic rst,
-    input   logic [3:0] acquire_ready_in, // Mask for upstream module to indicate which registers it accepted on previous cycle
+    input   logic [2*uop_pkg::INSTR_Q_WIDTH+1:0] acquire_ready_in, // Mask for upstream module to indicate which registers it accepted on previous cycle
     output  logic acquire_valid_out, // registers_out is valid. If this is 0, this module is stalling
-    output  logic [3:0][$clog2(reg_pkg::NUM_PHYS_REGS) - 1:0] registers_out, // Free registers the upstream module can use.if acquire_valid_out is 0
+    output  logic [2*uop_pkg::INSTR_Q_WIDTH+1:0][$clog2(reg_pkg::NUM_PHYS_REGS) - 1:0] registers_out, // Free registers the upstream module can use.if acquire_valid_out is 0
 
-    input   logic [5:0] free_valid_in,
-    input   logic [5:0][$clog2(reg_pkg::NUM_PHYS_REGS) - 1:0] freeing_registers
+    input   logic [2*uop_pkg::INSTR_Q_WIDTH+1:0] free_valid_in,
+    input   logic [2*uop_pkg::INSTR_Q_WIDTH+1:0][$clog2(reg_pkg::NUM_PHYS_REGS) - 1:0] freeing_registers
 );
 
   logic [reg_pkg::NUM_PHYS_REGS-1:0] [$clog2(reg_pkg::NUM_PHYS_REGS) - 1:0] phys_regs, // The queue. Physical registers are stored at indices, 

@@ -26,7 +26,8 @@ module bru_ins_decoder (
     output logic [18:0] branch_offset,
 
     // Only used for BL (writing return addr)
-    output RegFileWritePort reg_pkt_out
+    output RegFileWritePort reg_pkt_out,
+    output rob_writeback writeback_out
 );
 
     logic is_bcond, is_bl;
@@ -56,6 +57,7 @@ module bru_ins_decoder (
         reg_pkt_out = '0;
         branch_taken = 0;
         branch_offset = '0;
+        writeback_out = '0;
         ready_out = insn_in.valid;
 
         if (insn_in.valid && is_bl) begin
@@ -72,6 +74,13 @@ module bru_ins_decoder (
             branch_offset = branch_taken ? offset : 19'b0100;
 
             // We will handle mispredictions in the ROB
+        end
+        if (insn_in.valid) begin
+            writeback_out = '{
+                valid: 1'b1, 
+                ptr:  insn_in.ptr,
+                status: DONE
+            };
         end
     end
 

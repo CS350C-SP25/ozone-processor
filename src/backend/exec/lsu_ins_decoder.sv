@@ -33,7 +33,8 @@ module lsu_ins_decoder #(
     output RegFileWritePort reg_pkt_out,
 
     // Notify ROB this unit can take a new instruction
-    output logic ready_out
+    output logic ready_out,
+    output rob_writeback writeback_out
 );
 
     typedef struct packed {
@@ -78,10 +79,16 @@ module lsu_ins_decoder #(
     // Handle memory response
     always_comb begin
         reg_pkt_out = '0;
+        writeback_out = '0;
         if (mem_valid_in && load_queue[mem_resp_tag].valid) begin
             reg_pkt_out.index_in = load_queue[mem_resp_tag].phys_dest;
             reg_pkt_out.data_in  = mem_data_in;
             reg_pkt_out.en       = 1;
+            writeback_out = '{
+                valid: 1,
+                ptr: insn_in.ptr,
+                status: DONE
+            };
         end
     end
 

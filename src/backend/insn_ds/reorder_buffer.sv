@@ -15,9 +15,10 @@ module reorder_buffer_queue #(
     input logic clk_in,
     input logic rst_N_in,                       // resets the q completely, empty, 0 size, etc.
     input logic flush_in,                       // same function as reset
-    input rob_entry [Q_WIDTH-1:0] q_in,
-    input logic [$clog2(Q_WIDTH+1)-1:0] enq_in, // how many to push IMPORTANT, IT IS ENQERS JOB TO DETERMINE HOW MANY IS SAFE TO ENQ
+    input rob_entry [Q_WIDTH-1:0] q_in, // enq signals come from instr_queue_in[i].uop.valid
     input logic [$clog2(Q_WIDTH+1)-1:0] deq_in, // how many to pop IMPORTANT, IT IS DEQERS JOB TO DETERMINE HOW MANY IS SAFE TO DEQ (USE SIZE)
+    input rob_writeback [3:0] writeback_in, // tell rob which entries to update
+    input rob_writeback [3:0] issue_mark_pending,
 
     output rob_entry [Q_DEPTH-1:0] q_out,       // the top width elements of the queue
     output logic full,                          // 1 if the queue is full
@@ -29,15 +30,27 @@ module reorder_buffer_queue #(
     logic [$clog2(Q_DEPTH)-1:0] tail;
 
     rob_entry [Q_WIDTH-1:0] q_next;
+    rob_entry cur_entry;
     logic [$clog2(Q_WIDTH+1)-1:0] size_incr;
     logic [$clog2(Q_WIDTH+1)-1:0] size_decr; 
     always_ff @( posedge clk_in ) begin : instruction_queue_fsm
         if (rst_N_in && !flush_in) begin
             for (int i = 0; i < Q_WIDTH; i++) begin
-                q[tail + i] <= size_incr > i ? q_next[i] : q[tail];
+                q[tail + 1] <= q_next[i].uop.valid ? q_next[i] : q[tail];
+                tail <= q_next[i].uop.valid ? tail + 1 : tail;
+            end
+            // ** INSTRUCTION WRITEBACK **
+            for (int i = 0; i < 4; i++) begin
+                cur_entry <= q[writeback_in[i].ptr];
+                if (writeback_in[i].valid) begin
+                    cur_entry.status <= writeback_in[i].status;
+                    q[writeback_in[i].ptr] <= cur_entry;
+                end else if (issue_mark_pending[i].valid) begin
+                    cur_entry.status <= ISSUED;
+                    q[issue_mark_pending[i].ptr] <= cur_entry;
+                end
             end
             head <= head + size_decr;
-            tail <= tail + size_incr;
             size <= tail - head + size_incr - size_decr;
         end else begin
             head <= '0;
@@ -48,7 +61,6 @@ module reorder_buffer_queue #(
 
     always_comb begin : instruction_queue_next_state
         q_next = q_in;
-        size_incr = flush_in ? 0 : enq_in;
         size_decr = flush_in ? tail - head : deq_in;
     end
     assign q_out = q;
@@ -65,7 +77,6 @@ module reorder_buffer #(
     input logic clk_in,
     input logic rst_N_in,
     input rob_entry [Q_WIDTH-1:0] q_in,
-    input logic [$clog2(Q_WIDTH+1)-1:0] enq_in,
 
     // ** INPUTS FROM BRANCH UNIT **
     input logic flush_in, // fed from either RESET or branch misprediction
@@ -76,16 +87,11 @@ module reorder_buffer #(
     input logic fpu_ready_in,
     input logic lsu_ready_in,
     input logic bru_ready_in,
+    input rob_writeback [3:0] writeback_in, // tell rob which entries to update
 
     // ** PC OUTPUT LOGIC **
     output logic valid_pc_out, // if PC needs to be set for exception handling, branch mispredictions, trap, etc..
     output logic [ADDR_BITS-1:0] pc_out,
-
-    // ** STR OUTPUT LOGIC **
-    output logic[Q_WIDTH-1:0] valid_str_out, // map of which stores are valid
-    output logic [Q_WIDTH-1:0][$clog2(reg_pkg::NUM_ARCH_REGS)-1:0] str_addr_reg_out, // arch reg to load STR addr from
-    output logic [Q_WIDTH-1:0][$clog2(reg_pkg::NUM_ARCH_REGS)-1:0] str_addr_reg_off_out, // arch reg to load STR addr from
-    output logic [Q_WIDTH-1:0][$clog2(reg_pkg::NUM_ARCH_REGS)-1:0] str_val_reg_out, // arch reg to load STR val from
 
     // ** EXEC OUTPUT LOGIC **
     // these outputs will be sent to the execute phase where insn scheduler will decide which ones we can execute
@@ -94,8 +100,8 @@ module reorder_buffer #(
     output rob_issue alu_insn_out, 
     output rob_issue fpu_insn_out,
 
-    output rob_entry [1:0] rrat_update_out, // update the rrat mapping for the physical reg to arch reg mapping
-    output logic [1:0] rrat_update_valid_out // 1 if the rrat update is valid
+    output rob_entry [uop_pkg::INSTR_Q_WIDTH-1:0] rrat_update_out, // update the rrat mapping for the physical reg to arch reg mapping
+    output logic [uop_pkg::INSTR_Q_WIDTH-1:0] rrat_update_valid_out // 1 if the rrat update is valid
 );
     // ** REORDER_BUFFER_QUEUE PARAMS **
     // queue input
@@ -105,6 +111,8 @@ module reorder_buffer #(
     logic queue_full;
     logic queue_empty;
     logic [$clog2(Q_DEPTH)-1:0] queue_size;
+    rob_writeback [3:0] issue_mark_pending; // mark pending instructions as issued
+    logic [1:0] next_issue_ptr;
 
     // ** INTERNAL LOGISTIC WIRES **
     uop_rr cur_uop;
@@ -114,7 +122,7 @@ module reorder_buffer #(
     logic cur_alu_check;
     logic cur_fpu_check;
     logic next_check;
-    logic next_rrat_ptr; // idx for rrat update
+    logic [$clog2(uop_pkg::INSTR_Q_WIDTH)-1:0] next_rrat_ptr; // idx for rrat update
 
     // registers
     rob_issue lsu_insn_out_t;
@@ -131,8 +139,9 @@ module reorder_buffer #(
         rst_N_in,
         flush_in,
         q_in,
-        enq_in,
         deq_in,
+        writeback_in,
+        issue_mark_pending,
         // ** OUTPUTS **
         queue_out,
         queue_full,
@@ -168,6 +177,7 @@ module reorder_buffer #(
                 insn_out_t.dest_reg_phys = cur_entry.dest_reg_phys;
                 insn_out_t.r1_reg_phys = cur_entry.r1_reg_phys;
                 insn_out_t.r2_reg_phys = cur_entry.r2_reg_phys;
+                insn_out_t.nzcv_reg_phys = cur_entry.nzcv_reg_phys;
             end
         end
     endfunction
@@ -184,11 +194,6 @@ module reorder_buffer #(
     always_comb begin
         deq_in = 0;
 
-        str_val_reg_out = '0;
-        str_addr_reg_off_out = '0;
-        str_addr_reg_out = '0;
-        valid_str_out = '0;
-
         cur_uop = '0;
         cur_entry = '0;
         next_check = '0;
@@ -203,23 +208,32 @@ module reorder_buffer #(
         bru_insn_out_t = '0;
         alu_insn_out_t = '0;
         fpu_insn_out_t = '0;
+        issue_mark_pending = '0;
+        next_issue_ptr = '0;
         valid_pc_out = flush_in;
         pc_out = target_pc;        
         if (!queue_empty) begin
+            
             // ** INSTRUCTION WINDOW COMMIT **
             if (queue_size >= uop_pkg::INSTR_Q_WIDTH) begin
                 for (int i = 0; i < uop_pkg::INSTR_Q_WIDTH; i++) begin
                     if (queue_out[i].status == DONE) begin
                         if (queue_out[i].uop.uopcode == UOP_STORE) begin // only str on commit
-                            valid_str_out[i] = 1'b1;
-                            get_data_rr(queue_out[i].uop.data, cur_uop);
-                            str_addr_reg_out[i] = cur_uop.dst.gpr;
-                            str_addr_reg_off_out[i] = cur_uop.src2.gpr;
-                            str_val_reg_out[i] = cur_uop.src1.gpr;
+                            insn_check(
+                                cur_lsu_check,
+                                cur_entry,
+                                queue_size,
+                                queue_out,
+                                i[6:0],
+                                next_check,
+                                lsu_insn_out_t
+                            );
+                            cur_lsu_check = next_check; // commit store will take priority over any load in the buffer
                         end
                         deq_in += 1;
                         // update RRAT mapping to match architectural state
                         rrat_update_out[next_rrat_ptr] = queue_out[i];
+                        rrat_update_valid_out[next_rrat_ptr] = 1'b1;
                     end else if (
                         queue_out[i].status == EXCEPTION || 
                         queue_out[i].status == INTERRUPT || 
@@ -257,6 +271,8 @@ module reorder_buffer #(
                                 lsu_insn_out_t
                             );
                             cur_lsu_check = next_check;
+                            issue_mark_pending[next_issue_ptr] = '{valid: 1'b1, ptr: i, status: ISSUED};
+                            next_issue_ptr = next_issue_ptr + 1;
                         end
                     end
                     UOP_ADD, UOP_SUB, UOP_AND, UOP_ORR, 
@@ -273,6 +289,8 @@ module reorder_buffer #(
                                 alu_insn_out_t
                             );
                             cur_alu_check = next_check;
+                            issue_mark_pending[next_issue_ptr] = '{valid: 1'b1, ptr: i, status: ISSUED};
+                            next_issue_ptr = next_issue_ptr + 1;
                         end
                     end
                     UOP_FMOV, 
@@ -288,6 +306,8 @@ module reorder_buffer #(
                                 fpu_insn_out_t
                             );
                             cur_fpu_check = next_check;
+                            issue_mark_pending[next_issue_ptr] = '{valid: 1'b1, ptr: i, status: ISSUED};
+                            next_issue_ptr = next_issue_ptr + 1;
                         end
                     end
                     UOP_BCOND: begin
@@ -302,6 +322,8 @@ module reorder_buffer #(
                                 bru_insn_out_t
                             );
                             cur_bru_check = next_check;
+                            issue_mark_pending[next_issue_ptr] = '{valid: 1'b1, ptr: i, status: ISSUED};
+                            next_issue_ptr = next_issue_ptr + 1;
                         end
                     end
                 endcase

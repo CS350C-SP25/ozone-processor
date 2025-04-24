@@ -26,6 +26,7 @@ package reg_pkg;
 
     typedef struct packed {
         logic valid;
+        logic [$clog2(NUM_PHYS_REGS) - 1: 0]    index_in;
         logic [3:0] nzcv; // N Z C V
     } NZCVWritePort;
 endpackage

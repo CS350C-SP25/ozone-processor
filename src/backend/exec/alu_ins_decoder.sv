@@ -18,9 +18,11 @@ We have schedulers for each functional unit to make life easier.
 module alu_ins_decoder (
     input  logic clk_in,
     input  exec_packet insn_in,
+    input logic [3:0] nzcv_in,
     output logic ready_out,
     output RegFileWritePort reg_pkt_out,
-    output NZCVWritePort nzcv_out
+    output NZCVWritePort nzcv_out,
+    output rob_writeback writeback_out
 );
     uop_ri reg_imm;
     logic [63:0] result_add, result_sub, result_and, result_or, result_eor, result_mvn;
@@ -41,7 +43,7 @@ module alu_ins_decoder (
         reg_pkt_out = '0;
         reg_imm     = '0;
         flags       = 4'd0;
-        nzcv_out    = '{valid: 1'b0, nzcv: 4'd0};
+        nzcv_out    = '{valid: 1'b0, nzcv: nzcv_in, index_in: insn_in.nzcv_reg_phys};
 
         result_add  = r1 + r2;
         result_sub  = r1 - r2;
@@ -53,6 +55,7 @@ module alu_ins_decoder (
         result_asr  = $signed(r0) >>> r1;
         result_movz = r1 << (reg_imm.hw * 16);
         result_movk = (r0 & ~(64'hFFFF << (reg_imm.hw * 16))) | (r1 << (reg_imm.hw * 16));
+        writeback_out = '0;
 
         // Default result
         result_final = '0;
@@ -78,10 +81,10 @@ module alu_ins_decoder (
             get_data_ri(insn_in.uop.data, reg_imm);
 
             if (reg_imm.set_nzcv) begin
-                flags[3] = result_final[63];               // N
-                flags[2] = (result_final == 64'd0);        // Z
-                flags[1] = 1'b0;
-                flags[0] = 1'b0;
+                flags[0] = result_final[63];               // N
+                flags[1] = (result_final == 64'd0);        // Z
+                flags[2] = nzcv_in[2];
+                flags[3] = nzcv_in[3];
                 case (insn_in.uop.uopcode)
                     UOP_ADD: begin
                         flags[1] = (result_final < r1); // C
@@ -92,8 +95,9 @@ module alu_ins_decoder (
                         flags[0] = ((r1[63] ^ r2[63]) & (r1[63] ^ result_final[63])); // V
                     end
                 endcase
-                nzcv_out = '{valid: 1'b1, nzcv: flags};
+                nzcv_out = '{valid: 1'b1, nzcv: flags, index_in: insn_in.nzcv_reg_phys};
             end
+            writeback_out = '{valid: 1'b1, ptr: insn_in.ptr, status: DONE};
         end
     end
 endmodule
