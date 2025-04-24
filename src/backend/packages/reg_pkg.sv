@@ -1,3 +1,5 @@
+`ifndef REG_PKG_SV
+`define REG_PKG_SV
 package reg_pkg;
     parameter int NUM_ARCH_REGS = 32;
     parameter int ADDR_BITS = 64;
@@ -30,3 +32,4 @@ package reg_pkg;
         logic [3:0] nzcv; // N Z C V
     } NZCVWritePort;
 endpackage
+`endif // REG_PKG_SV

@@ -2,6 +2,8 @@
 FPAdder taken from 
 https://github.com/V0XNIHILI/parametrizable-floating-point-verilog
 */
+`ifndef FPADDER_SV
+`define FPADDER_SV
 
 `include "./is_special_float.sv"
 `include "./leading_one_detector.sv"
@@ -305,3 +307,4 @@ module fpadder #(
     end
 
 endmodule
+`endif

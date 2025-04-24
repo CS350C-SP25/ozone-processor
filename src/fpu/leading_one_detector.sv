@@ -2,7 +2,8 @@
 FPAdder taken from 
 https://github.com/V0XNIHILI/parametrizable-floating-point-verilog
 */
-
+`ifndef LD_ONE_SV
+`define LD_ONE_SV
 module leading_one_detector #(
     parameter int WIDTH = 8
 ) (
@@ -36,3 +37,4 @@ module leading_one_detector #(
     end
 
 endmodule
+`endif

@@ -1,3 +1,5 @@
+`ifndef IS_PKG_SV
+`define IS_PKG_SV
 `include "../../util/uop_pkg.sv"
 `include "./reg_pkg.sv"
 `include "./rob_pkg.sv"
@@ -27,3 +29,4 @@ package is_pkg;
         logic [reg_pkg::WORD_SIZE-1:0] r2_val;
     } exec_packet; // struct for issuing insn to execute
 endpackage
+`endif // IS_PKG_SV

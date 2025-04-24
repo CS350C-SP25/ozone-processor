@@ -1,3 +1,5 @@
+`ifndef ROB_PKG_SV
+`define ROB_PKG_SV
 `include "../../util/uop_pkg.sv"
 `include "./reg_pkg.sv"
 
@@ -46,3 +48,4 @@ import reg_pkg::*;
         status_t status;
     } rob_writeback; // struct for writing back data to the ROB
 endpackage
+`endif // ROB_PKG_SV

@@ -2,6 +2,8 @@
 FPAdder taken from 
 https://github.com/V0XNIHILI/parametrizable-floating-point-verilog
 */
+`ifndef IS_SPEC_FP_SV
+`define IS_SPEC_FP_SV
 module is_special_float #(
     parameter int EXPONENT_WIDTH = 8,
     parameter int MANTISSA_WIDTH = 23,
@@ -48,3 +50,4 @@ module is_special_float #(
     assign is_signaling_nan = is_E2M3 || is_E3M2 || is_E2M1 ? 1'b0 : (is_E4M3 ? is_exponent_ones && is_mantissa_ones : (is_negative || ignore_sign_bit_for_nan) && is_exponent_ones && (mantissa[MANTISSA_WIDTH-1] == 1'b1));
     assign is_quiet_nan = is_E4M3 || is_E2M3 || is_E3M2 || is_E2M1 ? 1'b0 : (is_negative || ignore_sign_bit_for_nan) && is_exponent_ones && (mantissa[MANTISSA_WIDTH-1] == 1'b0) && !is_mantissa_zero;
 endmodule
+`endif

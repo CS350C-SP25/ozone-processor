@@ -2,7 +2,8 @@
 FPAdder taken from 
 https://github.com/V0XNIHILI/parametrizable-floating-point-verilog
 */
-
+`ifndef RES_ROUND_SV
+`define RES_ROUND_SV
 module result_rounder #(
     parameter int EXPONENT_WIDTH = 8,
     parameter int MANTISSA_WIDTH = 23,
@@ -59,3 +60,4 @@ module result_rounder #(
     end
 
 endmodule
+`endif
