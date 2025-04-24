@@ -21,7 +21,8 @@ module alu_ins_decoder (
     input logic [3:0] nzcv_in,
     output logic ready_out,
     output RegFileWritePort reg_pkt_out,
-    output NZCVWritePort nzcv_out
+    output NZCVWritePort nzcv_out,
+    output rob_writeback writeback_out
 );
     uop_ri reg_imm;
     logic [63:0] result_add, result_sub, result_and, result_or, result_eor, result_mvn;
@@ -54,6 +55,7 @@ module alu_ins_decoder (
         result_asr  = $signed(r0) >>> r1;
         result_movz = r1 << (reg_imm.hw * 16);
         result_movk = (r0 & ~(64'hFFFF << (reg_imm.hw * 16))) | (r1 << (reg_imm.hw * 16));
+        writeback_out = '0;
 
         // Default result
         result_final = '0;
@@ -95,6 +97,7 @@ module alu_ins_decoder (
                 endcase
                 nzcv_out = '{valid: 1'b1, nzcv: flags, index_in: insn_in.nzcv_reg_phys};
             end
+            writeback_out = '{valid: 1'b1, ptr: insn_in.ptr, status: DONE};
         end
     end
 endmodule

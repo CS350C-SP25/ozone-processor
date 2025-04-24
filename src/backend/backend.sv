@@ -42,6 +42,7 @@ module backend(
     // ROB <-> Scheduler signals (can be broken out further)
     rob_pkg::rob_issue alu_insn, fpu_insn, lsu_insn, bru_insn;
     is_pkg::exec_packet alu_insn_pkt, fpu_insn_pkt, lsu_insn_pkt, bru_insn_pkt;
+    rob_pkg::rob_writeback alu_wb_out, fpu_wb_out, lsu_wb_out, bru_wb_out;
     logic alu_ready, fpu_ready, lsu_ready, bru_ready;
 
     assign read_en = {{4{alu_insn.valid}}, {3{fpu_insn.valid}}, 1'b0, {3{lsu_insn.valid}}, 1'b0, {4{bru_insn.valid}}};
@@ -154,12 +155,6 @@ module backend(
         .valid_pc_out(), // if PC needs to be set for exception handling, branch mispredictions, trap, etc..
         .pc_out(),
 
-        // ** STR OUTPUT LOGIC **
-        .valid_str_out(), // map of which stores are valid
-        .str_addr_reg_out(), // arch reg to load STR addr from
-        .str_addr_reg_off_out(), // arch reg to load STR addr from
-        .str_val_reg_out(), // arch reg to load STR val from
-
         .alu_insn_out(alu_insn),
         .fpu_insn_out(fpu_insn),
         .lsu_insn_out(lsu_insn),
@@ -180,7 +175,8 @@ module backend(
         .nzcv_in(alu_nzcv_flags),
         .ready_out(alu_ready),
         .reg_pkt_out(alu_reg_pkt),
-        .nzcv_out(alu_nzcv)
+        .nzcv_out(alu_nzcv),
+        .writeback_out(alu_wb_out)
     );
 
     // FPU

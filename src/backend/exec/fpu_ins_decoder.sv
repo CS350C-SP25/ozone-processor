@@ -34,7 +34,8 @@ module fpu_ins_decoder #(
     output logic [reg_pkg::WORD_SIZE-1:0] fpu_a_out,
     output logic [reg_pkg::WORD_SIZE-1:0] fpu_b_out,
     output logic fpmult_valid_out,
-    output logic fpadder_valid_out
+    output logic fpadder_valid_out,
+    output rob_writeback writeback_out
 );
     logic [31:0] cycle_count;
     logic [31:0] cycle_expiration;
@@ -81,10 +82,16 @@ module fpu_ins_decoder #(
     // Register file writeback packet
     always_comb begin
         reg_pkt_out = '0;
+        writeback_out = '0;
         if (ready && fpu_valid) begin
             reg_pkt_out.index_in = dest_reg_phys;
             reg_pkt_out.data_in  = fpu_result;
             reg_pkt_out.en       = 1'b1;
+            writeback_out = '{
+                valid: 1'b1,
+                ptr:   insn_in.ptr,
+                status: DONE
+            };
         end
     end
 
