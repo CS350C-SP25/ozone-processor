@@ -14,6 +14,7 @@ import rob_pkg::*;
 module backend(
     input logic clk_in,
     input logic rst_N_in,
+    uop_pkg::uop_insn [uop_pkg::INSTR_Q_WIDTH-1:0] instr_queue,
 
     // ** Signals to Branch Predictor **
     output logic bcond_resolved_out,
@@ -116,7 +117,6 @@ module backend(
 
     // RAT
     logic q_valid;
-    uop_pkg::uop_insn [uop_pkg::INSTR_Q_WIDTH-1:0] instr_queue;
     logic rat_q_ready;
     rob_pkg::rob_entry [uop_pkg::INSTR_Q_WIDTH-1:0] rob_entries_out;
     logic rob_data_valid;
@@ -144,16 +144,12 @@ module backend(
         .rst_N_in(rst_N_in),
         .q_in(rob_entries_out),
         .flush_in(1'b0),
-        .target_pc(), // if branch misprediction, this is the target pc
 
         .alu_ready_in(alu_ready),
         .fpu_ready_in(fpu_ready),
         .lsu_ready_in(lsu_ready),
         .bru_ready_in(bru_ready),
-
-        // ** PC OUTPUT LOGIC **
-        .valid_pc_out(), // if PC needs to be set for exception handling, branch mispredictions, trap, etc..
-        .pc_out(),
+        .writeback_in('{alu_wb_out, lsu_wb_out, bru_wb_out, fpu_wb_out}),
 
         .alu_insn_out(alu_insn),
         .fpu_insn_out(fpu_insn),
@@ -199,7 +195,8 @@ module backend(
         .fpu_a_out(fpu_a_out),
         .fpu_b_out(fpu_b_out),
         .fpmult_valid_out(fpmult_valid_out),
-        .fpadder_valid_out(fpadder_valid_out)
+        .fpadder_valid_out(fpadder_valid_out),
+        .writeback_out(fpu_wb_out)
     );
 
     fpadder #(
@@ -249,7 +246,8 @@ module backend(
         .mem_tag_out(),
         .mem_valid_out(),
         .reg_pkt_out(lsu_reg_pkt),
-        .ready_out(lsu_ready)
+        .ready_out(lsu_ready),
+        .writeback_out(lsu_wb_out)
     );
 
     // BRU
@@ -271,20 +269,22 @@ module backend(
         .ready_out(bru_ready),
         .branch_taken(branch_taken),
         .branch_offset(branch_offset),
-        .reg_pkt_out(bru_reg_pkt)
+        .reg_pkt_out(bru_reg_pkt),
+        .writeback_out(bru_wb_out)
     );
 
     // Regfile (stub wiring)
     reg_file  #(
         .NUM_READ_PORTS(16), // 4 functional units * 4 (rd, r1, r2, nzcv) registers
-        .NUM_WRITE_PORTS(4) // 4 functional units for dest regs
+        .NUM_WRITE_PORTS(8) // 4 functional units for dest regs
     ) regfile_inst (
         .clk(clk_in),
         .rst(rst_N_in),
         .read_en(read_en), 
         .read_index(read_index),
         .read_data(read_data),
-        .write_ports('{alu_reg_pkt, fpu_reg_pkt, lsu_reg_pkt, bru_reg_pkt}),
+        .write_ports('{alu_reg_pkt, fpu_reg_pkt, lsu_reg_pkt, bru_reg_pkt, 
+            regfile_ports[0], regfile_ports[1], regfile_ports[2], regfile_ports[3]}),
         .nzcv_write_port(alu_nzcv)
     );
 

@@ -1,4 +1,10 @@
-`timescale 1ns/1ps
+`include "../../util/uop_pkg.sv"
+`include "../packages/rob_pkg.sv"
+`include "../registers/reg_file.sv"
+
+import rob_pkg::*;
+import reg_pkg::*;
+import uop_pkg::*;
 
 module reg_file_tb;
 
@@ -13,11 +19,12 @@ module reg_file_tb;
     localparam int NUM_WRITE_PORTS = 2;
 
     // DUT I/O
-    logic read_en         [NUM_READ_PORTS];
+    logic [NUM_READ_PORTS-1:0] read_en         ;
     logic [$clog2(NUM_PHYS_REGS)-1:0] read_index [NUM_READ_PORTS];
     logic [WORD_SIZE-1:0] read_data   [NUM_READ_PORTS];
 
-    RegFileWritePort write_ports [NUM_WRITE_PORTS];
+    RegFileWritePort [NUM_WRITE_PORTS-1:0] write_ports;
+    NZCVWritePort nzcv_write_port;
 
     // Clock generation
     always #5 clk = ~clk;
@@ -32,7 +39,8 @@ module reg_file_tb;
         .read_en(read_en),
         .read_index(read_index),
         .read_data(read_data),
-        .write_ports(write_ports)
+        .write_ports(write_ports),
+        .nzcv_write_port(nzcv_write_port)
     );
 
     // Test procedure

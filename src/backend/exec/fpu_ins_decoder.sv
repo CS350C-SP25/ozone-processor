@@ -57,7 +57,7 @@ module fpu_ins_decoder #(
     assign fpadder_valid_out = is_fadd | is_fsub;
     assign fpmult_valid_out = is_fmul;
 
-    always_ff @(posedge clk_in or negedge rst_N_in) begin
+    always_ff @(posedge clk_in) begin
         if (!rst_N_in || flush_in) begin
             cycle_count <= '0;
             cycle_expiration <= '0;

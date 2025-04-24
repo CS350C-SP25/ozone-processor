@@ -6,7 +6,7 @@ module reg_file #(
     parameter WORD_SIZE       = reg_pkg::WORD_SIZE,
     parameter NUM_PHYS_REGS   = reg_pkg::NUM_PHYS_REGS,
     parameter int NUM_READ_PORTS  = 4,
-    parameter int NUM_WRITE_PORTS = 4 // from FPU, ALU, BRU, LSU but only 2 will be written max at a time
+    parameter int NUM_WRITE_PORTS = 8 // from FPU, ALU, BRU, LSU but only 2 will be written max at a time, intermmediate writing ports from r2
 )(
     input  logic clk,
     input  logic rst,

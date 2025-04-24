@@ -80,7 +80,6 @@ module reorder_buffer #(
 
     // ** INPUTS FROM BRANCH UNIT **
     input logic flush_in, // fed from either RESET or branch misprediction
-    input logic [ADDR_BITS-1:0] target_pc, // if branch misprediction, this is the target pc
 
     // ** INPUTS FROM INSTR_SCHEDULER **
     input logic alu_ready_in,
@@ -88,10 +87,6 @@ module reorder_buffer #(
     input logic lsu_ready_in,
     input logic bru_ready_in,
     input rob_writeback [3:0] writeback_in, // tell rob which entries to update
-
-    // ** PC OUTPUT LOGIC **
-    output logic valid_pc_out, // if PC needs to be set for exception handling, branch mispredictions, trap, etc..
-    output logic [ADDR_BITS-1:0] pc_out,
 
     // ** EXEC OUTPUT LOGIC **
     // these outputs will be sent to the execute phase where insn scheduler will decide which ones we can execute
@@ -183,7 +178,7 @@ module reorder_buffer #(
     endfunction
 
     always_ff @(posedge clk_in) begin : reorder_buffer_fsm
-        if (rst_N_in) begin // not reset
+        if (!rst_N_in) begin // not reset
             bru_insn_out <= bru_insn_out_t;
             alu_insn_out <= alu_insn_out_t;
             fpu_insn_out <= fpu_insn_out_t;
@@ -209,9 +204,7 @@ module reorder_buffer #(
         alu_insn_out_t = '0;
         fpu_insn_out_t = '0;
         issue_mark_pending = '0;
-        next_issue_ptr = '0;
-        valid_pc_out = flush_in;
-        pc_out = target_pc;        
+        next_issue_ptr = '0;     
         if (!queue_empty) begin
             
             // ** INSTRUCTION WINDOW COMMIT **

@@ -42,7 +42,7 @@ module frl #(
 
   always_ff @(posedge clk) begin
 
-    if (rst) begin
+    if (!rst) begin
       // Default mapping. Map all registers to normal indices
       for (int i = 0; i < reg_pkg::NUM_PHYS_REGS; i++) begin
          // Only use bottom order bits of i

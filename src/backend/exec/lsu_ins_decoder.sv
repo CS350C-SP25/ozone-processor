@@ -51,7 +51,7 @@ module lsu_ins_decoder #(
     assign ready_out = !load_queue[alloc_ptr].valid;
 
     // Dispatch a new load
-    always_ff @(posedge clk_in or negedge rst_N_in) begin
+    always_ff @(posedge clk_in) begin
         if (!rst_N_in || flush_in) begin
             for (int i = 0; i < LQ_SIZE; i++) begin
                 load_queue[i].valid <= 0;

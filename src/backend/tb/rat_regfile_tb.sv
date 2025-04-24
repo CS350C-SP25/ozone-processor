@@ -1,7 +1,7 @@
 `timescale 1ns/1ps
 
 `include "../registers/reg_file.sv"
-`include "../rat.sv"
+`include "../registers/rat.sv"
 
 typedef logic [31:0] uop_insn;   // Example: 32-bit micro-op instruction
 typedef logic [63:0] rob_entry;  // Example: 64-bit ROB entry
