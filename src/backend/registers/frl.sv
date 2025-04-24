@@ -40,21 +40,7 @@ module frl #(
            If not, set acquire_valid_out to 0 (stall)
   */
 
-  always_ff @(posedge clk) begin
-
-    if (!rst) begin
-      // Default mapping. Map all registers to normal indices
-      for (int i = 0; i < reg_pkg::NUM_PHYS_REGS; i++) begin
-         // Only use bottom order bits of i
-        phys_regs[i] <= i[$clog2(reg_pkg::NUM_PHYS_REGS)-1:0];
-        phys_reg_indices[i] <= i[$clog2(reg_pkg::NUM_PHYS_REGS)-1:0];
-      end
-
-      head <= '0;
-      tail <= '0;
-      empty <= '1;
-
-    end else begin
+  always_comb begin
     
       // Check which registers were accepted on previous cycle
       // We will swap an accepted register to the tail of the queue
