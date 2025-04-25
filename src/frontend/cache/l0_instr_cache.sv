@@ -15,7 +15,7 @@ module l0_instruction_cache #(
     input logic [PC_SIZE-1:0] bp_pc, // ????
     input logic [PC_SIZE-1:0] bp_pred_pc, // ?? 
 
-    output logic [LINE_SIZE_BYTES*8-1:0] cache_line,  // data output to branch predictor
+    output logic [7:0] cache_line [LINE_SIZE_BYTES*8-1:0] ,  // data output to branch predictor
     output logic cache_hit  // high on a hit, low on a miss
 );
 
