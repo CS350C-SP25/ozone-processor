@@ -11,11 +11,11 @@ module l0_instruction_cache #(
 ) (
     input logic [PC_SIZE-1:0] l1i_pc,  // address we check cache for
     input logic l1_valid,  // if the l1 is ready to give us data
-    input logic l1_data [LINE_SIZE_BYTES*8-1:0],  // data coming in from L1
+    input logic [LINE_SIZE_BYTES*8-1:0] l1_data,  // data coming in from L1
     input logic [PC_SIZE-1:0] bp_pc, // ????
     input logic [PC_SIZE-1:0] bp_pred_pc, // ?? 
 
-    output logic cache_line [LINE_SIZE_BYTES*8-1:0],  // data output to branch predictor
+    output logic [LINE_SIZE_BYTES*8-1:0] cache_line,  // data output to branch predictor
     output logic cache_hit  // high on a hit, low on a miss
 );
 
@@ -23,12 +23,11 @@ module l0_instruction_cache #(
   localparam int SET_INDEX_BITS = $clog2(SETS);
   localparam int TAG_BITS = PC_SIZE - SET_INDEX_BITS - BLOCK_OFFSET_BITS;
 
-  // Data array    
-  typedef logic [LINE_SIZE_BYTES * 8-1:0] cache_line_t;
+  // Data array
+  typedef logic [LINE_SIZE_BYTES * 8-1:0] cache_line_t; 
   typedef cache_line_t cache_data_way_t[SETS-1:0];
   cache_data_way_t cache_data[A-1:0];
 
-  cache_line_t cache_line_temp;
 
   // Tag Entry
   typedef struct packed {
@@ -59,7 +58,9 @@ module l0_instruction_cache #(
 
   // outputs:
   assign cache_hit = tag_array[0][pred_index].valid & tag_array[0][pred_index].tag == pred_tag;
-  assign cache_line = cache_data[0][pred_index];
+  logic [511:0] cache_line_temp;  // Temporary variable to hold the indexed 
+  assign cache_line = cache_data[0][pred_index];  // Procedural assignment
+
 
   // update l0 with l1i information
   always_latch begin
