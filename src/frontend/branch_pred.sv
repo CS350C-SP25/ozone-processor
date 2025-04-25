@@ -30,8 +30,8 @@ module branch_pred #(
   output uop_branch  decode_branch_data [SUPER_SCALAR_WIDTH-1:0], //goes straight into decode. what the branches are and if the super scalar needs to be squashed
   output logic pc_valid_out,  // sending a predicted instruction address. 
   output logic bp_l1i_valid_out, //fetch uses this + pc valid out to determine if waiting for l1i or 
-  output logic bp_l0_valid,
-  output logic [63:0] l1i_addr_out,
+  output logic bp_l0_valid, // this is the l0 cacheline valid ???
+  output logic [63:0] l1i_addr_out, // this is the address we are sending to l1i
   output logic [7:0] l0_cacheline [CACHE_LINE_WIDTH-1:0] // this gets fed to fetch
 );
   // GHR and PHT logic
@@ -56,6 +56,7 @@ module branch_pred #(
   logic instructions_inflight_next;
   logic [64:0] l1i_q;
   logic [64:0] l1i_q_next;
+  logic [63:0] l1i_addr_out_next; // ???? 
 
   // RAS
   logic ras_push;
@@ -101,7 +102,12 @@ module branch_pred #(
   function automatic logic [INSTRUCTION_WIDTH-1:0] get_instr_bits(
     input logic [CACHE_LINE_WIDTH-1:0][7:0] cacheline, input logic [63:0] starting_addr,
     input int instr_idx);
-      return cacheline[starting_addr[5:0]+(instr_idx<<2)+3:starting_addr[5:0]+(instr_idx<<2)];
+ 
+      // wont work bc those each side not constant at compile time
+      // cacheline[starting_addr[5:0]+(instr_idx<<2)+3:starting_addr[5:0]+(instr_idx<<2)];
+      // TODO is that the same lol?
+      return cacheline[starting_addr[5:0] + (instr_idx << 2) +: 4]; // i think this is the same?
+
   endfunction
  
   // PRE - DECODE
@@ -214,14 +220,24 @@ module branch_pred #(
   end else begin
     current_pc <= '0;
     pred_pc <= '0;
-    decode_branch_data <= '0;
     pc_valid_out <= '0;
     l1i_addr_out <= '0;
     bp_l1i_valid_out <= '0;
     instructions_inflight <= 1'b0;
-    decode_branch_data <= '0;
-    l0_cacheline_local <= '0;
-    l0_cacheline <= '0;
+    // decode_branch_data <= '0; //  this is an array
+    // l0_cacheline_local <= '0; // this is an array
+    foreach (decode_branch_data[i])
+      decode_branch_data[i] <= '0;
+
+    foreach (l0_cacheline_local[i])
+      l0_cacheline_local[i] <= 8'h00;
+
+    foreach (decode_branch_data[i])
+      decode_branch_data[i] <= '0;
+
+    foreach (l0_cacheline[i])
+      l0_cacheline[i] <= 8'h00;
+
     ghr <= '0;
     pht <= '0;
   end
@@ -277,11 +293,21 @@ module branch_pred #(
     end else if (l1i_valid) begin // we got the instruction bits back. predecode, update ras, pred_pc, look up ghr, etc
       // this processes a cacheline from l1i
       // TODO dont directly send pred pc to l1i, check if the pred pc tag matches. 
-      process_pc(.cacheline(l1i_cacheline));
+process_pc(
+  .cacheline(l1i_cacheline),
+  .pc(current_pc),
+  .pht_index({ghr, current_pc[PHT_N-1:0]}),
+  .l1i_addr_out_next(l1i_addr_out_next)
+);
       pc_valid_out_next = 1'b1;
     end else if (!instructions_inflight) begin
       //l1i was not valid, we check if any instructions are in flight if so stall otherwise we must be in l0.
-      process_pc(.cacheline(l0_cacheline_local));
+process_pc(
+  .cacheline(l0_cacheline_local),
+  .pc(current_pc),
+  .pht_index({ghr, current_pc[PHT_N-1:0]}),
+  .l1i_addr_out_next(l1i_addr_out_next)
+);
       pc_valid_out_next = 1'b1;
     end
   end
