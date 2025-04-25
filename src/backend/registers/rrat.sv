@@ -29,6 +29,10 @@ module rrat #(
     uop_ri ri;
     int base;
 
+    logic [$clog2(NUM_ARCH_REGS)-1:0] arch_dst;
+    logic [$clog2(NUM_PHYS_REGS)-1:0] new_dest;
+    logic [$clog2(NUM_PHYS_REGS)-1:0] old_dest;
+
     always_ff @(posedge clk) begin
         if (rst) begin
             for (int i = 0; i <= NUM_ARCH_REGS - 1; i++) begin
@@ -49,9 +53,9 @@ module rrat #(
                         set_nzcv <= rr.set_nzcv;
                         /* first, check if any of the architectural registers are mapped differently. If they are,
                              we need to free the coresponding physical register before updating the mapping*/
-                        logic [$clog2(NUM_ARCH_REGS)-1:0] arch_dst = rr.dst.gpr;
-                        logic [$clog2(NUM_PHYS_REGS)-1:0] new_dest = rob_data[i].dest_reg_phys;
-                        logic [$clog2(NUM_PHYS_REGS)-1:0] old_dest = rrat_table[arch_dst];
+                        arch_dst = rr.dst.gpr;
+                        new_dest = rob_data[i].dest_reg_phys;
+                        old_dest = rrat_table[arch_dst];
 
                         if (old_dest != new_dest) begin
                             // free the old destination register
@@ -67,9 +71,9 @@ module rrat #(
                         get_data_ri(rob_data[i].uop.data, ri);
                         set_nzcv <= ri.set_nzcv;
 
-                        logic [$clog2(NUM_ARCH_REGS)-1:0] arch_dst = ri.dst.gpr;
-                        logic [$clog2(NUM_PHYS_REGS)-1:0] new_dest = rob_data[i].dest_reg_phys;
-                        logic [$clog2(NUM_PHYS_REGS)-1:0] old_dest = rrat_table[arch_dst];
+                        arch_dst = ri.dst.gpr;
+                        new_dest = rob_data[i].dest_reg_phys;
+                        old_dest = rrat_table[arch_dst];
 
                         if (old_dest != new_dest) begin
                             free_registers_valid_out[2*i+1]     <= 1'b1;
@@ -80,9 +84,7 @@ module rrat #(
                         rrat_table[ri.src.gpr] <= rob_data[i].r1_reg_phys;
                     end
                     // Update NZCV mapping
-                    if (rob_data[i].uop.set_nzcv) begin
-                        rrat_table[NUM_ARCH_REGS] <= rob_data[i].nzcv_reg_phys;
-                    end
+                    rrat_table[NUM_ARCH_REGS] <= rob_data[i].nzcv_reg_phys;
                 end
             end
         end

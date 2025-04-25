@@ -45,6 +45,7 @@ module backend(
     is_pkg::exec_packet alu_insn_pkt, fpu_insn_pkt, lsu_insn_pkt, bru_insn_pkt;
     rob_pkg::rob_writeback alu_wb_out, fpu_wb_out, lsu_wb_out, bru_wb_out;
     logic alu_ready, fpu_ready, lsu_ready, bru_ready;
+    logic [reg_pkg::NUM_PHYS_REGS-1:0] scoreboard;
 
     assign read_en = {{4{alu_insn.valid}}, {3{fpu_insn.valid}}, 1'b0, {3{lsu_insn.valid}}, 1'b0, {4{bru_insn.valid}}};
     assign read_index = {
@@ -283,6 +284,7 @@ module backend(
         .read_en(read_en), 
         .read_index(read_index),
         .read_data(read_data),
+        .scoreboard(scoreboard),
         .write_ports('{alu_reg_pkt, fpu_reg_pkt, lsu_reg_pkt, bru_reg_pkt, 
             regfile_ports[0], regfile_ports[1], regfile_ports[2], regfile_ports[3]}),
         .nzcv_write_port(alu_nzcv)

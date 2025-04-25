@@ -29,7 +29,7 @@ int main(int argc, char** argv) {
     top->rst_N_in = 1;
 
     // Provide values for instruction inputs (passed into instr_queue[0] by backend_tb logic)
-    top->uopcode = 0x10; // UOP_ADD
+    top->uopcode = 0xC; // UOP_ADD
     top->dst_ri = 10;
     top->src_ri = 5;
     top->imm_ri = 0;
