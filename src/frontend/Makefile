@@ -66,4 +66,7 @@ decode:
 	$(VERILATOR) $(VFLAGS) --cc ./decode.sv 
 
 fetch:
-	$(VERILATOR) $(VFLAGS) --cc ./fetch.sv 
+	$(VERILATOR) $(VFLAGS) --cc ./fetch.sv
+
+bp:
+	$(VERILATOR) $(VFLAGS) --cc ./branch_pred.sv
