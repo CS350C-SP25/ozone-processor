@@ -31,6 +31,7 @@ module reg_file #(
     always_comb begin
         for (int i = 0; i < NUM_READ_PORTS; i++) begin
             if (read_en[i]) begin
+                $display("Reading from register %0d: %0h, storing in read_data[%0d]", read_index[i], registers[ read_index[i] ], i);
                 read_data[i] = registers[ read_index[i] ];
             end else begin
                 read_data[i] = '0;  // Default output when disabled (customize as needed)
@@ -40,7 +41,7 @@ module reg_file #(
 
     // Synchronous logic for writing to registers and reset behavior.
     always_ff @(posedge clk) begin
-        if (rst) begin
+        if (~rst) begin
             // Reset all registers to zero
             for (int i = 0; i < NUM_PHYS_REGS; i++) begin
                 registers[i] <= '0;
@@ -50,12 +51,14 @@ module reg_file #(
             // For each write port, if enabled, perform the write operation.
             for (int i = 0; i < NUM_WRITE_PORTS; i++) begin
                 if (write_ports[i].en) begin
+                    $display("Writing to register %0d: %0h", write_ports[i].index_in, write_ports[i].data_in);
                     registers[ write_ports[i].index_in ] <= write_ports[i].data_in;
                     scoreboard[ write_ports[i].index_in ] <= 1'b1; // Mark as valid
                 end
             end
             if (nzcv_write_port.valid) begin
                 // Write to NZCV register if valid
+                $display("Writing NZCV to register %0d: %0h", nzcv_write_port.index_in, 1'b1);
                 registers[nzcv_write_port.index_in] <= nzcv_write_port.nzcv;
                 scoreboard[nzcv_write_port.index_in] <= 1'b1; // Mark as valid
             end

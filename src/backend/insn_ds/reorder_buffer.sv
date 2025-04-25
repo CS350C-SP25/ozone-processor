@@ -190,15 +190,18 @@ module reorder_buffer #(
         output rob_issue insn_out_t
     );
         next_check = 1'b0;
+        insn_out_t = '0;
+        next_check = '0;
         if (cur_check == 1'b0) begin
             $display("[ROB] Considering scheduling current instruction %0d {UOPCODE: %0b}", i, cur_entry.uop.uopcode);
             next_check = 1'b1;
-            if (!dep_check) begin
+            if (!dep_check || cur_entry.status != READY) begin
                 next_check = 1'b0;
-                $display("[ROB] Instruction %0d was not scheduled because depndencies were not satisfied", i);
+                $display("[ROB] Instruction %0d was not scheduled because dependencies were not satisfied or its already been issued", i);
             end
             if (next_check == 1'b1) begin
                 $display("[ROB] Instruction %0d was scheduled", i);
+                insn_out_t.valid = 1'b1;
                 insn_out_t.uop = cur_entry.uop;
                 insn_out_t.ptr = i;
                 insn_out_t.dest_reg_phys = cur_entry.dest_reg_phys;
@@ -210,7 +213,7 @@ module reorder_buffer #(
     endfunction
 
     always_ff @(posedge clk_in) begin : reorder_buffer_fsm
-        if (!rst_N_in) begin // not reset
+        if (rst_N_in) begin // not reset
             bru_insn_out <= bru_insn_out_t;
             alu_insn_out <= alu_insn_out_t;
             fpu_insn_out <= fpu_insn_out_t;
@@ -247,7 +250,7 @@ module reorder_buffer #(
                             insn_check(
                                 cur_lsu_check,
                                 cur_entry,
-                                scoreboard_in[queue_out[i].r1_reg_phys],
+                                scoreboard_in[cur_entry.r1_reg_phys] && scoreboard_in[cur_entry.r2_reg_phys],
                                 queue_size,
                                 queue_out,
                                 i[6:0],
@@ -291,7 +294,7 @@ module reorder_buffer #(
                             insn_check(
                                 cur_lsu_check,
                                 cur_entry,
-                                scoreboard_in[cur_entry.r1_reg_phys],
+                                scoreboard_in[cur_entry.r1_reg_phys] && scoreboard_in[cur_entry.r2_reg_phys],
                                 queue_size,
                                 queue_out,
                                 i,
@@ -305,11 +308,12 @@ module reorder_buffer #(
                     end
                     UOP_MOVZ, UOP_MOVK, UOP_ADRP_MOV: begin
                         if (alu_ready_in) begin
-                            // Data processing immediates (only 1 immediate value which will be written to reg)
+                            // Data processing immediates (only 1 immediate value which will be written to r2)
+                            $display ("Reg Status %0d", scoreboard_in[cur_entry.r2_reg_phys]);
                             insn_check(
                                 cur_alu_check,
                                 cur_entry,
-                                1'b1, // scoreboard_in[cur_entry.r1_reg_phys] && scoreboard_in[cur_entry.r2_reg_phys],
+                                scoreboard_in[cur_entry.r2_reg_phys],
                                 queue_size,
                                 queue_out,
                                 i,

@@ -1,5 +1,9 @@
 `include "../packages/rob_pkg.sv"
 
+import rob_pkg::*;
+import reg_pkg::*;
+import uop_pkg::*;
+
 module rat #(
     parameter NUM_PHYS_REGS = reg_pkg::NUM_PHYS_REGS,
     parameter NUM_ARCH_REGS = reg_pkg::NUM_ARCH_REGS
@@ -66,11 +70,10 @@ module rat #(
           dst  = regs_rr_in[i].dst;
           src1 = regs_rr_in[i].src1;
           src2 = regs_rr_in[i].src2;
-
-          regFileOut[i].index_in <= free_register_data[2+i];
-          regFileOut[i].en       <= 1;
-          regFileOut[i].data_in  <= 64'(regs_ri_in[i].imm);
-        end else begin  // we have an intermediate
+          regFileOut[i].index_in <= 0;
+          regFileOut[i].en       <= 0;
+          regFileOut[i].data_in  <= 0;
+        end else if (instr[i].uopcode != UOP_HLT) begin  // we have an intermediate
           get_data_ri(instr[i].data, regs_ri_in[i]);
 
           if (!reg_valid[regs_ri_in[i].src.gpr]) begin
@@ -80,10 +83,10 @@ module rat #(
           dst  = regs_ri_in[i].dst;
           src1 = regs_ri_in[i].src;
           src2 = free_register_data[2+i];  // intermediate phys reg
-
-          regFileOut[i].index_in <= 0;
-          regFileOut[i].en       <= 0;
-          regFileOut[i].data_in  <= 0;
+          $display("Allocated %0d %0d %0d, Writing to intermediate reg %0d", dst, src1, src2, src2);
+          regFileOut[i].index_in <= free_register_data[2+i];
+          regFileOut[i].en       <= 1;
+          regFileOut[i].data_in  <= 64'(regs_ri_in[i].imm);
         end
 
         // Mark FRL consumption
@@ -98,7 +101,7 @@ module rat #(
                                     instr[i].pc + 4;
         outputs[i].uop           <= instr[i];
         outputs[i].r1_reg_phys   <= store[src1];
-        outputs[i].r2_reg_phys   <= store[src2];
+        outputs[i].r2_reg_phys   <= (instr[i].valb_sel ? store[src2] : src2);
         outputs[i].dest_reg_phys <= free_register_data[i];
         outputs[i].status        <= READY;
 

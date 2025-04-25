@@ -29,9 +29,19 @@ int main(int argc, char** argv) {
     top->rst_N_in = 1;
 
     // Provide values for instruction inputs (passed into instr_queue[0] by backend_tb logic)
-    top->uopcode = 0xC; // UOP_ADD
-    top->dst_ri = 10;
-    top->src_ri = 5;
+    top->uopcode = 0xC; // UOP_MOVZ
+    top->dst_ri = 1;
+    top->src_ri = 0;
+    top->imm_ri = 0xF;
+    top->hw_ri = 0;
+    top->set_nzcv_ri = 0;
+    top->valb_sel = 0;
+    top->pc = 0x1000;
+    top->clk_in = !top->clk_in;
+    top->eval();
+    top->uopcode = 0x21; // UOP_HLT
+    top->dst_ri = 0;
+    top->src_ri = 0;
     top->imm_ri = 0;
     top->hw_ri = 0;
     top->set_nzcv_ri = 0;
@@ -39,7 +49,7 @@ int main(int argc, char** argv) {
     top->pc = 0x1000;
 
     // Simulate
-    for (int i = 0; i < 100; ++i) {
+    for (int i = 0; i < 10; ++i) {
         top->clk_in = !top->clk_in;
         top->eval();
 

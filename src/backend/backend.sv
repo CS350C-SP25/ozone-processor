@@ -60,9 +60,9 @@ module backend(
         alu_insn.ptr, 
         alu_insn.dest_reg_phys, 
         alu_insn.nzcv_reg_phys,
-        read_data[0], 
-        read_data[1],
-        read_data[2]
+        read_data[15], 
+        read_data[14],
+        read_data[13]
     };
     assign fpu_insn_pkt = {
         fpu_insn.valid, 
@@ -70,9 +70,9 @@ module backend(
         fpu_insn.ptr, 
         fpu_insn.dest_reg_phys, 
         fpu_insn.nzcv_reg_phys,
-        read_data[4], 
-        read_data[5],
-        read_data[6]
+        read_data[11], 
+        read_data[10],
+        read_data[9]
     };
     assign lsu_insn_pkt = {
         lsu_insn.valid, 
@@ -80,9 +80,9 @@ module backend(
         lsu_insn.ptr, 
         lsu_insn.dest_reg_phys,
         lsu_insn.nzcv_reg_phys, 
-        read_data[8], 
-        read_data[9],
-        read_data[10]
+        read_data[7], 
+        read_data[6],
+        read_data[5]
     };
     assign bru_insn_pkt = {
         bru_insn.valid, 
@@ -90,9 +90,9 @@ module backend(
         bru_insn.ptr, 
         bru_insn.dest_reg_phys, 
         bru_insn.nzcv_reg_phys,
-        read_data[12], 
-        read_data[13],
-        read_data[14]
+        read_data[3], 
+        read_data[2],
+        read_data[1]
     };
 
     // RRAT
@@ -151,6 +151,7 @@ module backend(
         .lsu_ready_in(lsu_ready),
         .bru_ready_in(bru_ready),
         .writeback_in('{alu_wb_out, lsu_wb_out, bru_wb_out, fpu_wb_out}),
+        .scoreboard_in(scoreboard),
 
         .alu_insn_out(alu_insn),
         .fpu_insn_out(fpu_insn),
@@ -164,7 +165,7 @@ module backend(
     RegFileWritePort alu_reg_pkt;
     NZCVWritePort alu_nzcv;
     logic [3:0] alu_nzcv_flags;
-    assign alu_nzcv_flags = read_data[3][3:0]; // NZCV flags from the register file
+    assign alu_nzcv_flags = read_data[12][3:0]; // NZCV flags from the register file
 
     alu_ins_decoder alu_decoder (
         .clk_in(clk_in),
