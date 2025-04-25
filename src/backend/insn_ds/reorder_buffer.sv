@@ -13,60 +13,92 @@ module reorder_buffer_queue #(
     parameter Q_WIDTH = uop_pkg::INSTR_Q_WIDTH
 ) (
     input logic clk_in,
-    input logic rst_N_in,                       // resets the q completely, empty, 0 size, etc.
-    input logic flush_in,                       // same function as reset
-    input rob_entry [Q_WIDTH-1:0] q_in, // enq signals come from instr_queue_in[i].uop.valid
-    input logic [$clog2(Q_WIDTH+1)-1:0] deq_in, // how many to pop IMPORTANT, IT IS DEQERS JOB TO DETERMINE HOW MANY IS SAFE TO DEQ (USE SIZE)
-    input rob_writeback [3:0] writeback_in, // tell rob which entries to update
+    input logic rst_N_in,
+    input logic flush_in,
+
+    input rob_entry [Q_WIDTH-1:0] q_in,
+    input logic [$clog2(Q_WIDTH+1)-1:0] deq_in,
+    input rob_writeback [3:0] writeback_in,
     input rob_writeback [3:0] issue_mark_pending,
 
-    output rob_entry [Q_DEPTH-1:0] q_out,       // the top width elements of the queue
-    output logic full,                          // 1 if the queue is full
-    output logic empty,                         // 1 if the queue is empty
-    output logic [$clog2(Q_DEPTH)-1:0] size    // the #elems in the queue
-); 
-    rob_entry [Q_DEPTH-1:0] q;
-    logic [$clog2(Q_DEPTH)-1:0] head;
-    logic [$clog2(Q_DEPTH)-1:0] tail;
+    output rob_entry [Q_DEPTH-1:0] q_out,
+    output logic full,
+    output logic empty,
+    output logic [$clog2(Q_DEPTH)-1:0] size
+);
 
-    rob_entry [Q_WIDTH-1:0] q_next;
-    rob_entry cur_entry;
-    logic [$clog2(Q_WIDTH+1)-1:0] size_incr;
-    logic [$clog2(Q_WIDTH+1)-1:0] size_decr; 
-    always_ff @( posedge clk_in ) begin : instruction_queue_fsm
-        if (rst_N_in && !flush_in) begin
-            for (int i = 0; i < Q_WIDTH; i++) begin
-                q[tail + 1] <= q_next[i].uop.valid ? q_next[i] : q[tail];
-                tail <= q_next[i].uop.valid ? tail + 1 : tail;
+    rob_entry q       [Q_DEPTH-1:0];
+    rob_entry q_next  [Q_DEPTH-1:0];
+
+    logic [$clog2(Q_DEPTH)-1:0] head, tail;
+    logic [$clog2(Q_DEPTH)-1:0] head_next, tail_next;
+
+    logic [$clog2(Q_WIDTH+1)-1:0] size_incr, size_decr;
+    logic [$clog2(Q_DEPTH)-1:0] size_next;
+
+    always_comb begin : compute_next_state
+        q_next = q;
+        head_next = head;
+        tail_next = tail;
+        size_incr = 0;
+        size_decr = flush_in ? tail - head : deq_in;
+
+        // Enqueue new instructions
+        for (int i = 0; i < Q_WIDTH; i++) begin
+            if (q_in[i].uop.valid && tail_next < Q_DEPTH) begin
+                q_next[tail_next] = q_in[i];
+                tail_next++;
+                size_incr++;
             end
-            // ** INSTRUCTION WRITEBACK **
-            for (int i = 0; i < 4; i++) begin
-                cur_entry <= q[writeback_in[i].ptr];
-                if (writeback_in[i].valid) begin
-                    cur_entry.status <= writeback_in[i].status;
-                    q[writeback_in[i].ptr] <= cur_entry;
-                end else if (issue_mark_pending[i].valid) begin
-                    cur_entry.status <= ISSUED;
-                    q[issue_mark_pending[i].ptr] <= cur_entry;
-                end
+        end
+
+        // Handle writebacks and issue marks
+        for (int i = 0; i < 4; i++) begin
+            if (writeback_in[i].valid) begin
+                q_next[writeback_in[i].ptr].status = writeback_in[i].status;
+            end else if (issue_mark_pending[i].valid) begin
+                q_next[issue_mark_pending[i].ptr].status = ISSUED;
             end
-            head <= head + size_decr;
-            size <= tail - head + size_incr - size_decr;
+        end
+
+        if (flush_in) begin
+            head_next = '0;
+            tail_next = '0;
+            size_next = '0;
         end else begin
-            head <= '0;
-            tail <= '0;
-            size <= '0;
+            head_next = head + size_decr;
+            size_next = tail_next - head_next;
         end
     end
 
-    always_comb begin : instruction_queue_next_state
-        q_next = q_in;
-        size_decr = flush_in ? tail - head : deq_in;
+    always_ff @(posedge clk_in) begin
+        if (!rst_N_in || flush_in) begin
+            head <= '0;
+            tail <= '0;
+            size <= '0;
+            for (int i = 0; i < Q_DEPTH; i++) begin
+                q[i] <= '0;
+            end
+        end else begin
+            head <= head_next;
+            tail <= tail_next;
+            size <= size_next;
+            for (int i = 0; i < Q_DEPTH; i++) begin
+                q[i] <= q_next[i];
+            end
+        end
     end
-    assign q_out = q;
-    assign full = (size == Q_DEPTH);
+
+    generate
+        genvar i;
+        for (i = 0; i < Q_DEPTH; i++) begin : gen_q_out
+            assign q_out[i] = q[i];
+        end
+    endgenerate
+    assign full  = (size == Q_DEPTH);
     assign empty = (size == 0);
-endmodule: reorder_buffer_queue
+
+endmodule : reorder_buffer_queue
 
 module reorder_buffer #(
     parameter Q_DEPTH = rob_pkg::ROB_ENTRIES,
@@ -87,6 +119,9 @@ module reorder_buffer #(
     input logic lsu_ready_in,
     input logic bru_ready_in,
     input rob_writeback [3:0] writeback_in, // tell rob which entries to update
+
+    // ** INPUTS FROM REG_FILE **
+    input logic [reg_pkg::NUM_PHYS_REGS-1:0] scoreboard_in, // scoreboard from reg file to check if the register is valid or not    
 
     // ** EXEC OUTPUT LOGIC **
     // these outputs will be sent to the execute phase where insn scheduler will decide which ones we can execute
@@ -147,6 +182,7 @@ module reorder_buffer #(
     function automatic void insn_check(
         input logic cur_check,
         input rob_entry cur_entry,
+        input logic dep_check, // are dependencies satisfied
         input logic [$clog2(Q_DEPTH)-1:0] queue_size,
         input rob_entry [Q_DEPTH-1:0] queue_out,
         input logic [$clog2(Q_DEPTH)-1:0] i,
@@ -155,18 +191,14 @@ module reorder_buffer #(
     );
         next_check = 1'b0;
         if (cur_check == 1'b0) begin
+            $display("[ROB] Considering scheduling current instruction %0d {UOPCODE: %0b}", i, cur_entry.uop.uopcode);
             next_check = 1'b1;
-            for (int k = 0; k < 2; k++) begin
-                if (cur_entry.dependent_entries[k] < queue_size) begin
-                    rob_entry cur_dep_entry;
-                    cur_dep_entry = queue_out[cur_entry.dependent_entries[k]];
-                    if (cur_dep_entry.status == ISSUED || cur_dep_entry.status == READY) begin
-                        // this means the dep insn is completed, or ran into an exception that "has been handled"
-                        next_check = 1'b0;
-                    end
-                end
+            if (!dep_check) begin
+                next_check = 1'b0;
+                $display("[ROB] Instruction %0d was not scheduled because depndencies were not satisfied", i);
             end
             if (next_check == 1'b1) begin
+                $display("[ROB] Instruction %0d was scheduled", i);
                 insn_out_t.uop = cur_entry.uop;
                 insn_out_t.ptr = i;
                 insn_out_t.dest_reg_phys = cur_entry.dest_reg_phys;
@@ -215,6 +247,7 @@ module reorder_buffer #(
                             insn_check(
                                 cur_lsu_check,
                                 cur_entry,
+                                scoreboard_in[queue_out[i].r1_reg_phys],
                                 queue_size,
                                 queue_out,
                                 i[6:0],
@@ -254,9 +287,11 @@ module reorder_buffer #(
                     end 
                     UOP_LOAD: begin
                         if (lsu_ready_in) begin
+                            // LDUR is M format which specifies 1 register and 1 imm, but all imms will be written to regs. 
                             insn_check(
                                 cur_lsu_check,
                                 cur_entry,
+                                scoreboard_in[cur_entry.r1_reg_phys],
                                 queue_size,
                                 queue_out,
                                 i,
@@ -268,13 +303,32 @@ module reorder_buffer #(
                             next_issue_ptr = next_issue_ptr + 1;
                         end
                     end
+                    UOP_MOVZ, UOP_MOVK, UOP_ADRP_MOV: begin
+                        if (alu_ready_in) begin
+                            // Data processing immediates (only 1 immediate value which will be written to reg)
+                            insn_check(
+                                cur_alu_check,
+                                cur_entry,
+                                1'b1, // scoreboard_in[cur_entry.r1_reg_phys] && scoreboard_in[cur_entry.r2_reg_phys],
+                                queue_size,
+                                queue_out,
+                                i,
+                                next_check,
+                                alu_insn_out_t
+                            );
+                            cur_alu_check = next_check;
+                            issue_mark_pending[next_issue_ptr] = '{valid: 1'b1, ptr: i, status: ISSUED};
+                            next_issue_ptr = next_issue_ptr + 1;
+                        end
+                    end
                     UOP_ADD, UOP_SUB, UOP_AND, UOP_ORR, 
                     UOP_EOR, UOP_MVN, UOP_UBFM, 
-                    UOP_ASR, UOP_MOVZ, UOP_MOVK: begin
+                    UOP_ASR: begin
                         if (alu_ready_in) begin
                             insn_check(
                                 cur_alu_check,
                                 cur_entry,
+                                scoreboard_in[cur_entry.r1_reg_phys] && scoreboard_in[cur_entry.r2_reg_phys],
                                 queue_size,
                                 queue_out,
                                 i,
@@ -292,6 +346,7 @@ module reorder_buffer #(
                             insn_check(
                                 cur_fpu_check,
                                 cur_entry,
+                                scoreboard_in[cur_entry.r1_reg_phys] && scoreboard_in[cur_entry.r2_reg_phys],
                                 queue_size,
                                 queue_out,
                                 i,
@@ -305,9 +360,11 @@ module reorder_buffer #(
                     end
                     UOP_BCOND: begin
                         if (bru_ready_in) begin
+                            // Branching instructions only have 1 immediate which will be written to a register
                             insn_check(
                                 cur_bru_check,
                                 cur_entry,
+                                scoreboard_in[cur_entry.r1_reg_phys],
                                 queue_size,
                                 queue_out,
                                 i,
