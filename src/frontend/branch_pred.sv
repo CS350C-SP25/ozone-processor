@@ -25,14 +25,14 @@ module branch_pred #(
   input logic x_taken,  // if the branch resolved as taken or not -- to update PHT and GHR
   input logic [63:0] x_pc, // pc that is currently in the exec phase (the one that just was resolved)
   input logic [18:0] x_correction_offset, // the offset of the correction from x_pc (could change this to be just the actual correct PC instead ??)
-  input logic [7:0] l1i_cacheline [CACHE_LINE_WIDTH-1:0],
+  input logic l1i_cacheline [CACHE_LINE_WIDTH*8-1:0],
   output logic [63:0] pred_pc,  //goes into the fetch
   output uop_branch  decode_branch_data [SUPER_SCALAR_WIDTH-1:0], //goes straight into decode. what the branches are and if the super scalar needs to be squashed
   output logic pc_valid_out,  // sending a predicted instruction address. 
   output logic bp_l1i_valid_out, //fetch uses this + pc valid out to determine if waiting for l1i or 
   output logic bp_l0_valid, // this is the l0 cacheline valid ???
   output logic [63:0] l1i_addr_out, // this is the address we are sending to l1i
-  output logic [7:0] l0_cacheline [CACHE_LINE_WIDTH-1:0] // this gets fed to fetch
+  output logic l0_cacheline [CACHE_LINE_WIDTH*8-1:0] // this gets fed to fetch
 );
   // GHR and PHT logic
   localparam int PHT_SIZE = 1 << (PHT_N + GHR_K);
@@ -46,8 +46,11 @@ module branch_pred #(
   uop_branch branch_data_next [SUPER_SCALAR_WIDTH-1:0];
   uop_branch branch_data_buffer [SUPER_SCALAR_WIDTH-1:0];
   uop_branch branch_data_buffer_next [SUPER_SCALAR_WIDTH-1:0];
-  logic [7:0] l0_cacheline_next [CACHE_LINE_WIDTH-1:0]; // wire (saved to the fetch out and local)
+  logic l0_cacheline_next [CACHE_LINE_WIDTH*8-1:0]; // wire (saved to the fetch out and local)
+  logic l0_cacheline_unsplit [CACHE_LINE_WIDTH * 8-1:0]; // wire (saved to the fetch out and local)
   logic [7:0] l0_cacheline_local [CACHE_LINE_WIDTH-1:0]; // register
+  logic l1_cacheline_unsplit [CACHE_LINE_WIDTH * 8-1:0]; 
+  logic [7:0] l1_cacheline_local [CACHE_LINE_WIDTH-1:0]; // register
   logic l0_hit;
   logic pc_valid_out_next;
   logic [GHR_K-1:0] ghr_next;
@@ -58,6 +61,26 @@ module branch_pred #(
   logic [64:0] l1i_q_next;
   logic [63:0] l1i_addr_out_next; // ???? 
 
+
+  assign l0_cacheline_local[0] = l0_cacheline_unsplit[63:0];
+  assign l0_cacheline_local[1] = l0_cacheline_unsplit[64*1+:64];
+  assign l0_cacheline_local[2] = l0_cacheline_unsplit[64*2+:64];
+  assign l0_cacheline_local[3] = l0_cacheline_unsplit[64*3+:64];
+  assign l0_cacheline_local[4] = l0_cacheline_unsplit[64*4+:64];
+  assign l0_cacheline_local[5] = l0_cacheline_unsplit[64*5+:64];
+  assign l0_cacheline_local[6] = l0_cacheline_unsplit[64*6+:64];
+  assign l0_cacheline_local[7] = l0_cacheline_unsplit[64*7+:64];
+
+  assign l1_cacheline_local[0] = l1_cacheline_unsplit[63:0];
+  assign l1_cacheline_local[1] = l1_cacheline_unsplit[64*1+:64];
+  assign l1_cacheline_local[2] = l1_cacheline_unsplit[64*2+:64];
+  assign l1_cacheline_local[3] = l1_cacheline_unsplit[64*3+:64];
+  assign l1_cacheline_local[4] = l1_cacheline_unsplit[64*4+:64];
+  assign l1_cacheline_local[5] = l1_cacheline_unsplit[64*5+:64];
+  assign l1_cacheline_local[6] = l1_cacheline_unsplit[64*6+:64];
+  assign l1_cacheline_local[7] = l1_cacheline_unsplit[64*7+:64];
+
+  
   // RAS
   logic ras_push;
   logic ras_push_next;
@@ -214,7 +237,8 @@ module branch_pred #(
     pc_valid_out <= pc_valid_out_next;
     ghr <= ghr_next;
     pht <= pht_next;
-    l0_cacheline_local <= l0_cacheline_next;
+    l1_cacheline_unsplit <= l1i_cacheline;
+    l0_cacheline_unsplit <= l0_cacheline_next;
     l0_cacheline <= l0_cacheline_next;
     bp_l0_valid <= pc_valid_out_next & l0_hit;
   end else begin
