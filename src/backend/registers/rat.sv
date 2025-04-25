@@ -100,7 +100,7 @@ module rat #(
         outputs[i].r1_reg_phys   <= store[src1];
         outputs[i].r2_reg_phys   <= store[src2];
         outputs[i].dest_reg_phys <= free_register_data[i];
-        outputs[i].status        <= ISSUED;
+        outputs[i].status        <= READY;
 
         if (making_progress) begin
           reg_valid[dst.gpr] <= 1;

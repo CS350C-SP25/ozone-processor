@@ -16,6 +16,7 @@ module reg_file #(
     input  logic [$clog2(NUM_PHYS_REGS)-1:0] read_index [NUM_READ_PORTS-1:0],
     // Read data outputs: an array to output the register contents
     output logic [WORD_SIZE-1:0] read_data [NUM_READ_PORTS-1:0],
+    output logic [NUM_READ_PORTS*2-1:0] read_data_valid, // Whether its been updated or not
     // Write ports as defined in the package
     input  RegFileWritePort [NUM_WRITE_PORTS-1:0] write_ports,
     input NZCVWritePort nzcv_write_port // NZCV write port
@@ -25,6 +26,7 @@ module reg_file #(
 
     // Internal register file storage
     logic [WORD_SIZE-1:0] registers [NUM_PHYS_REGS-1:0];
+    logic [NUM_PHYS_REGS-1:0] scoreboard; // Check if register is valid or not
 
     // Combinational read logic: for each read port, if read enabled, output the register data.
     always_comb begin
@@ -43,17 +45,20 @@ module reg_file #(
             // Reset all registers to zero
             for (int i = 0; i < NUM_PHYS_REGS; i++) begin
                 registers[i] <= '0;
+                scoreboard[i] <= '0;
             end
         end else begin
             // For each write port, if enabled, perform the write operation.
             for (int i = 0; i < NUM_WRITE_PORTS; i++) begin
                 if (write_ports[i].en) begin
                     registers[ write_ports[i].index_in ] <= write_ports[i].data_in;
+                    scoreboard[ write_ports[i].index_in ] <= 1'b1; // Mark as valid
                 end
             end
             if (nzcv_write_port.valid) begin
                 // Write to NZCV register if valid
                 registers[nzcv_write_port.index_in] <= nzcv_write_port.nzcv;
+                scoreboard[nzcv_write_port.index_in] <= 1'b1; // Mark as valid
             end
         end
     end
