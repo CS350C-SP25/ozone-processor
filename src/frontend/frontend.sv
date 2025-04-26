@@ -14,6 +14,8 @@ module frontend #(
     input logic clk_in,
     input logic rst_N_in,
     input logic cs_N_in,
+    input logic start,
+    input logic [63:0] start_pc,
     input logic x_bcond_resolved,
     input logic x_pc_incorrect,
     input logic x_taken,
@@ -30,8 +32,7 @@ module frontend #(
     output logic [511:0] lc_value_out,
     output logic lc_we_out,
     output logic [$clog2(INSTR_Q_WIDTH+1)-1:0] instruction_queue_pushes,
-    output uop_insn instruction_queue_in [INSTR_Q_WIDTH-1:0]
-    
+    output uop_insn instruction_queue_in [INSTR_Q_WIDTH-1:0] 
 );
     logic l1i_valid;
     logic l1i_ready;
