@@ -18,15 +18,11 @@ module decode #(
     input logic fetch_valid, //how many instructions from fetch are valid TODO implement this change
     input logic exe_ready,
     output logic decode_ready,
-    output logic decode_valid,
-    output logic [$clog2(INSTR_Q_WIDTH+1)-1:0] instruction_queue_pushes,
     output uop_insn instruction_queue_in [INSTR_Q_WIDTH-1:0]
 );
     uop_insn enq_next [INSTR_Q_WIDTH-1:0];
-    logic [$clog2(INSTR_Q_WIDTH+1)-1:0] enq_width;
 
     uop_insn buffer [INSTR_Q_WIDTH-1:0];
-    logic [$clog2(INSTR_Q_WIDTH+1)-1:0] buffer_width;
     logic buffered;
 
     function automatic void decode_m_format_add(
@@ -166,39 +162,27 @@ module decode #(
             if (fetch_valid) begin
                 if (exe_ready) begin
                     instruction_queue_in <= buffered ? buffer : enq_next;
-                    instruction_queue_pushes <= buffered ? buffer_width : enq_width;
                     buffered <= buffered; //this should be 0 if the fsm is working correctly 
                     buffer <= enq_next; 
-                    buffer_width <= enq_width;
-                    decode_valid <= 1'b1;
                     decode_ready <= 1'b1;
                 end else begin
                     buffer <= enq_next;
-                    buffer_width <= enq_width;
                     buffered <= 1'b1;
-                    decode_valid <= 1'b0;
                     decode_ready <= 1'b0;
                 end
             end else begin
                 if (exe_ready) begin
                     instruction_queue_in <= buffer;
-                    instruction_queue_pushes <= buffered ? buffer_width : '0;
                     buffered <= '0;
-                    decode_valid <= '1;
                     decode_ready <= '1;
                 end else begin
-                    instruction_queue_pushes <= '0;
                     decode_ready <= ~buffered;
                     buffered <= buffered;
-                    decode_valid <= '0;
                 end
             end
         end else begin
             buffered <= '0;
-            buffer_width <= '0;
-            decode_valid <= 1'b0;
             decode_ready <= 1'b0;
-            instruction_queue_pushes <= '0;
         end
     end
 
@@ -207,9 +191,11 @@ module decode #(
     always_comb begin : decode_comb_logic
         done = 1'b0;
         enq_idx = 0;
-        enq_width = '0;
         for (int i = 0; i < INSTR_Q_WIDTH; i++) begin : fill_enq_next
-            enq_next[i] = '0;
+            enq_next[i] =  { 
+                UOP_NOP,
+                140'b0
+            };
         end
         for (int instr_idx = 0; instr_idx < SUPER_SCALAR_WIDTH; instr_idx++) begin : super_scalar_decode
             if (!done) begin
@@ -394,7 +380,6 @@ module decode #(
                 endcase
             end
         end
-        enq_width = enq_idx;
     end
 
 endmodule

@@ -31,7 +31,6 @@ module frontend #(
     output logic [63:0] lc_addr_out,
     output logic [511:0] lc_value_out,
     output logic lc_we_out,
-    output logic [$clog2(INSTR_Q_WIDTH+1)-1:0] instruction_queue_pushes,
     output uop_insn instruction_queue_in [INSTR_Q_WIDTH-1:0] 
 );
     logic l1i_valid;
@@ -49,7 +48,6 @@ module frontend #(
     logic bp_l0_valid;
     logic [63:0] fetch_pc;
     logic decode_ready;
-    logic decode_valid;
 
     branch_pred #(
         .CACHE_LINE_WIDTH(64),
@@ -145,11 +143,9 @@ module frontend #(
         .fetched_ops(fetched_ops),
         .branch_data(decode_branch_data),
         .pc(fetch_pc),
-        .fetch_valid(fetch_valid), //how many instructions from fetch are valid TODO implement this change
+        .fetch_valid(fetch_valid),
         .exe_ready(exe_ready),
         .decode_ready(decode_ready),
-        .decode_valid(decode_valid),
-        .instruction_queue_pushes(instruction_queue_pushes),
         .instruction_queue_in(instruction_queue_in)
     );
 endmodule
