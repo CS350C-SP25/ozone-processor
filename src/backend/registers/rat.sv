@@ -83,7 +83,8 @@ module rat #(
           dst  = regs_ri_in[i].dst;
           src1 = regs_ri_in[i].src;
           src2 = free_register_data[2+i];  // intermediate phys reg
-          $display("Allocated %0d %0d %0d, Writing to intermediate reg %0d", dst, src1, src2, src2);
+          $display("Allocated %0d->%0d %0d->%0d %0d for RRI uopcode 0x%0h", 
+            dst, free_register_data[i], src1, store[src1], src2, instr[i].uopcode);
           regFileOut[i].index_in <= free_register_data[2+i];
           regFileOut[i].en       <= 1;
           regFileOut[i].data_in  <= 64'(regs_ri_in[i].imm);
