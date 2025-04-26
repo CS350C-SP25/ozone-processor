@@ -99,12 +99,12 @@ module frontend #(
         .l0_ready_out(l1i_ready),
         .l0_addr_out(l1i_addr_out),
         .l0_value_out(l1i_cacheline), //TODO change this to be the l1i cacheline 
-        // Inputs from LLC
+        // Inputs from LLC - in this case, we are just doing DIMM (?)
         .lc_ready_in(lc_ready_in), 
         .lc_valid_in(lc_valid_in),
         .lc_addr_in(lc_addr_in),
         .lc_value_in(lc_value_in),
-        // signals that go to LLC
+        // signals that go to LLC - in this case, we are just doing DIMM (?)
         .lc_valid_out(lc_valid_out),
         .lc_ready_out(lc_ready_out),
         .lc_addr_out(lc_addr_out),
