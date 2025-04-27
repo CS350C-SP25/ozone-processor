@@ -25,7 +25,8 @@ module branch_pred #(
   input logic x_taken,  // if the branch resolved as taken or not -- to update PHT and GHR
   input logic [63:0] x_pc, // pc that is currently in the exec phase (the one that just was resolved)
   input logic [18:0] x_correction_offset, // the offset of the correction from x_pc (could change this to be just the actual correct PC instead ??)
-  input logic [CACHE_LINE_WIDTH*8-1:0] l1i_cacheline ,
+  input logic [CACHE_LINE_WIDTH*8-1:0] l1i_cacheline,
+  input logic fetch_ready,
   output logic [63:0] pred_pc,  //goes into the fetch
   output uop_branch  decode_branch_data [SUPER_SCALAR_WIDTH-1:0], //goes straight into decode. what the branches are and if the super scalar needs to be squashed
   output logic pc_valid_out,  // sending a predicted instruction address. 
@@ -223,56 +224,59 @@ l1i_addr_out_next = current_pc + 64'(current_pc[5:0]) <= (64 - 64'(current_pc[5:
 
 
   always_ff @(posedge clk_in) begin
-  if (rst_N_in) begin //not reset. this is the good stuff
-    if (pc_valid_out_next) begin // we processed instruction bits. (data from the cache was returned)
-    current_pc <= l1i_addr_out_next; 
-    pred_pc <= l1i_addr_out_next;
-    l1i_addr_out <= l1i_addr_out_next;
-    bp_l1i_valid_out <= ~l0_hit; // if we hit in l0 for this new predicted PC then we dont send to l1i;
-    instructions_inflight <= ~l0_hit; // """
-    decode_branch_data <= branch_data_next; // this is the data we just decoded, we will pass this to decode for better decoding
-    end else begin
-    current_pc <= current_pc;
-    pred_pc <= pred_pc;
-    bp_l1i_valid_out <= 1'b0;
-    instructions_inflight <= instructions_inflight;
-    decode_branch_data <= branch_data_next;
+    if (rst_N_in) begin 
+
+      // Update internal state ONLY on fetch high
+      if (pc_valid_out_next && fetch_ready;) begin
+        current_pc <= l1i_addr_out_next; // Move to process the next PC
+      end else begin
+        // Hold the current PC if predictor isn't valid OR if valid but fetch isn't ready
+        current_pc <= current_pc;
+      end
+      pc_valid_out <= pc_valid_out_next; // Update the main valid signal
+
+      if (pc_valid_out_next) begin
+         // update outputs regardless of fetch_ready
+         pred_pc <= l1i_addr_out_next;
+         decode_branch_data <= branch_data_next;
+         l0_cacheline <= l0_cacheline_next; 
+
+         l1i_addr_out <= l1i_addr_out_next;  
+         bp_l1i_valid_out <= ~l0_hit;            
+         bp_l0_valid <= l0_hit;              
+         instructions_inflight <= ~l0_hit;   
+      end else begin
+         pred_pc <= pred_pc;
+         decode_branch_data <= decode_branch_data;
+         l0_cacheline <= l0_cacheline;
+         l1i_addr_out <= l1i_addr_out;        
+         bp_l1i_valid_out <= 1'b0;
+         bp_l0_valid <= 1'b0;
+         instructions_inflight <= instructions_inflight;
+      end
+      ghr <= ghr_next;
+      pht <= pht_next;
+
+    end else begin 
+      current_pc <= '0;
+      pred_pc <= '0;
+      pc_valid_out <= 1'b0; 
+      l1i_addr_out <= '0;
+      bp_l1i_valid_out <= 1'b0;
+      instructions_inflight <= 1'b0;
+      foreach (decode_branch_data[i])
+        decode_branch_data[i] <= '0;
+      l0_cacheline <= '0;
+      bp_l0_valid <= 1'b0;
+      ghr <= '0;
+      pht <= '{default: 2'b0};
     end
-    pc_valid_out <= pc_valid_out_next;
-    ghr <= ghr_next;
-    pht <= pht_next;
-    l0_cacheline <= l0_cacheline_next;
-    bp_l0_valid <= pc_valid_out_next & l0_hit;
-  end else begin
-    current_pc <= '0;
-    pred_pc <= '0;
-    pc_valid_out <= '0;
-    l1i_addr_out <= '0;
-    bp_l1i_valid_out <= '0;
-    instructions_inflight <= 1'b0;
-    // decode_branch_data <= '0; //  this is an array
-    // l0_cacheline_local <= '0; // this is an array
-    foreach (decode_branch_data[i])
-      decode_branch_data[i] <= '0;
-
-    foreach (decode_branch_data[i])
-      decode_branch_data[i] <= '0;
-
-    foreach (l0_cacheline[i])
-      l0_cacheline[i] <= '0;
-
-    ghr <= '0;
-    pht <= '{default: 2'b0};  // Initialize all elements of the unpacked array to 2'b0
   end
-  end 
 
-  // todo ready valid for bp
-  // todo sign extend
-  // todo comp erfrors
 
   logic [PHT_N+GHR_K-1:0] pht_index_update;
   logic [PHT_N-1:0] pc_index_update;
-  always_comb begin
+  always_comb begin : branch_pred_comb
   ras_pop_next = ras_pop;
   pht_next = pht;
   ghr_next = ghr;
@@ -317,7 +321,7 @@ l1i_addr_out_next = current_pc + 64'(current_pc[5:0]) <= (64 - 64'(current_pc[5:
        pc_valid_out_next = 1'b1;
     end
   end else begin
-    if (l1i_valid && l1i_q[64]) begin // shouldnt it be l0? im confused
+    if (l1i_valid && l1i_q[64]) begin 
       l1i_addr_out_next = l1i_q[63:0];
       l1i_q_next = '0; // we skip this guy and now we can send proccess this current PC
       pc_valid_out_next = 1'b1;
