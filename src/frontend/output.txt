@@ -1,0 +1,2241 @@
+Using Verilator: /opt/homebrew/bin/verilator
+OBJCACHE: OBJCACHE=ccache
+/opt/homebrew/bin/verilator --binary -j 15  --compiler clang --relative-includes -fno-inline --threads 8 --output-split 10000 -MMD -CFLAGS "-O0 -g0" --sv --language 1800-2012 --timing -Wno-lint --top-module frontend_tb --cc ./frontend_tb.sv ./frontend.sv ./fetch.sv ./decode.sv ./branch_pred.sv ./cache/l0_instr_cache.sv ./cache/l1_instr_cache.sv --cc  ../util/uop_pkg.sv ../util/stackk.sv ../util/op_pkg.sv ./cache/cache.sv 
+Using Verilator: /opt/homebrew/bin/verilator
+OBJCACHE: OBJCACHE=ccache
+/opt/homebrew/bin/verilator --binary -j 15  --compiler clang --relative-includes -fno-inline --threads 8 --output-split 10000 -MMD -CFLAGS "-O0 -g0" --sv --language 1800-2012 --timing -Wno-lint --top-module frontend_tb --cc ./frontend_tb.sv ./frontend.sv ./fetch.sv ./decode.sv ./branch_pred.sv ./cache/l0_instr_cache.sv ./cache/l1_instr_cache.sv --cc  ../util/uop_pkg.sv ../util/stackk.sv ../util/op_pkg.sv ./cache/cache.sv 
+c++ -Os  -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -c -o verilated.o /opt/homebrew/Cellar/verilator/5.032/share/verilator/include/verilated.cpp
+c++ -Os  -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -c -o verilated_timing.o /opt/homebrew/Cellar/verilator/5.032/share/verilator/include/verilated_timing.cpp
+c++ -Os  -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -c -o verilated_threads.o /opt/homebrew/Cellar/verilator/5.032/share/verilator/include/verilated_threads.cpp
+c++ -Os  -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -x c++-header Vfrontend_tb__pch.h -o Vfrontend_tb__pch.h.fast.gch
+c++   -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -x c++-header Vfrontend_tb__pch.h -o Vfrontend_tb__pch.h.slow.gch
+c++   -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.slow.gch -c -o Vfrontend_tb__ConstPool_0.o Vfrontend_tb__ConstPool_0.cpp
+c++   -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.slow.gch -c -o Vfrontend_tb___024root__Slow.o Vfrontend_tb___024root__Slow.cpp
+c++   -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.slow.gch -c -o Vfrontend_tb___024root__DepSet_h838c5fb0__0__Slow.o Vfrontend_tb___024root__DepSet_h838c5fb0__0__Slow.cpp
+c++   -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.slow.gch -c -o Vfrontend_tb___024root__DepSet_ha210d30c__0__Slow.o Vfrontend_tb___024root__DepSet_ha210d30c__0__Slow.cpp
+c++   -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.slow.gch -c -o Vfrontend_tb_frontend_tb__Slow.o Vfrontend_tb_frontend_tb__Slow.cpp
+c++   -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.slow.gch -c -o Vfrontend_tb_frontend_tb__DepSet_h16723e8f__0__Slow.o Vfrontend_tb_frontend_tb__DepSet_h16723e8f__0__Slow.cpp
+c++   -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.slow.gch -c -o Vfrontend_tb___024unit__Slow.o Vfrontend_tb___024unit__Slow.cpp
+c++   -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.slow.gch -c -o Vfrontend_tb___024unit__DepSet_hb9bb7003__0__Slow.o Vfrontend_tb___024unit__DepSet_hb9bb7003__0__Slow.cpp
+c++   -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.slow.gch -c -o Vfrontend_tb_frontend__I20_S2__Slow.o Vfrontend_tb_frontend__I20_S2__Slow.cpp
+c++   -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.slow.gch -c -o Vfrontend_tb_frontend__I20_S2__DepSet_h93de5613__0__Slow.o Vfrontend_tb_frontend__I20_S2__DepSet_h93de5613__0__Slow.cpp
+c++   -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.slow.gch -c -o Vfrontend_tb_frontend__I20_S2__DepSet_hb242dbad__0__Slow.o Vfrontend_tb_frontend__I20_S2__DepSet_hb242dbad__0__Slow.cpp
+c++   -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.slow.gch -c -o Vfrontend_tb_l1_instr_cache__Slow.o Vfrontend_tb_l1_instr_cache__Slow.cpp
+c++   -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.slow.gch -c -o Vfrontend_tb_l1_instr_cache__DepSet_h8f91c8d8__0__Slow.o Vfrontend_tb_l1_instr_cache__DepSet_h8f91c8d8__0__Slow.cpp
+c++   -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.slow.gch -c -o Vfrontend_tb_l1_instr_cache__DepSet_h9dfe3e74__0__Slow.o Vfrontend_tb_l1_instr_cache__DepSet_h9dfe3e74__0__Slow.cpp
+c++   -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.slow.gch -c -o Vfrontend_tb_branch_pred__I20_S2__Slow.o Vfrontend_tb_branch_pred__I20_S2__Slow.cpp
+c++   -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.slow.gch -c -o Vfrontend_tb_branch_pred__I20_S2__DepSet_hb6b566d6__0__Slow.o Vfrontend_tb_branch_pred__I20_S2__DepSet_hb6b566d6__0__Slow.cpp
+c++   -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.slow.gch -c -o Vfrontend_tb_branch_pred__I20_S2__DepSet_hb6b566d6__1__Slow.o Vfrontend_tb_branch_pred__I20_S2__DepSet_hb6b566d6__1__Slow.cpp
+c++   -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.slow.gch -c -o Vfrontend_tb_branch_pred__I20_S2__DepSet_hb6b566d6__2__Slow.o Vfrontend_tb_branch_pred__I20_S2__DepSet_hb6b566d6__2__Slow.cpp
+c++   -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.slow.gch -c -o Vfrontend_tb_branch_pred__I20_S2__DepSet_hb6b566d6__3__Slow.o Vfrontend_tb_branch_pred__I20_S2__DepSet_hb6b566d6__3__Slow.cpp
+c++   -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.slow.gch -c -o Vfrontend_tb_branch_pred__I20_S2__DepSet_hb6b566d6__4__Slow.o Vfrontend_tb_branch_pred__I20_S2__DepSet_hb6b566d6__4__Slow.cpp
+c++   -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.slow.gch -c -o Vfrontend_tb_branch_pred__I20_S2__DepSet_hb6b566d6__5__Slow.o Vfrontend_tb_branch_pred__I20_S2__DepSet_hb6b566d6__5__Slow.cpp
+c++   -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.slow.gch -c -o Vfrontend_tb_branch_pred__I20_S2__DepSet_hb6b566d6__6__Slow.o Vfrontend_tb_branch_pred__I20_S2__DepSet_hb6b566d6__6__Slow.cpp
+c++   -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.slow.gch -c -o Vfrontend_tb_branch_pred__I20_S2__DepSet_hb6b566d6__7__Slow.o Vfrontend_tb_branch_pred__I20_S2__DepSet_hb6b566d6__7__Slow.cpp
+c++   -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.slow.gch -c -o Vfrontend_tb_l0_instruction_cache__Slow.o Vfrontend_tb_l0_instruction_cache__Slow.cpp
+c++   -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.slow.gch -c -o Vfrontend_tb_l0_instruction_cache__DepSet_ha7e322b2__0__Slow.o Vfrontend_tb_l0_instruction_cache__DepSet_ha7e322b2__0__Slow.cpp
+c++   -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.slow.gch -c -o Vfrontend_tb_stackk__Slow.o Vfrontend_tb_stackk__Slow.cpp
+c++   -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.slow.gch -c -o Vfrontend_tb_stackk__DepSet_ha42fc35f__0__Slow.o Vfrontend_tb_stackk__DepSet_ha42fc35f__0__Slow.cpp
+c++   -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.slow.gch -c -o Vfrontend_tb_mshr_queue__Tz1__Slow.o Vfrontend_tb_mshr_queue__Tz1__Slow.cpp
+c++   -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.slow.gch -c -o Vfrontend_tb_mshr_queue__Tz1__DepSet_hff070833__0__Slow.o Vfrontend_tb_mshr_queue__Tz1__DepSet_hff070833__0__Slow.cpp
+c++   -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.slow.gch -c -o Vfrontend_tb_cache__W200_AB16__Slow.o Vfrontend_tb_cache__W200_AB16__Slow.cpp
+c++   -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.slow.gch -c -o Vfrontend_tb_cache__W200_AB16__DepSet_h0bb2c238__0__Slow.o Vfrontend_tb_cache__W200_AB16__DepSet_h0bb2c238__0__Slow.cpp
+c++   -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.slow.gch -c -o Vfrontend_tb__Syms.o Vfrontend_tb__Syms.cpp
+c++ -Os  -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.fast.gch -c -o Vfrontend_tb.o Vfrontend_tb.cpp
+c++ -Os  -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.fast.gch -c -o Vfrontend_tb___024root__DepSet_h838c5fb0__0.o Vfrontend_tb___024root__DepSet_h838c5fb0__0.cpp
+c++ -Os  -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.fast.gch -c -o Vfrontend_tb___024root__DepSet_ha210d30c__0.o Vfrontend_tb___024root__DepSet_ha210d30c__0.cpp
+c++ -Os  -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.fast.gch -c -o Vfrontend_tb_frontend_tb__DepSet_h342dcb3d__0.o Vfrontend_tb_frontend_tb__DepSet_h342dcb3d__0.cpp
+c++ -Os  -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.fast.gch -c -o Vfrontend_tb_frontend_tb__DepSet_h16723e8f__0.o Vfrontend_tb_frontend_tb__DepSet_h16723e8f__0.cpp
+c++ -Os  -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.fast.gch -c -o Vfrontend_tb_frontend__I20_S2__DepSet_h93de5613__0.o Vfrontend_tb_frontend__I20_S2__DepSet_h93de5613__0.cpp
+c++ -Os  -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.fast.gch -c -o Vfrontend_tb_l1_instr_cache__DepSet_h8f91c8d8__0.o Vfrontend_tb_l1_instr_cache__DepSet_h8f91c8d8__0.cpp
+c++ -Os  -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.fast.gch -c -o Vfrontend_tb_l1_instr_cache__DepSet_h8f91c8d8__1.o Vfrontend_tb_l1_instr_cache__DepSet_h8f91c8d8__1.cpp
+c++ -Os  -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.fast.gch -c -o Vfrontend_tb_branch_pred__I20_S2__DepSet_h9468a37a__0.o Vfrontend_tb_branch_pred__I20_S2__DepSet_h9468a37a__0.cpp
+c++ -Os  -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.fast.gch -c -o Vfrontend_tb_branch_pred__I20_S2__DepSet_h9468a37a__1.o Vfrontend_tb_branch_pred__I20_S2__DepSet_h9468a37a__1.cpp
+c++ -Os  -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.fast.gch -c -o Vfrontend_tb_branch_pred__I20_S2__DepSet_h9468a37a__2.o Vfrontend_tb_branch_pred__I20_S2__DepSet_h9468a37a__2.cpp
+c++ -Os  -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.fast.gch -c -o Vfrontend_tb_branch_pred__I20_S2__DepSet_hb6b566d6__0.o Vfrontend_tb_branch_pred__I20_S2__DepSet_hb6b566d6__0.cpp
+c++ -Os  -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.fast.gch -c -o Vfrontend_tb_branch_pred__I20_S2__DepSet_hb6b566d6__1.o Vfrontend_tb_branch_pred__I20_S2__DepSet_hb6b566d6__1.cpp
+c++ -Os  -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.fast.gch -c -o Vfrontend_tb_l0_instruction_cache__DepSet_h85beef1e__0.o Vfrontend_tb_l0_instruction_cache__DepSet_h85beef1e__0.cpp
+c++ -Os  -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.fast.gch -c -o Vfrontend_tb_stackk__DepSet_h81e34fcd__0.o Vfrontend_tb_stackk__DepSet_h81e34fcd__0.cpp
+c++ -Os  -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.fast.gch -c -o Vfrontend_tb_stackk__DepSet_ha42fc35f__0.o Vfrontend_tb_stackk__DepSet_ha42fc35f__0.cpp
+c++ -Os  -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.fast.gch -c -o Vfrontend_tb_mshr_queue__Tz1__DepSet_h2c9a0299__0.o Vfrontend_tb_mshr_queue__Tz1__DepSet_h2c9a0299__0.cpp
+c++ -Os  -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.fast.gch -c -o Vfrontend_tb_cache__W200_AB16__DepSet_h396e4ce4__0.o Vfrontend_tb_cache__W200_AB16__DepSet_h396e4ce4__0.cpp
+c++ -Os  -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.fast.gch -c -o Vfrontend_tb_cache__W200_AB16__DepSet_h396e4ce4__1.o Vfrontend_tb_cache__W200_AB16__DepSet_h396e4ce4__1.cpp
+c++ -Os  -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.fast.gch -c -o Vfrontend_tb_cache__W200_AB16__DepSet_h0bb2c238__0.o Vfrontend_tb_cache__W200_AB16__DepSet_h0bb2c238__0.cpp
+c++ -Os  -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.032/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O0 -g0 -DVL_TIME_CONTEXT  -std=gnu++17 -std=gnu++20 -include-pch Vfrontend_tb__pch.h.fast.gch -c -o Vfrontend_tb__main.o Vfrontend_tb__main.cpp
+echo "" > Vfrontend_tb__ALL.verilator_deplist.tmp
+c++  -Wl,-U,__Z15vl_time_stamp64v,-U,__Z13sc_time_stampv   verilated.o verilated_timing.o verilated_threads.o Vfrontend_tb__ALL.a    -pthread -lpthread   -o Vfrontend_tb
+rm Vfrontend_tb__ALL.verilator_deplist.tmp
+- V e r i l a t i o n   R e p o r t: Verilator 5.032 2025-01-01 rev UNKNOWN.REV
+- Verilator: Built from 0.781 MB sources in 15 modules, into 19.435 MB in 53 C++ files needing 0.002 MB
+- Verilator: Walltime 83.939 s (elab=0.052, cvt=67.349, bld=16.297); cpu 65.986 s on 15 threads
+make -C obj_dir -f Vfrontend_tb.mk
+make[1]: Nothing to be done for `default'.
+./obj_dir/Vfrontend_tb
+Instructions loaded into simulated memory:
+  Instr at 0x0000000000000000: 91 00 00 00 // ADD x0, x0, #0
+  Instr at 0x0000000000000004: 91 00 00 01 // ADD x1, x0, #0
+  Instr at 0x0000000000000008: d5 03 20 1f // NOP
+[CACHE] Cache data in 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000, Line in reg: 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+lc not valid and not ready
+lc not valid and not ready
+lc not valid and not ready
+Time: 25 | BP Pred_PC: 0x0000000000000000 | PC_Valid: 0 | L1I_Req: 0 | L0_Hit: 0
+Time: 25 | L1I State: IDLE
+lc not valid and not ready
+Time: 35 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 1 | L0_Hit: 0
+Time: 35 | L1I State: IDLE
+ATTEMPTING TO READ CACHE DATA
+ATTEMPTING TO READ CACHE DATA
+ATTEMPTING TO READ CACHE DATA
+ATTEMPTING TO READ CACHE DATA
+lc not valid and not ready
+Time: 45 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 0 | L1I_Req: 0 | L0_Hit: 0
+Time: 45 | L1I State: READ_CACHE
+ATTEMPTING TO READ CACHE DATA
+ATTEMPTING TO READ CACHE DATA
+ATTEMPTING TO READ CACHE DATA
+ATTEMPTING TO READ CACHE DATA
+lc not valid and not ready
+Time: 55 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 0 | L1I_Req: 0 | L0_Hit: 0
+Time: 55 | L1I State: READ_CACHE
+ATTEMPTING TO READ CACHE DATA
+ATTEMPTING TO READ CACHE DATA
+ATTEMPTING TO READ CACHE DATA
+ATTEMPTING TO READ CACHE DATA
+lc not valid and not ready
+Time: 65 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 0 | L1I_Req: 0 | L0_Hit: 0
+Time: 65 | L1I State: READ_CACHE
+sending req lower
+ATTEMPTING TO READ CACHE DATA
+ATTEMPTING TO READ CACHE DATA
+ATTEMPTING TO READ CACHE DATA
+ATTEMPTING TO READ CACHE DATA
+lc not valid and not ready
+[CACHE] we missed 🥀 at 000000, set 0x0
+sending req lower
+Time: 75 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 0 | L1I_Req: 0 | L0_Hit: 0
+Time: 75 | L1I State: READ_CACHE
+write from hc
+write from hc
+write from hc
+write from hc
+lc not valid and not ready
+Time: 85 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 0 | L1I_Req: 0 | L0_Hit: 0
+Time: 85 | L1I State: WAIT_CACHE
+requesting data from lower cache (mshr)
+requesting data from lower cache (mshr)
+requesting data from lower cache (mshr)
+requesting data from lower cache (mshr)
+lc not valid and not ready
+Time: 95 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 0 | L1I_Req: 0 | L0_Hit: 0
+Time: 95 | L1I State: WAIT_CACHE
+secondary miss?
+secondary miss?
+secondary miss?
+secondary miss?
+lc not valid and not ready
+Time: 105 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 0 | L1I_Req: 0 | L0_Hit: 0
+Time: 105 | L1I State: CHECK_MSHR
+LC took in the request we chillin
+[105][LC]  Read request sent: Addr = 0x000000
+LC took in the request we chillin
+[110][LC]  Read request sent: Addr = 0x000000
+LC took in the request we chillin
+[110][LC]  Read request sent: Addr = 0x000000
+LC took in the request we chillin
+[115][LC]  Read request sent: Addr = 0x000000
+lc not valid and not ready
+Time: 115 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 0 | L1I_Req: 0 | L0_Hit: 0
+Time: 115 | L1I State: SEND_REQ_LC
+lc here hmph
+Time: 125 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 0 | L1I_Req: 0 | L0_Hit: 0
+Time: 125 | L1I State: IDLE
+Time: 125 | LLC Request - Addr: 0x0000000000000000
+ATTEMPTING TO READ CACHE DATA
+ATTEMPTING TO READ CACHE DATA
+ATTEMPTING TO READ CACHE DATA
+ATTEMPTING TO READ CACHE DATA
+Time: 135 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 0 | L1I_Req: 0 | L0_Hit: 0
+Time: 135 | L1I State: READ_CACHE
+ATTEMPTING TO READ CACHE DATA
+ATTEMPTING TO READ CACHE DATA
+ATTEMPTING TO READ CACHE DATA
+ATTEMPTING TO READ CACHE DATA
+Time: 145 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 0 | L1I_Req: 0 | L0_Hit: 0
+Time: 145 | L1I State: READ_CACHE
+ATTEMPTING TO READ CACHE DATA
+ATTEMPTING TO READ CACHE DATA
+ATTEMPTING TO READ CACHE DATA
+ATTEMPTING TO READ CACHE DATA
+Time: 155 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 0 | L1I_Req: 0 | L0_Hit: 0
+Time: 155 | L1I State: READ_CACHE
+sending req lower
+ATTEMPTING TO READ CACHE DATA
+ATTEMPTING TO READ CACHE DATA
+ATTEMPTING TO READ CACHE DATA
+ATTEMPTING TO READ CACHE DATA
+[CACHE] we missed 🥀 at 000008, set 0x0
+sending req lower
+Time: 165 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 0 | L1I_Req: 0 | L0_Hit: 0
+Time: 165 | L1I State: READ_CACHE
+write from hc
+write from hc
+write from hc
+write from hc
+Time: 175 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 0 | L1I_Req: 0 | L0_Hit: 0
+Time: 175 | L1I State: WAIT_CACHE
+requesting data from lower cache (mshr)
+requesting data from lower cache (mshr)
+requesting data from lower cache (mshr)
+requesting data from lower cache (mshr)
+lc not valid and not ready
+Time: 185 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 0 | L1I_Req: 0 | L0_Hit: 0
+Time: 185 | L1I State: WAIT_CACHE
+Time: 185 | LLC Response - Addr: 0x0000000000000000, First 8 bytes: 00 00 00 91 01 00 00 91
+secondary miss?
+secondary miss?
+secondary miss?
+secondary miss?
+lc not valid and not ready
+Time: 195 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 0 | L1I_Req: 0 | L0_Hit: 0
+Time: 195 | L1I State: CHECK_MSHR
+Time: 195 | LLC Response - Addr: 0x0000000000000000, First 8 bytes: 00 00 00 91 01 00 00 91
+LC took in the request we chillin
+[195][LC]  Read request sent: Addr = 0x000008
+LC took in the request we chillin
+[200][LC]  Read request sent: Addr = 0x000008
+LC took in the request we chillin
+[200][LC]  Read request sent: Addr = 0x000008
+LC took in the request we chillin
+[205][LC]  Read request sent: Addr = 0x000008
+lc not valid and not ready
+Time: 205 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 0 | L1I_Req: 0 | L0_Hit: 0
+Time: 205 | L1I State: SEND_REQ_LC
+Time: 205 | LLC Response - Addr: 0x0000000000000000, First 8 bytes: 00 00 00 91 01 00 00 91
+lc here hmph
+Time: 215 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 0 | L1I_Req: 0 | L0_Hit: 0
+Time: 215 | L1I State: IDLE
+Time: 215 | LLC Request - Addr: 0x0000000000000008
+Time: 215 | LLC Response - Addr: 0x0000000000000000, First 8 bytes: 00 00 00 91 01 00 00 91
+abt to write to cache
+WRITING FROM LC
+abt to write to cache
+WRITING FROM LC
+abt to write to cache
+WRITING FROM LC
+abt to write to cache
+WRITING FROM LC
+Time: 225 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 0 | L1I_Req: 0 | L0_Hit: 0
+Time: 225 | L1I State: WRITE_CACHE
+Time: 225 | LLC Response - Addr: 0x0000000000000000, First 8 bytes: 00 00 00 91 01 00 00 91
+abt to write to cache
+WRITING FROM LC
+[CACHE] Cache data in 0xd503201fd503201fd503201fd503201fd503201fd503201fd503201fd503201fd503201fd503201fd503201fd503201fd503201fd503201f9100000191000000, Line in reg: 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+abt to write to cache
+WRITING FROM LC
+abt to write to cache
+WRITING FROM LC
+abt to write to cache
+WRITING FROM LC
+Time: 235 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 0 | L1I_Req: 0 | L0_Hit: 0
+Time: 235 | L1I State: WRITE_CACHE
+Time: 235 | LLC Response - Addr: 0x0000000000000000, First 8 bytes: 00 00 00 91 01 00 00 91
+abt to write to cache
+WRITING FROM LC
+abt to write to cache
+WRITING FROM LC
+abt to write to cache
+WRITING FROM LC
+abt to write to cache
+WRITING FROM LC
+Time: 245 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 0 | L1I_Req: 0 | L0_Hit: 0
+Time: 245 | L1I State: WRITE_CACHE
+Time: 245 | LLC Response - Addr: 0x0000000000000000, First 8 bytes: 00 00 00 91 01 00 00 91
+writing directly on a miss
+abt to write to cache
+WRITING FROM LC
+abt to write to cache
+WRITING FROM LC
+abt to write to cache
+WRITING FROM LC
+abt to write to cache
+WRITING FROM LC
+[CACHE] considering dirty 0 for set 0x0
+writing directly on a miss
+Time: 255 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 0 | L1I_Req: 0 | L0_Hit: 0
+Time: 255 | L1I State: WRITE_CACHE
+Time: 255 | LLC Response - Addr: 0x0000000000000000, First 8 bytes: 00 00 00 91 01 00 00 91
+lc_valid_in true...write from lower cache possible
+lc_valid_in true...write from lower cache possible
+lc_valid_in true...write from lower cache possible
+lc_valid_in true...write from lower cache possible
+Time: 265 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 0 | L1I_Req: 0 | L0_Hit: 0
+Time: 265 | L1I State: WAIT_CACHE
+Time: 265 | LLC Response - Addr: 0x0000000000000000, First 8 bytes: 00 00 00 91 01 00 00 91
+[265] Clearing MSHR with size 
+The addr was 0000 and 0000
+Found data           3
+The addr was 0000 and 0000
+Found data           2
+The addr was 0000 and 0000
+Found data           1
+The addr was 0000 and 0000
+Found data           0
+The addr was 0000 and 0000
+The addr was 0000 and 0000
+The addr was 0000 and 0000
+The addr was 0000 and 0000
+fucked up
+[270] Clearing MSHR with size 
+The addr was 0000 and 0000
+Found data           3
+The addr was 0000 and 0000
+Found data           2
+The addr was 0000 and 0000
+Found data           1
+The addr was 0000 and 0000
+Found data           0
+The addr was 0000 and 0000
+The addr was 0000 and 0000
+The addr was 0000 and 0000
+The addr was 0000 and 0000
+fucked up
+[270] Clearing MSHR with size 
+The addr was 0000 and 0000
+Found data           3
+The addr was 0000 and 0000
+Found data           2
+The addr was 0000 and 0000
+Found data           1
+The addr was 0000 and 0000
+Found data           0
+The addr was 0000 and 0000
+The addr was 0000 and 0000
+The addr was 0000 and 0000
+The addr was 0000 and 0000
+fucked up
+[275] Clearing MSHR with size 
+The addr was 0000 and 0000
+Found data           3
+The addr was 0000 and 0000
+Found data           2
+The addr was 0000 and 0000
+Found data           1
+The addr was 0000 and 0000
+Found data           0
+The addr was 0000 and 0000
+The addr was 0000 and 0000
+The addr was 0000 and 0000
+The addr was 0000 and 0000
+fucked up
+lc not valid and not ready
+Time: 275 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 0 | L1I_Req: 0 | L0_Hit: 0
+Time: 275 | L1I State: CLEAR_MSHR
+Time: 275 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+[CACHE] considering dirty 0 for set 0x0
+Time: 285 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 0 | L1I_Req: 0 | L0_Hit: 0
+Time: 285 | L1I State: READ_FROM_MSHR
+Time: 285 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 295 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 0 | L1I_Req: 0 | L0_Hit: 0
+Time: 295 | L1I State: READ_FROM_MSHR
+Time: 295 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 305 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 0 | L1I_Req: 0 | L0_Hit: 0
+Time: 305 | L1I State: READ_FROM_MSHR
+Time: 305 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 315 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 0 | L1I_Req: 0 | L0_Hit: 0
+Time: 315 | L1I State: READ_FROM_MSHR
+Time: 315 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+[CACHE] Read value d503201fd503201f for addr 000008, returning to higher cache
+Time: 325 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 0 | L1I_Req: 0 | L0_Hit: 0
+Time: 325 | L1I State: COMPLETE_READ
+Time: 325 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+[CACHE] Read value d503201fd503201f for addr 000008, returning to higher cache
+Time: 335 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 0 | L1I_Req: 0 | L0_Hit: 0
+Time: 335 | L1I State: COMPLETE_READ
+Time: 335 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+[L0 Cache] data came in from L1.
+lc not valid and not ready
+[CACHE] Read value d503201fd503201f for addr 000008, returning to higher cache
+Time: 345 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 0 | L1I_Req: 0 | L0_Hit: 1
+Time: 345 | L1I State: COMPLETE_READ
+Time: 345 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+[L0 Cache] data came in from L1.
+lc not valid and not ready
+Time: 355 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 355 | L1I State: COMPLETE_READ
+Time: 355 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+[L0 Cache] data came in from L1.
+lc not valid and not ready
+Time: 365 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 365 | L1I State: COMPLETE_READ
+Time: 365 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 375 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 375 | L1I State: COMPLETE_READ
+Time: 375 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 385 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 385 | L1I State: COMPLETE_READ
+Time: 385 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 395 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 395 | L1I State: COMPLETE_READ
+Time: 395 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 405 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 405 | L1I State: COMPLETE_READ
+Time: 405 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 415 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 415 | L1I State: COMPLETE_READ
+Time: 415 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 425 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 425 | L1I State: COMPLETE_READ
+Time: 425 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 435 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 435 | L1I State: COMPLETE_READ
+Time: 435 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 445 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 445 | L1I State: COMPLETE_READ
+Time: 445 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 455 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 455 | L1I State: COMPLETE_READ
+Time: 455 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 465 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 465 | L1I State: COMPLETE_READ
+Time: 465 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 475 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 475 | L1I State: COMPLETE_READ
+Time: 475 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 485 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 485 | L1I State: COMPLETE_READ
+Time: 485 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 495 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 495 | L1I State: COMPLETE_READ
+Time: 495 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 505 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 505 | L1I State: COMPLETE_READ
+Time: 505 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 515 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 515 | L1I State: COMPLETE_READ
+Time: 515 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 525 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 525 | L1I State: COMPLETE_READ
+Time: 525 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 535 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 535 | L1I State: COMPLETE_READ
+Time: 535 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 545 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 545 | L1I State: COMPLETE_READ
+Time: 545 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 555 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 555 | L1I State: COMPLETE_READ
+Time: 555 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 565 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 565 | L1I State: COMPLETE_READ
+Time: 565 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 575 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 575 | L1I State: COMPLETE_READ
+Time: 575 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 585 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 585 | L1I State: COMPLETE_READ
+Time: 585 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 595 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 595 | L1I State: COMPLETE_READ
+Time: 595 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 605 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 605 | L1I State: COMPLETE_READ
+Time: 605 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 615 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 615 | L1I State: COMPLETE_READ
+Time: 615 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 625 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 625 | L1I State: COMPLETE_READ
+Time: 625 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 635 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 635 | L1I State: COMPLETE_READ
+Time: 635 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 645 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 645 | L1I State: COMPLETE_READ
+Time: 645 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 655 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 655 | L1I State: COMPLETE_READ
+Time: 655 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 665 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 665 | L1I State: COMPLETE_READ
+Time: 665 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 675 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 675 | L1I State: COMPLETE_READ
+Time: 675 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 685 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 685 | L1I State: COMPLETE_READ
+Time: 685 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 695 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 695 | L1I State: COMPLETE_READ
+Time: 695 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 705 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 705 | L1I State: COMPLETE_READ
+Time: 705 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 715 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 715 | L1I State: COMPLETE_READ
+Time: 715 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 725 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 725 | L1I State: COMPLETE_READ
+Time: 725 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 735 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 735 | L1I State: COMPLETE_READ
+Time: 735 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 745 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 745 | L1I State: COMPLETE_READ
+Time: 745 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 755 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 755 | L1I State: COMPLETE_READ
+Time: 755 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 765 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 765 | L1I State: COMPLETE_READ
+Time: 765 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 775 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 775 | L1I State: COMPLETE_READ
+Time: 775 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 785 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 785 | L1I State: COMPLETE_READ
+Time: 785 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 795 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 795 | L1I State: COMPLETE_READ
+Time: 795 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 805 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 805 | L1I State: COMPLETE_READ
+Time: 805 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 815 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 815 | L1I State: COMPLETE_READ
+Time: 815 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 825 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 825 | L1I State: COMPLETE_READ
+Time: 825 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 835 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 835 | L1I State: COMPLETE_READ
+Time: 835 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 845 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 845 | L1I State: COMPLETE_READ
+Time: 845 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 855 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 855 | L1I State: COMPLETE_READ
+Time: 855 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 865 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 865 | L1I State: COMPLETE_READ
+Time: 865 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 875 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 875 | L1I State: COMPLETE_READ
+Time: 875 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 885 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 885 | L1I State: COMPLETE_READ
+Time: 885 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 895 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 895 | L1I State: COMPLETE_READ
+Time: 895 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 905 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 905 | L1I State: COMPLETE_READ
+Time: 905 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 915 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 915 | L1I State: COMPLETE_READ
+Time: 915 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 925 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 925 | L1I State: COMPLETE_READ
+Time: 925 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 935 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 935 | L1I State: COMPLETE_READ
+Time: 935 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 945 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 945 | L1I State: COMPLETE_READ
+Time: 945 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 955 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 955 | L1I State: COMPLETE_READ
+Time: 955 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 965 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 965 | L1I State: COMPLETE_READ
+Time: 965 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 975 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 975 | L1I State: COMPLETE_READ
+Time: 975 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 985 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 985 | L1I State: COMPLETE_READ
+Time: 985 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 995 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 995 | L1I State: COMPLETE_READ
+Time: 995 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1005 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1005 | L1I State: COMPLETE_READ
+Time: 1005 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1015 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1015 | L1I State: COMPLETE_READ
+Time: 1015 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1025 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1025 | L1I State: COMPLETE_READ
+Time: 1025 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1035 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1035 | L1I State: COMPLETE_READ
+Time: 1035 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1045 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1045 | L1I State: COMPLETE_READ
+Time: 1045 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1055 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1055 | L1I State: COMPLETE_READ
+Time: 1055 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1065 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1065 | L1I State: COMPLETE_READ
+Time: 1065 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1075 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1075 | L1I State: COMPLETE_READ
+Time: 1075 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1085 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1085 | L1I State: COMPLETE_READ
+Time: 1085 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1095 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1095 | L1I State: COMPLETE_READ
+Time: 1095 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1105 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1105 | L1I State: COMPLETE_READ
+Time: 1105 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1115 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1115 | L1I State: COMPLETE_READ
+Time: 1115 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1125 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1125 | L1I State: COMPLETE_READ
+Time: 1125 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1135 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1135 | L1I State: COMPLETE_READ
+Time: 1135 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1145 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1145 | L1I State: COMPLETE_READ
+Time: 1145 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1155 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1155 | L1I State: COMPLETE_READ
+Time: 1155 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1165 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1165 | L1I State: COMPLETE_READ
+Time: 1165 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1175 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1175 | L1I State: COMPLETE_READ
+Time: 1175 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1185 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1185 | L1I State: COMPLETE_READ
+Time: 1185 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1195 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1195 | L1I State: COMPLETE_READ
+Time: 1195 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1205 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1205 | L1I State: COMPLETE_READ
+Time: 1205 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1215 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1215 | L1I State: COMPLETE_READ
+Time: 1215 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1225 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1225 | L1I State: COMPLETE_READ
+Time: 1225 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1235 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1235 | L1I State: COMPLETE_READ
+Time: 1235 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1245 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1245 | L1I State: COMPLETE_READ
+Time: 1245 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1255 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1255 | L1I State: COMPLETE_READ
+Time: 1255 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1265 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1265 | L1I State: COMPLETE_READ
+Time: 1265 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1275 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1275 | L1I State: COMPLETE_READ
+Time: 1275 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1285 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1285 | L1I State: COMPLETE_READ
+Time: 1285 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1295 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1295 | L1I State: COMPLETE_READ
+Time: 1295 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1305 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1305 | L1I State: COMPLETE_READ
+Time: 1305 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1315 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1315 | L1I State: COMPLETE_READ
+Time: 1315 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1325 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1325 | L1I State: COMPLETE_READ
+Time: 1325 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1335 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1335 | L1I State: COMPLETE_READ
+Time: 1335 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1345 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1345 | L1I State: COMPLETE_READ
+Time: 1345 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1355 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1355 | L1I State: COMPLETE_READ
+Time: 1355 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1365 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1365 | L1I State: COMPLETE_READ
+Time: 1365 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1375 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1375 | L1I State: COMPLETE_READ
+Time: 1375 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1385 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1385 | L1I State: COMPLETE_READ
+Time: 1385 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1395 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1395 | L1I State: COMPLETE_READ
+Time: 1395 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1405 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1405 | L1I State: COMPLETE_READ
+Time: 1405 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1415 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1415 | L1I State: COMPLETE_READ
+Time: 1415 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1425 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1425 | L1I State: COMPLETE_READ
+Time: 1425 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1435 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1435 | L1I State: COMPLETE_READ
+Time: 1435 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1445 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1445 | L1I State: COMPLETE_READ
+Time: 1445 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1455 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1455 | L1I State: COMPLETE_READ
+Time: 1455 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1465 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1465 | L1I State: COMPLETE_READ
+Time: 1465 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1475 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1475 | L1I State: COMPLETE_READ
+Time: 1475 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1485 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1485 | L1I State: COMPLETE_READ
+Time: 1485 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1495 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1495 | L1I State: COMPLETE_READ
+Time: 1495 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1505 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1505 | L1I State: COMPLETE_READ
+Time: 1505 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1515 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1515 | L1I State: COMPLETE_READ
+Time: 1515 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1525 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1525 | L1I State: COMPLETE_READ
+Time: 1525 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1535 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1535 | L1I State: COMPLETE_READ
+Time: 1535 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1545 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1545 | L1I State: COMPLETE_READ
+Time: 1545 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1555 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1555 | L1I State: COMPLETE_READ
+Time: 1555 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1565 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1565 | L1I State: COMPLETE_READ
+Time: 1565 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1575 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1575 | L1I State: COMPLETE_READ
+Time: 1575 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1585 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1585 | L1I State: COMPLETE_READ
+Time: 1585 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1595 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1595 | L1I State: COMPLETE_READ
+Time: 1595 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1605 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1605 | L1I State: COMPLETE_READ
+Time: 1605 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1615 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1615 | L1I State: COMPLETE_READ
+Time: 1615 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1625 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1625 | L1I State: COMPLETE_READ
+Time: 1625 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1635 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1635 | L1I State: COMPLETE_READ
+Time: 1635 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1645 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1645 | L1I State: COMPLETE_READ
+Time: 1645 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1655 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1655 | L1I State: COMPLETE_READ
+Time: 1655 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1665 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1665 | L1I State: COMPLETE_READ
+Time: 1665 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1675 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1675 | L1I State: COMPLETE_READ
+Time: 1675 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1685 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1685 | L1I State: COMPLETE_READ
+Time: 1685 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1695 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1695 | L1I State: COMPLETE_READ
+Time: 1695 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1705 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1705 | L1I State: COMPLETE_READ
+Time: 1705 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1715 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1715 | L1I State: COMPLETE_READ
+Time: 1715 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1725 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1725 | L1I State: COMPLETE_READ
+Time: 1725 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1735 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1735 | L1I State: COMPLETE_READ
+Time: 1735 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1745 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1745 | L1I State: COMPLETE_READ
+Time: 1745 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1755 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1755 | L1I State: COMPLETE_READ
+Time: 1755 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1765 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1765 | L1I State: COMPLETE_READ
+Time: 1765 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1775 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1775 | L1I State: COMPLETE_READ
+Time: 1775 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1785 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1785 | L1I State: COMPLETE_READ
+Time: 1785 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1795 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1795 | L1I State: COMPLETE_READ
+Time: 1795 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1805 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1805 | L1I State: COMPLETE_READ
+Time: 1805 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1815 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1815 | L1I State: COMPLETE_READ
+Time: 1815 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1825 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1825 | L1I State: COMPLETE_READ
+Time: 1825 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1835 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1835 | L1I State: COMPLETE_READ
+Time: 1835 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1845 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1845 | L1I State: COMPLETE_READ
+Time: 1845 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1855 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1855 | L1I State: COMPLETE_READ
+Time: 1855 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1865 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1865 | L1I State: COMPLETE_READ
+Time: 1865 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1875 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1875 | L1I State: COMPLETE_READ
+Time: 1875 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1885 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1885 | L1I State: COMPLETE_READ
+Time: 1885 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1895 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1895 | L1I State: COMPLETE_READ
+Time: 1895 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1905 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1905 | L1I State: COMPLETE_READ
+Time: 1905 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1915 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1915 | L1I State: COMPLETE_READ
+Time: 1915 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1925 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1925 | L1I State: COMPLETE_READ
+Time: 1925 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1935 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1935 | L1I State: COMPLETE_READ
+Time: 1935 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1945 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1945 | L1I State: COMPLETE_READ
+Time: 1945 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1955 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1955 | L1I State: COMPLETE_READ
+Time: 1955 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1965 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1965 | L1I State: COMPLETE_READ
+Time: 1965 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1975 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1975 | L1I State: COMPLETE_READ
+Time: 1975 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1985 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1985 | L1I State: COMPLETE_READ
+Time: 1985 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 1995 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 1995 | L1I State: COMPLETE_READ
+Time: 1995 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2005 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2005 | L1I State: COMPLETE_READ
+Time: 2005 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2015 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2015 | L1I State: COMPLETE_READ
+Time: 2015 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2025 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2025 | L1I State: COMPLETE_READ
+Time: 2025 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2035 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2035 | L1I State: COMPLETE_READ
+Time: 2035 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2045 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2045 | L1I State: COMPLETE_READ
+Time: 2045 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2055 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2055 | L1I State: COMPLETE_READ
+Time: 2055 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2065 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2065 | L1I State: COMPLETE_READ
+Time: 2065 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2075 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2075 | L1I State: COMPLETE_READ
+Time: 2075 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2085 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2085 | L1I State: COMPLETE_READ
+Time: 2085 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2095 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2095 | L1I State: COMPLETE_READ
+Time: 2095 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2105 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2105 | L1I State: COMPLETE_READ
+Time: 2105 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2115 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2115 | L1I State: COMPLETE_READ
+Time: 2115 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2125 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2125 | L1I State: COMPLETE_READ
+Time: 2125 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2135 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2135 | L1I State: COMPLETE_READ
+Time: 2135 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2145 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2145 | L1I State: COMPLETE_READ
+Time: 2145 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2155 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2155 | L1I State: COMPLETE_READ
+Time: 2155 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2165 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2165 | L1I State: COMPLETE_READ
+Time: 2165 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2175 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2175 | L1I State: COMPLETE_READ
+Time: 2175 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2185 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2185 | L1I State: COMPLETE_READ
+Time: 2185 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2195 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2195 | L1I State: COMPLETE_READ
+Time: 2195 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2205 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2205 | L1I State: COMPLETE_READ
+Time: 2205 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2215 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2215 | L1I State: COMPLETE_READ
+Time: 2215 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2225 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2225 | L1I State: COMPLETE_READ
+Time: 2225 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2235 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2235 | L1I State: COMPLETE_READ
+Time: 2235 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2245 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2245 | L1I State: COMPLETE_READ
+Time: 2245 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2255 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2255 | L1I State: COMPLETE_READ
+Time: 2255 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2265 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2265 | L1I State: COMPLETE_READ
+Time: 2265 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2275 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2275 | L1I State: COMPLETE_READ
+Time: 2275 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2285 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2285 | L1I State: COMPLETE_READ
+Time: 2285 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2295 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2295 | L1I State: COMPLETE_READ
+Time: 2295 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2305 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2305 | L1I State: COMPLETE_READ
+Time: 2305 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2315 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2315 | L1I State: COMPLETE_READ
+Time: 2315 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2325 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2325 | L1I State: COMPLETE_READ
+Time: 2325 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2335 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2335 | L1I State: COMPLETE_READ
+Time: 2335 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2345 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2345 | L1I State: COMPLETE_READ
+Time: 2345 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2355 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2355 | L1I State: COMPLETE_READ
+Time: 2355 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2365 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2365 | L1I State: COMPLETE_READ
+Time: 2365 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2375 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2375 | L1I State: COMPLETE_READ
+Time: 2375 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2385 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2385 | L1I State: COMPLETE_READ
+Time: 2385 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2395 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2395 | L1I State: COMPLETE_READ
+Time: 2395 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2405 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2405 | L1I State: COMPLETE_READ
+Time: 2405 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2415 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2415 | L1I State: COMPLETE_READ
+Time: 2415 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2425 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2425 | L1I State: COMPLETE_READ
+Time: 2425 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2435 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2435 | L1I State: COMPLETE_READ
+Time: 2435 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2445 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2445 | L1I State: COMPLETE_READ
+Time: 2445 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2455 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2455 | L1I State: COMPLETE_READ
+Time: 2455 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2465 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2465 | L1I State: COMPLETE_READ
+Time: 2465 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2475 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2475 | L1I State: COMPLETE_READ
+Time: 2475 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2485 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2485 | L1I State: COMPLETE_READ
+Time: 2485 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2495 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2495 | L1I State: COMPLETE_READ
+Time: 2495 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2505 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2505 | L1I State: COMPLETE_READ
+Time: 2505 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2515 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2515 | L1I State: COMPLETE_READ
+Time: 2515 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2525 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2525 | L1I State: COMPLETE_READ
+Time: 2525 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2535 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2535 | L1I State: COMPLETE_READ
+Time: 2535 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2545 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2545 | L1I State: COMPLETE_READ
+Time: 2545 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2555 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2555 | L1I State: COMPLETE_READ
+Time: 2555 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2565 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2565 | L1I State: COMPLETE_READ
+Time: 2565 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2575 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2575 | L1I State: COMPLETE_READ
+Time: 2575 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2585 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2585 | L1I State: COMPLETE_READ
+Time: 2585 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2595 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2595 | L1I State: COMPLETE_READ
+Time: 2595 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2605 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2605 | L1I State: COMPLETE_READ
+Time: 2605 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2615 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2615 | L1I State: COMPLETE_READ
+Time: 2615 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2625 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2625 | L1I State: COMPLETE_READ
+Time: 2625 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2635 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2635 | L1I State: COMPLETE_READ
+Time: 2635 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2645 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2645 | L1I State: COMPLETE_READ
+Time: 2645 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2655 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2655 | L1I State: COMPLETE_READ
+Time: 2655 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2665 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2665 | L1I State: COMPLETE_READ
+Time: 2665 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2675 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2675 | L1I State: COMPLETE_READ
+Time: 2675 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2685 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2685 | L1I State: COMPLETE_READ
+Time: 2685 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2695 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2695 | L1I State: COMPLETE_READ
+Time: 2695 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2705 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2705 | L1I State: COMPLETE_READ
+Time: 2705 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2715 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2715 | L1I State: COMPLETE_READ
+Time: 2715 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2725 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2725 | L1I State: COMPLETE_READ
+Time: 2725 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2735 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2735 | L1I State: COMPLETE_READ
+Time: 2735 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2745 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2745 | L1I State: COMPLETE_READ
+Time: 2745 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2755 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2755 | L1I State: COMPLETE_READ
+Time: 2755 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2765 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2765 | L1I State: COMPLETE_READ
+Time: 2765 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2775 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2775 | L1I State: COMPLETE_READ
+Time: 2775 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2785 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2785 | L1I State: COMPLETE_READ
+Time: 2785 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2795 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2795 | L1I State: COMPLETE_READ
+Time: 2795 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2805 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2805 | L1I State: COMPLETE_READ
+Time: 2805 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2815 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2815 | L1I State: COMPLETE_READ
+Time: 2815 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2825 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2825 | L1I State: COMPLETE_READ
+Time: 2825 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2835 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2835 | L1I State: COMPLETE_READ
+Time: 2835 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2845 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2845 | L1I State: COMPLETE_READ
+Time: 2845 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2855 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2855 | L1I State: COMPLETE_READ
+Time: 2855 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2865 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2865 | L1I State: COMPLETE_READ
+Time: 2865 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2875 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2875 | L1I State: COMPLETE_READ
+Time: 2875 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2885 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2885 | L1I State: COMPLETE_READ
+Time: 2885 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2895 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2895 | L1I State: COMPLETE_READ
+Time: 2895 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2905 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2905 | L1I State: COMPLETE_READ
+Time: 2905 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2915 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2915 | L1I State: COMPLETE_READ
+Time: 2915 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2925 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2925 | L1I State: COMPLETE_READ
+Time: 2925 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2935 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2935 | L1I State: COMPLETE_READ
+Time: 2935 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2945 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2945 | L1I State: COMPLETE_READ
+Time: 2945 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2955 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2955 | L1I State: COMPLETE_READ
+Time: 2955 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2965 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2965 | L1I State: COMPLETE_READ
+Time: 2965 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2975 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2975 | L1I State: COMPLETE_READ
+Time: 2975 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2985 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2985 | L1I State: COMPLETE_READ
+Time: 2985 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 2995 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 2995 | L1I State: COMPLETE_READ
+Time: 2995 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3005 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3005 | L1I State: COMPLETE_READ
+Time: 3005 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3015 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3015 | L1I State: COMPLETE_READ
+Time: 3015 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3025 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3025 | L1I State: COMPLETE_READ
+Time: 3025 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3035 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3035 | L1I State: COMPLETE_READ
+Time: 3035 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3045 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3045 | L1I State: COMPLETE_READ
+Time: 3045 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3055 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3055 | L1I State: COMPLETE_READ
+Time: 3055 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3065 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3065 | L1I State: COMPLETE_READ
+Time: 3065 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3075 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3075 | L1I State: COMPLETE_READ
+Time: 3075 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3085 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3085 | L1I State: COMPLETE_READ
+Time: 3085 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3095 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3095 | L1I State: COMPLETE_READ
+Time: 3095 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3105 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3105 | L1I State: COMPLETE_READ
+Time: 3105 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3115 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3115 | L1I State: COMPLETE_READ
+Time: 3115 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3125 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3125 | L1I State: COMPLETE_READ
+Time: 3125 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3135 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3135 | L1I State: COMPLETE_READ
+Time: 3135 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3145 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3145 | L1I State: COMPLETE_READ
+Time: 3145 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3155 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3155 | L1I State: COMPLETE_READ
+Time: 3155 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3165 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3165 | L1I State: COMPLETE_READ
+Time: 3165 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3175 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3175 | L1I State: COMPLETE_READ
+Time: 3175 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3185 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3185 | L1I State: COMPLETE_READ
+Time: 3185 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3195 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3195 | L1I State: COMPLETE_READ
+Time: 3195 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3205 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3205 | L1I State: COMPLETE_READ
+Time: 3205 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3215 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3215 | L1I State: COMPLETE_READ
+Time: 3215 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3225 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3225 | L1I State: COMPLETE_READ
+Time: 3225 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3235 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3235 | L1I State: COMPLETE_READ
+Time: 3235 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3245 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3245 | L1I State: COMPLETE_READ
+Time: 3245 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3255 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3255 | L1I State: COMPLETE_READ
+Time: 3255 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3265 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3265 | L1I State: COMPLETE_READ
+Time: 3265 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3275 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3275 | L1I State: COMPLETE_READ
+Time: 3275 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3285 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3285 | L1I State: COMPLETE_READ
+Time: 3285 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3295 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3295 | L1I State: COMPLETE_READ
+Time: 3295 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3305 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3305 | L1I State: COMPLETE_READ
+Time: 3305 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3315 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3315 | L1I State: COMPLETE_READ
+Time: 3315 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3325 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3325 | L1I State: COMPLETE_READ
+Time: 3325 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3335 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3335 | L1I State: COMPLETE_READ
+Time: 3335 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3345 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3345 | L1I State: COMPLETE_READ
+Time: 3345 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3355 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3355 | L1I State: COMPLETE_READ
+Time: 3355 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3365 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3365 | L1I State: COMPLETE_READ
+Time: 3365 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3375 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3375 | L1I State: COMPLETE_READ
+Time: 3375 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3385 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3385 | L1I State: COMPLETE_READ
+Time: 3385 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3395 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3395 | L1I State: COMPLETE_READ
+Time: 3395 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3405 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3405 | L1I State: COMPLETE_READ
+Time: 3405 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3415 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3415 | L1I State: COMPLETE_READ
+Time: 3415 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3425 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3425 | L1I State: COMPLETE_READ
+Time: 3425 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3435 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3435 | L1I State: COMPLETE_READ
+Time: 3435 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3445 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3445 | L1I State: COMPLETE_READ
+Time: 3445 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3455 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3455 | L1I State: COMPLETE_READ
+Time: 3455 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3465 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3465 | L1I State: COMPLETE_READ
+Time: 3465 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3475 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3475 | L1I State: COMPLETE_READ
+Time: 3475 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3485 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3485 | L1I State: COMPLETE_READ
+Time: 3485 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3495 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3495 | L1I State: COMPLETE_READ
+Time: 3495 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3505 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3505 | L1I State: COMPLETE_READ
+Time: 3505 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3515 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3515 | L1I State: COMPLETE_READ
+Time: 3515 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3525 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3525 | L1I State: COMPLETE_READ
+Time: 3525 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3535 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3535 | L1I State: COMPLETE_READ
+Time: 3535 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3545 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3545 | L1I State: COMPLETE_READ
+Time: 3545 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3555 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3555 | L1I State: COMPLETE_READ
+Time: 3555 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3565 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3565 | L1I State: COMPLETE_READ
+Time: 3565 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3575 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3575 | L1I State: COMPLETE_READ
+Time: 3575 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3585 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3585 | L1I State: COMPLETE_READ
+Time: 3585 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3595 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3595 | L1I State: COMPLETE_READ
+Time: 3595 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3605 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3605 | L1I State: COMPLETE_READ
+Time: 3605 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3615 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3615 | L1I State: COMPLETE_READ
+Time: 3615 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3625 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3625 | L1I State: COMPLETE_READ
+Time: 3625 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3635 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3635 | L1I State: COMPLETE_READ
+Time: 3635 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3645 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3645 | L1I State: COMPLETE_READ
+Time: 3645 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3655 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3655 | L1I State: COMPLETE_READ
+Time: 3655 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3665 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3665 | L1I State: COMPLETE_READ
+Time: 3665 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3675 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3675 | L1I State: COMPLETE_READ
+Time: 3675 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3685 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3685 | L1I State: COMPLETE_READ
+Time: 3685 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3695 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3695 | L1I State: COMPLETE_READ
+Time: 3695 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3705 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3705 | L1I State: COMPLETE_READ
+Time: 3705 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3715 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3715 | L1I State: COMPLETE_READ
+Time: 3715 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3725 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3725 | L1I State: COMPLETE_READ
+Time: 3725 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3735 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3735 | L1I State: COMPLETE_READ
+Time: 3735 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3745 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3745 | L1I State: COMPLETE_READ
+Time: 3745 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3755 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3755 | L1I State: COMPLETE_READ
+Time: 3755 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3765 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3765 | L1I State: COMPLETE_READ
+Time: 3765 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3775 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3775 | L1I State: COMPLETE_READ
+Time: 3775 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3785 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3785 | L1I State: COMPLETE_READ
+Time: 3785 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3795 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3795 | L1I State: COMPLETE_READ
+Time: 3795 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3805 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3805 | L1I State: COMPLETE_READ
+Time: 3805 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3815 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3815 | L1I State: COMPLETE_READ
+Time: 3815 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3825 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3825 | L1I State: COMPLETE_READ
+Time: 3825 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3835 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3835 | L1I State: COMPLETE_READ
+Time: 3835 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3845 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3845 | L1I State: COMPLETE_READ
+Time: 3845 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3855 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3855 | L1I State: COMPLETE_READ
+Time: 3855 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3865 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3865 | L1I State: COMPLETE_READ
+Time: 3865 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3875 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3875 | L1I State: COMPLETE_READ
+Time: 3875 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3885 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3885 | L1I State: COMPLETE_READ
+Time: 3885 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3895 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3895 | L1I State: COMPLETE_READ
+Time: 3895 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3905 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3905 | L1I State: COMPLETE_READ
+Time: 3905 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3915 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3915 | L1I State: COMPLETE_READ
+Time: 3915 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3925 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3925 | L1I State: COMPLETE_READ
+Time: 3925 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3935 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3935 | L1I State: COMPLETE_READ
+Time: 3935 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3945 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3945 | L1I State: COMPLETE_READ
+Time: 3945 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3955 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3955 | L1I State: COMPLETE_READ
+Time: 3955 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3965 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3965 | L1I State: COMPLETE_READ
+Time: 3965 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3975 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3975 | L1I State: COMPLETE_READ
+Time: 3975 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3985 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3985 | L1I State: COMPLETE_READ
+Time: 3985 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 3995 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 3995 | L1I State: COMPLETE_READ
+Time: 3995 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4005 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4005 | L1I State: COMPLETE_READ
+Time: 4005 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4015 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4015 | L1I State: COMPLETE_READ
+Time: 4015 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4025 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4025 | L1I State: COMPLETE_READ
+Time: 4025 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4035 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4035 | L1I State: COMPLETE_READ
+Time: 4035 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4045 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4045 | L1I State: COMPLETE_READ
+Time: 4045 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4055 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4055 | L1I State: COMPLETE_READ
+Time: 4055 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4065 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4065 | L1I State: COMPLETE_READ
+Time: 4065 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4075 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4075 | L1I State: COMPLETE_READ
+Time: 4075 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4085 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4085 | L1I State: COMPLETE_READ
+Time: 4085 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4095 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4095 | L1I State: COMPLETE_READ
+Time: 4095 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4105 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4105 | L1I State: COMPLETE_READ
+Time: 4105 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4115 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4115 | L1I State: COMPLETE_READ
+Time: 4115 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4125 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4125 | L1I State: COMPLETE_READ
+Time: 4125 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4135 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4135 | L1I State: COMPLETE_READ
+Time: 4135 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4145 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4145 | L1I State: COMPLETE_READ
+Time: 4145 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4155 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4155 | L1I State: COMPLETE_READ
+Time: 4155 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4165 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4165 | L1I State: COMPLETE_READ
+Time: 4165 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4175 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4175 | L1I State: COMPLETE_READ
+Time: 4175 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4185 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4185 | L1I State: COMPLETE_READ
+Time: 4185 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4195 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4195 | L1I State: COMPLETE_READ
+Time: 4195 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4205 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4205 | L1I State: COMPLETE_READ
+Time: 4205 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4215 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4215 | L1I State: COMPLETE_READ
+Time: 4215 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4225 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4225 | L1I State: COMPLETE_READ
+Time: 4225 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4235 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4235 | L1I State: COMPLETE_READ
+Time: 4235 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4245 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4245 | L1I State: COMPLETE_READ
+Time: 4245 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4255 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4255 | L1I State: COMPLETE_READ
+Time: 4255 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4265 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4265 | L1I State: COMPLETE_READ
+Time: 4265 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4275 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4275 | L1I State: COMPLETE_READ
+Time: 4275 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4285 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4285 | L1I State: COMPLETE_READ
+Time: 4285 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4295 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4295 | L1I State: COMPLETE_READ
+Time: 4295 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4305 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4305 | L1I State: COMPLETE_READ
+Time: 4305 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4315 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4315 | L1I State: COMPLETE_READ
+Time: 4315 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4325 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4325 | L1I State: COMPLETE_READ
+Time: 4325 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4335 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4335 | L1I State: COMPLETE_READ
+Time: 4335 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4345 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4345 | L1I State: COMPLETE_READ
+Time: 4345 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4355 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4355 | L1I State: COMPLETE_READ
+Time: 4355 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4365 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4365 | L1I State: COMPLETE_READ
+Time: 4365 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4375 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4375 | L1I State: COMPLETE_READ
+Time: 4375 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4385 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4385 | L1I State: COMPLETE_READ
+Time: 4385 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4395 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4395 | L1I State: COMPLETE_READ
+Time: 4395 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4405 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4405 | L1I State: COMPLETE_READ
+Time: 4405 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4415 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4415 | L1I State: COMPLETE_READ
+Time: 4415 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4425 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4425 | L1I State: COMPLETE_READ
+Time: 4425 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4435 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4435 | L1I State: COMPLETE_READ
+Time: 4435 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4445 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4445 | L1I State: COMPLETE_READ
+Time: 4445 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4455 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4455 | L1I State: COMPLETE_READ
+Time: 4455 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4465 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4465 | L1I State: COMPLETE_READ
+Time: 4465 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4475 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4475 | L1I State: COMPLETE_READ
+Time: 4475 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4485 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4485 | L1I State: COMPLETE_READ
+Time: 4485 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4495 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4495 | L1I State: COMPLETE_READ
+Time: 4495 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4505 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4505 | L1I State: COMPLETE_READ
+Time: 4505 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4515 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4515 | L1I State: COMPLETE_READ
+Time: 4515 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4525 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4525 | L1I State: COMPLETE_READ
+Time: 4525 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4535 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4535 | L1I State: COMPLETE_READ
+Time: 4535 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4545 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4545 | L1I State: COMPLETE_READ
+Time: 4545 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4555 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4555 | L1I State: COMPLETE_READ
+Time: 4555 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4565 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4565 | L1I State: COMPLETE_READ
+Time: 4565 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4575 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4575 | L1I State: COMPLETE_READ
+Time: 4575 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4585 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4585 | L1I State: COMPLETE_READ
+Time: 4585 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4595 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4595 | L1I State: COMPLETE_READ
+Time: 4595 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4605 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4605 | L1I State: COMPLETE_READ
+Time: 4605 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4615 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4615 | L1I State: COMPLETE_READ
+Time: 4615 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4625 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4625 | L1I State: COMPLETE_READ
+Time: 4625 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4635 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4635 | L1I State: COMPLETE_READ
+Time: 4635 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4645 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4645 | L1I State: COMPLETE_READ
+Time: 4645 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4655 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4655 | L1I State: COMPLETE_READ
+Time: 4655 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4665 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4665 | L1I State: COMPLETE_READ
+Time: 4665 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4675 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4675 | L1I State: COMPLETE_READ
+Time: 4675 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4685 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4685 | L1I State: COMPLETE_READ
+Time: 4685 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4695 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4695 | L1I State: COMPLETE_READ
+Time: 4695 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4705 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4705 | L1I State: COMPLETE_READ
+Time: 4705 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4715 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4715 | L1I State: COMPLETE_READ
+Time: 4715 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4725 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4725 | L1I State: COMPLETE_READ
+Time: 4725 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4735 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4735 | L1I State: COMPLETE_READ
+Time: 4735 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4745 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4745 | L1I State: COMPLETE_READ
+Time: 4745 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4755 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4755 | L1I State: COMPLETE_READ
+Time: 4755 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4765 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4765 | L1I State: COMPLETE_READ
+Time: 4765 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4775 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4775 | L1I State: COMPLETE_READ
+Time: 4775 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4785 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4785 | L1I State: COMPLETE_READ
+Time: 4785 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4795 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4795 | L1I State: COMPLETE_READ
+Time: 4795 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4805 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4805 | L1I State: COMPLETE_READ
+Time: 4805 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4815 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4815 | L1I State: COMPLETE_READ
+Time: 4815 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4825 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4825 | L1I State: COMPLETE_READ
+Time: 4825 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4835 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4835 | L1I State: COMPLETE_READ
+Time: 4835 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4845 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4845 | L1I State: COMPLETE_READ
+Time: 4845 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4855 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4855 | L1I State: COMPLETE_READ
+Time: 4855 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4865 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4865 | L1I State: COMPLETE_READ
+Time: 4865 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4875 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4875 | L1I State: COMPLETE_READ
+Time: 4875 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4885 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4885 | L1I State: COMPLETE_READ
+Time: 4885 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4895 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4895 | L1I State: COMPLETE_READ
+Time: 4895 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4905 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4905 | L1I State: COMPLETE_READ
+Time: 4905 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4915 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4915 | L1I State: COMPLETE_READ
+Time: 4915 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4925 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4925 | L1I State: COMPLETE_READ
+Time: 4925 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4935 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4935 | L1I State: COMPLETE_READ
+Time: 4935 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4945 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4945 | L1I State: COMPLETE_READ
+Time: 4945 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4955 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4955 | L1I State: COMPLETE_READ
+Time: 4955 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4965 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4965 | L1I State: COMPLETE_READ
+Time: 4965 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4975 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4975 | L1I State: COMPLETE_READ
+Time: 4975 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4985 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4985 | L1I State: COMPLETE_READ
+Time: 4985 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 4995 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 4995 | L1I State: COMPLETE_READ
+Time: 4995 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 5005 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 5005 | L1I State: COMPLETE_READ
+Time: 5005 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+lc not valid and not ready
+Time: 5015 | BP Pred_PC: 0x0000000000000008 | PC_Valid: 1 | L1I_Req: 0 | L0_Hit: 1
+Time: 5015 | L1I State: COMPLETE_READ
+Time: 5015 | LLC Response - Addr: 0x0000000000000008, First 8 bytes: 1f 20 03 d5 1f 20 03 d5
+- frontend_tb.sv:110: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.032 2025-01-01
+- Verilator: $finish at 5ns; walltime 0.738 s; speed 1.707 ns/s
+- Verilator: cpu 2.943 s on 8 threads; alloced 0 MB
