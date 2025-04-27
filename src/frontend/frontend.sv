@@ -63,6 +63,8 @@ module frontend #(
         .rst_N_in(rst_N_in),
         .l1i_valid(l1i_valid),
         .l1i_ready(l1i_ready),
+        .start_signal(start),
+        .start_pc(start_pc),
         .x_bcond_resolved(x_bcond_resolved),
         .x_pc_incorrect(x_pc_incorrect),  // this means that the PC that we had originally predicted was incorrect. We need to fix.
         .x_taken(x_taken),  // if the branch resolved as taken or not -- to update PHT and GHR

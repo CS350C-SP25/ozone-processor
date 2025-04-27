@@ -20,6 +20,8 @@ module branch_pred #(
   input rst_N_in,
   input logic l1i_valid,
   input logic l1i_ready,
+  input logic start_signal,
+  input logic [63:0] start_pc,
   input logic x_bcond_resolved,
   input logic x_pc_incorrect,  // this means that the PC that we had originally predicted was incorrect. We need to fix.
   input logic x_taken,  // if the branch resolved as taken or not -- to update PHT and GHR
@@ -113,7 +115,7 @@ function logic [31:0] get_instr_bits (
   input int instr_idx
 );
   int byte_index;
-  byte_index = 32'(starting_addr[5:0]) + (instr_idx << 2); // ✅
+  byte_index = 32'(starting_addr[5:0]) + (instr_idx << 2);
   
   return {
     cacheline[byte_index + 3],
@@ -227,7 +229,7 @@ l1i_addr_out_next = current_pc + 64'(current_pc[5:0]) <= (64 - 64'(current_pc[5:
     if (rst_N_in) begin 
 
       // Update internal state ONLY on fetch high
-      if (pc_valid_out_next && fetch_ready;) begin
+      if (pc_valid_out_next && fetch_ready) begin
         current_pc <= l1i_addr_out_next; // Move to process the next PC
       end else begin
         // Hold the current PC if predictor isn't valid OR if valid but fetch isn't ready
@@ -311,8 +313,11 @@ l1i_addr_out_next = current_pc + 64'(current_pc[5:0]) <= (64 - 64'(current_pc[5:
     ghr_next = {ghr[GHR_K-2:0], x_taken};
     // how do we wait for next clock cycle
   end
-
-  if (x_pc_incorrect) begin
+  if (start_signal) begin
+      l1i_addr_out_next = {x_pc + {{45{x_correction_offset[18]}}, x_correction_offset}};
+      pc_valid_out_next = 1'b1;
+  end
+  else if (x_pc_incorrect) begin
     if (instructions_inflight && !l1i_valid) begin
       // we have instructions in flight and they arent valid we need to stall until they expire we need to supress the next l1i return
       l1i_q_next = {1'b1, x_pc + {{45{x_correction_offset[18]}}, x_correction_offset}};
