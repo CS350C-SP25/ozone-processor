@@ -20,12 +20,11 @@ module rat #(
     output rob_pkg::rob_entry [uop_pkg::INSTR_Q_WIDTH-1:0] rob_data,
     output logic rob_data_valid,
     input logic rob_ready,
-
-    // from FRL
-    output logic [2*uop_pkg::INSTR_Q_WIDTH+1:0] frl_ready,  // we consumed the values (6 per cycle)
-    input logic [2*uop_pkg::INSTR_Q_WIDTH+1:0][$clog2(NUM_PHYS_REGS) - 1:0] free_register_data,
+   
+	// from FRL
+    output logic [3*uop_pkg::INSTR_Q_WIDTH-1:0] frl_ready,  // we consumed the values (6 per cycle)
+    input logic [3*uop_pkg::INSTR_Q_WIDTH-1:0][$clog2(NUM_PHYS_REGS) - 1:0] free_register_data,
     input logic frl_valid,  // all regs are full already, just wait it out
-
     // for intermediate writing
     output reg_pkg::RegFileWritePort [uop_pkg::INSTR_Q_WIDTH-1:0] regfile
 );

@@ -1,4 +1,4 @@
-`include "./backend/rat.sv"
+`include "./backend/registers/rat.sv"
 
 module compile (
     // Define ports here if needed
@@ -34,7 +34,7 @@ module compile (
     ) u_rat (
         // Clock & Reset
         .clk               (clk),
-        .rst               (rst),
+        .rst_N_in               (rst),
 
         // Instruction Queue Interface (adapter needed)
         .q_valid           (q_valid),
