@@ -159,6 +159,7 @@ module decode #(
           decode_ready <= 1'b0;
         end
       end else begin
+        // if fetch isn't ready
         if (exe_ready) begin
           instruction_queue_in <= buffer;
           buffered <= '0;
