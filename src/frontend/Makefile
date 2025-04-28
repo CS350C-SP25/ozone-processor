@@ -73,3 +73,7 @@ bp:
 
 frontend:
 	$(VERILATOR) $(VFLAGS) --cc ./frontend.sv -Wno-lint
+
+decode_test:
+	$(VERILATOR) $(VFLAGS) --cc ./tb/decode_tb.sv --top-module decode_tb
+	./obj_dir/Vdecode_tb

@@ -152,6 +152,7 @@ module decode #(
     if (rst_N_in && !flush_in) begin
       if (fetch_valid) begin
         if (exe_ready) begin
+          $display("uop %x", enq_next[0].uopcode);
           instruction_queue_in <= buffered ? buffer : enq_next;
           buffered <= buffered;  //this should be 0 if the fsm is working correctly 
           buffer <= enq_next;
@@ -195,6 +196,7 @@ module decode #(
       for (
           int instr_idx = 0; instr_idx < SUPER_SCALAR_WIDTH; instr_idx++
       ) begin : super_scalar_decode
+        $display("op bits %x", fetched_ops[instr_idx]);
         if (!done) begin
           case (istable(
               fetched_ops[instr_idx]
@@ -383,13 +385,13 @@ module decode #(
             end
           endcase
         end
-        $display("fetched_ops: %x", fetched_ops);
-        //debug
-        if (enq_idx > 0) begin
-                            $display("[Decode] Instr %d at PC 0x%h: opcode=%s, instr=0x%h", instr_idx,
-                                 enq_next[enq_idx-1].pc, enq_next[enq_idx-1].uopcode.name(), fetched_ops[instr_idx]);
-                        end
-        //                 //debug
+        // $display("fetched_ops: %x", fetched_ops);
+        // //debug
+        // if (enq_idx > 0) begin
+        //                     $display("[Decode] Instr %d at PC 0x%h: opcode=%s, instr=0x%h", instr_idx,
+        //                          enq_next[enq_idx-1].pc, enq_next[enq_idx-1].uopcode.name(), fetched_ops[instr_idx]);
+        //                 end
+        // //                 //debug
 
 
       end
