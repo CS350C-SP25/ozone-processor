@@ -1,10 +1,13 @@
 `ifndef UOP_PKG_SV
 `define UOP_PKG_SV
+`include "../util/op_pkg.sv"
+import op_pkg::*;
 package uop_pkg;
 
   // Parameters for queue depth/width
   parameter int INSTR_Q_DEPTH = 32;
   parameter int INSTR_Q_WIDTH = 4;
+  typedef uop_branch [SUPER_SCALAR_WIDTH-1:0] branch_data_array;
 
   typedef enum logic [4:0] {
     UOP_LOAD,

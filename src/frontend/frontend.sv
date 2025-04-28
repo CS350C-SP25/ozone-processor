@@ -42,13 +42,13 @@ module frontend #(
   logic l1i_ready;
   logic [CACHE_LINE_WIDTH*8-1:0] l1i_cacheline;
   logic [63:0] pred_pc;
-  uop_branch decode_branch_data[SUPER_SCALAR_WIDTH-1:0];
+  branch_data_array decode_branch_data;
   logic pc_valid_out;
   logic bp_l1i_valid_out;
   logic [63:0] bp_addr_out;
   logic [63:0] l1i_addr_out;
   logic [CACHE_LINE_WIDTH*8-1:0] l0_cacheline;
-  logic [INSTRUCTION_WIDTH-1:0] fetched_ops[SUPER_SCALAR_WIDTH-1:0];
+  instruction_array fetched_ops;
   logic fetch_valid;
   logic fetch_ready;
   logic bp_l0_valid;
