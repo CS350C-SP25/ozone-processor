@@ -66,10 +66,10 @@ decode:
 	$(VERILATOR) $(VFLAGS) --cc ./decode.sv 
 
 fetch:
-	$(VERILATOR) $(VFLAGS) --cc ./fetch.sv -Wno-lint
+	$(VERILATOR) $(VFLAGS) --cc ./fetch.sv
 
 bp:
-	$(VERILATOR) $(VFLAGS) --cc ./branch_pred.sv
+	$(VERILATOR) $(VFLAGS) --cc ./branch_pred.sv -Wno-lint
 
 frontend:
 	$(VERILATOR) $(VFLAGS) --cc ./frontend.sv

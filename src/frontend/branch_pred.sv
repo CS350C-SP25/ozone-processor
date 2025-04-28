@@ -54,6 +54,7 @@ module branch_pred #(
   logic [63:0] current_pc;  // pc register
   logic [63:0] l1i_addr_awaiting;  //address we are waiting on from cache; register
   branch_data_array branch_data_next;
+  branch_data_array branch_data_cur;
   logic [CACHE_LINE_WIDTH*8-1:0] l0_cacheline_next;  // wire (saved to the fetch out and local)
   logic l0_hit;
   logic pc_valid_out_next;
@@ -133,7 +134,8 @@ module branch_pred #(
                                      input logic [63:0] pc, input logic [PHT_N+GHR_K-1:0] pht_index,
                                      output logic [63:0] l1i_addr_out_next,
                                      output logic ras_pop_temp, output logic ras_push_temp,
-                                     output logic [63:0] ras_next_push_next_temp);
+                                     output logic [63:0] ras_next_push_next_temp,
+                                     output branch_data_array branch_data_next);
 
     logic done = 1'b0;
     for (int instr_idx = 0; instr_idx < SUPER_SCALAR_WIDTH; instr_idx++) begin
@@ -231,7 +233,6 @@ module branch_pred #(
       if (pc_valid_out_next) begin
         // update outputs regardless of fetch_ready
         pred_pc <= l1i_addr_out_next;
-        decode_branch_data <= branch_data_next;
         l0_cacheline <= l0_cacheline_next;
 
         l1i_addr_out <= l1i_addr_out_next;
@@ -240,13 +241,14 @@ module branch_pred #(
         instructions_inflight <= ~l0_hit;
       end else begin
         pred_pc <= pred_pc;
-        decode_branch_data <= decode_branch_data;
         l0_cacheline <= l0_cacheline;
         l1i_addr_out <= l1i_addr_out;
         bp_l1i_valid_out <= 1'b0;
         bp_l0_valid <= 1'b0;
         instructions_inflight <= instructions_inflight;
       end
+      decode_branch_data <= branch_data_next;
+      branch_data_cur <= branch_data_next;
       ghr <= ghr_next;
       pht <= pht_next;
 
@@ -270,6 +272,7 @@ module branch_pred #(
   logic [PHT_N+GHR_K-1:0] pht_index_update;
   logic [PHT_N-1:0] pc_index_update;
   always_comb begin : branch_pred_comb
+    branch_data_next = branch_data_cur;
     ras_pop_next = ras_pop;
     pht_next = pht;
     ghr_next = ghr;
@@ -327,14 +330,14 @@ module branch_pred #(
         process_pc(.cacheline(split_cacheline_l1i), .pc(current_pc),
                    .pht_index({ghr, current_pc[PHT_N-1:0]}), .l1i_addr_out_next(l1i_addr_out_next),
                    .ras_pop_temp(ras_pop_next), .ras_push_temp(ras_push_next),
-                   .ras_next_push_next_temp(ras_next_push_next));
+                   .ras_next_push_next_temp(ras_next_push_next), .branch_data_next(branch_data_next));
         pc_valid_out_next = 1'b1;
       end else if (!instructions_inflight) begin
         //l1i was not valid, we check if any instructions are in flight if so stall otherwise we must be in l0.
         process_pc(.cacheline(split_cacheline_l10), .pc(current_pc),
                    .pht_index({ghr, current_pc[PHT_N-1:0]}), .l1i_addr_out_next(l1i_addr_out_next),
                    .ras_pop_temp(ras_pop_next), .ras_push_temp(ras_push_next),
-                   .ras_next_push_next_temp(ras_next_push_next));
+                   .ras_next_push_next_temp(ras_next_push_next), .branch_data_next(branch_data_next));
         pc_valid_out_next = 1'b1;
       end
     end
