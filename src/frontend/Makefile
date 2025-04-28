@@ -56,11 +56,16 @@ FRONTEND_SRCS = --cc ./tb/frontend_tb.sv ./frontend.sv ./fetch.sv ./decode.sv ./
 				--cc  ../util/uop_pkg.sv ../util/stack.sv ../util/op_pkg.sv
 FRONTEND_BIN = obj_dir/Vfrontend_tb
 
-front: $(FRONTEND_BIN)
+clean:
+	@echo "Cleaning object directory..."
+	@rm -rf obj_dir
 
+front: clean $(FRONTEND_BIN)
+	@echo "Frontend build complete: $(FRONTEND_BIN)"
+	./$(FRONTEND_BIN)
 
 $(FRONTEND_BIN):
-	$(VERILATOR) $(FRONTEND_VFLAGS) $(FRONTEND_SRCS)
+	$(VERILATOR) $(FRONTEND_VFLAGS) $(FRONTEND_SRCS) -Wno-lint
 
 decode:
 	$(VERILATOR) $(VFLAGS) --cc ./decode.sv 
