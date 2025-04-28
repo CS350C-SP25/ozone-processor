@@ -93,7 +93,7 @@ module decode #(
     ri.src.gpr = 5'b0;
     ri.src.is_sp = '0;
     ri.src.is_fp = '0;
-    ri.imm = {op_bits[30:29], op_bits[23:5]};
+    ri.imm = {op_bits[23:5], op_bits[30:29]};
     ri.set_nzcv = '0;
     set_data_ri(ri, uop_out.data);
     uop_out.valb_sel = '0;
