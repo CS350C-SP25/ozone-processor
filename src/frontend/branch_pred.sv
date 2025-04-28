@@ -226,6 +226,7 @@ l1i_addr_out_next = current_pc + 64'(current_pc[5:0]) <= (64 - 64'(current_pc[5:
 
 
   always_ff @(posedge clk_in) begin
+    $display("[BP] l1i cacheline data: %x", l1i_cacheline);
     if (rst_N_in) begin 
 
       // Update internal state ONLY on fetch high

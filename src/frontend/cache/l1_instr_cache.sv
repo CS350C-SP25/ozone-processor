@@ -2,7 +2,7 @@
 
 // just needs to wrap the generic cache and block when missed
 module l1_instr_cache #(
-    parameter int A = 1,
+    parameter int A = 4,
     parameter int B = 64,
     parameter int C = 1536,
     parameter int PADDR_BITS = 64
@@ -139,7 +139,7 @@ module l1_instr_cache #(
 
         // if this was a write from lower cache, we can just write
         if (lc_valid_in_reg) begin
-                    $display("lc_valid_in true...write from lower cache possible");
+                    $display("lc_valid_in true...write from lower cache possible ()");
 
           next_state = SEND_RESP_HC;
         end else if (cache_lc_valid_out_reg) begin  // we missed, we need to req data
@@ -195,7 +195,21 @@ module l1_instr_cache #(
         // Casting to 64' achieves the same zero-padding result more robustly.
         l0_addr_out_comb  = 64'(cache_hc_addr_out_reg);
         l0_value_out_comb = cache_hc_value_out_reg;
+                  $display("[Time %0t][L1] Sending data to L0 | Addr: 0x%h | Value (first 8B): %h %h %h %h %h %h %h %h", 
+                 $time, 
+                 l0_addr_out_comb, 
+                 l0_value_out_comb[7:0], 
+                 l0_value_out_comb[15:8], 
+                 l0_value_out_comb[23:16], 
+                 l0_value_out_comb[31:24], 
+                 l0_value_out_comb[39:32], 
+                 l0_value_out_comb[47:40], 
+                 l0_value_out_comb[55:48], 
+                 l0_value_out_comb[63:56]);
         if (l0_ready_in_reg) begin
+                    // cache_hc_ready_next = 1; 
+
+
           next_state = IDLE;
         end
       end
@@ -303,7 +317,7 @@ end
   logic cache_hc_valid_reg;
   logic cache_hc_ready_reg;
   logic [PADDR_BITS-1:0] cache_hc_addr_reg;
-  logic [64-1:0] cache_hc_value_reg;
+  logic [512-1:0] cache_hc_value_reg;
   logic cache_hc_we_reg;
   logic [B*8-1:0] cache_cache_line_reg;
   logic cache_cl_reg;
@@ -342,13 +356,17 @@ end
       .A(A),
       .B(B),
       .C(C),
-      .W(64),
+      .W(512),
       .ADDR_BITS(PADDR_BITS)
   ) cache_module (
       .rst_N_in(rst_N_in),
       .clk_in(clk_in),
       .cs_in(1),
       .flush_in(flush_in_reg),
+
+          // Inputs from higher-level cache
+          //basically that it wants a request done
+          //this is us (l1)
       .hc_valid_in(cache_hc_valid_reg),
       .hc_ready_in(cache_hc_ready_reg),
       .hc_addr_in(cache_hc_addr_reg),
