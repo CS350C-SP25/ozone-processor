@@ -47,5 +47,13 @@ import reg_pkg::*;
         logic [$clog2(ROB_ENTRIES)-1:0] ptr; // ptr to entry in the ROB
         status_t status;
     } rob_writeback; // struct for writing back data to the ROB
+
+    typedef struct packed {
+        logic bcond_resolved_out;
+        logic pc_incorrect_out;  // this means that the PC that we had originally predicted was incorrect. We need to fix.
+        logic taken_out;  // if the branch resolved as taken or not -- to update PHT and GHR
+        logic [63:0] pc_out; // pc that is currently in the exec phase (the one that just was resolved)
+        logic [18:0] correction_offset_out;
+    } rob_bru; // struct for writing back data to the ROB
 endpackage
 `endif // ROB_PKG_SV

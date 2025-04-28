@@ -119,6 +119,9 @@ module reorder_buffer #(
     input logic lsu_ready_in,
     input logic bru_ready_in,
     input rob_writeback [3:0] writeback_in, // tell rob which entries to update
+    input rob_bru bru_writeback_in, // tell rob bru update
+    input logic bru_wb_valid_in,
+    input logic [$clog2(Q_DEPTH)-1:0] bru_wb_ptr_in,
 
     // ** INPUTS FROM REG_FILE **
     input logic [reg_pkg::NUM_PHYS_REGS-1:0] scoreboard_in, // scoreboard from reg file to check if the register is valid or not    
@@ -131,7 +134,11 @@ module reorder_buffer #(
     output rob_issue fpu_insn_out,
 
     output rob_entry [uop_pkg::INSTR_Q_WIDTH-1:0] rrat_update_out, // update the rrat mapping for the physical reg to arch reg mapping
-    output logic [uop_pkg::INSTR_Q_WIDTH-1:0] rrat_update_valid_out // 1 if the rrat update is valid
+    output logic [uop_pkg::INSTR_Q_WIDTH-1:0] rrat_update_valid_out, // 1 if the rrat update is valid
+    output logic bru_wb_valid_out,
+    output rob_bru bru_writeback_out,
+
+    output logic rob_ready_out // ready to accept new instructions
 );
     // ** REORDER_BUFFER_QUEUE PARAMS **
     // queue input
@@ -159,6 +166,10 @@ module reorder_buffer #(
     rob_issue bru_insn_out_t;
     rob_issue alu_insn_out_t;
     rob_issue fpu_insn_out_t;
+
+    rob_bru [Q_DEPTH-1:0] bru_status;
+
+    assign rob_ready_out = !queue_full;
 
     reorder_buffer_queue #(
         .Q_DEPTH(Q_DEPTH),
@@ -218,6 +229,9 @@ module reorder_buffer #(
             alu_insn_out <= alu_insn_out_t;
             fpu_insn_out <= fpu_insn_out_t;
             lsu_insn_out <= lsu_insn_out_t;
+            if (bru_wb_valid_in) begin
+                bru_status[bru_wb_ptr_in] <= bru_writeback_in;
+            end  
         end
     end
 
@@ -239,7 +253,7 @@ module reorder_buffer #(
         alu_insn_out_t = '0;
         fpu_insn_out_t = '0;
         issue_mark_pending = '0;
-        next_issue_ptr = '0;     
+        next_issue_ptr = '0;   
         if (!queue_empty) begin
             
             // ** INSTRUCTION WINDOW COMMIT **
@@ -258,6 +272,9 @@ module reorder_buffer #(
                                 lsu_insn_out_t
                             );
                             cur_lsu_check = next_check; // commit store will take priority over any load in the buffer
+                        end else if (queue_out[i].uop.uopcode == UOP_BCOND || queue_out[i].uop.uopcode == UOP_BL) begin
+                            bru_writeback_out = bru_status[i];
+                            bru_wb_valid_out = 1'b1;
                         end
                         deq_in += 1;
                         // update RRAT mapping to match architectural state

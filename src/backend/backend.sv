@@ -21,7 +21,8 @@ module backend(
     output logic pc_incorrect_out,  // this means that the PC that we had originally predicted was incorrect. We need to fix.
     output logic taken_out,  // if the branch resolved as taken or not -- to update PHT and GHR
     output logic [63:0] pc_out, // pc that is currently in the exec phase (the one that just was resolved)
-    output logic [18:0] correction_offset_out // the offset of the correction from x_pc (could change this to be just the actual correct PC instead ??)
+    output logic [18:0] correction_offset_out, // the offset of the correction from x_pc (could change this to be just the actual correct PC instead ??)
+    output logic ready_out // this is the ready signal for the backend to send to the fetch stage
 );
 
     // Interconnect signals (a subset, connect as needed)
@@ -46,6 +47,18 @@ module backend(
     rob_pkg::rob_writeback alu_wb_out, fpu_wb_out, lsu_wb_out, bru_wb_out;
     logic alu_ready, fpu_ready, lsu_ready, bru_ready;
     logic [reg_pkg::NUM_PHYS_REGS-1:0] scoreboard;
+    logic rob_ready_out;
+
+    rob_bru bru_writeback_out;
+    rob_bru bru_writeback_in;
+    logic bru_wb_valid_out;
+    logic bru_wb_valid_in;
+    logic [$clog2(rob_pkg::ROB_ENTRIES)-1:0] bru_wb_ptr_in;
+
+    assign bru_wb_valid_in = bru_writeback_in.bcond_resolved_out;
+    assign bru_wb_ptr_in = bru_insn_pkt.ptr;
+
+    assign ready_out = rob_ready_out && frl_valid;
 
     assign read_en = {{4{alu_insn.valid}}, {3{fpu_insn.valid}}, 1'b0, {3{lsu_insn.valid}}, 1'b0, {4{bru_insn.valid}}};
     assign read_index = {
@@ -152,13 +165,19 @@ module backend(
         .bru_ready_in(bru_ready),
         .writeback_in('{alu_wb_out, lsu_wb_out, bru_wb_out, fpu_wb_out}),
         .scoreboard_in(scoreboard),
+        .bru_writeback_in(bru_writeback_in),
+        .bru_wb_valid_in(bru_wb_valid_in),
+        .bru_wb_ptr_in(bru_wb_ptr_in),
 
         .alu_insn_out(alu_insn),
         .fpu_insn_out(fpu_insn),
         .lsu_insn_out(lsu_insn),
         .bru_insn_out(bru_insn),
         .rrat_update_out(rrat_update_entries),
-        .rrat_update_valid_out(rrat_update_valid)
+        .rrat_update_valid_out(rrat_update_valid),
+        .bru_writeback_out(bru_writeback_out),
+        .bru_wb_valid_out(bru_wb_valid_out),
+        .rob_ready_out(rob_ready_out)
     );
 
     // ALU
@@ -257,12 +276,19 @@ module backend(
     logic [18:0] branch_offset;
     logic branch_taken;
     logic [3:0] bru_nzcv_flags;
-    assign taken_out = branch_taken;
-    assign pc_out = bru_insn_pkt.uop.pc;
-    assign correction_offset_out = branch_offset;
-    assign pc_incorrect_out = bru_insn_pkt.uop.data.predict_taken != branch_taken;
-    assign bcond_resolved_out = bru_insn_pkt.valid;
+    assign bru_writeback_in.taken_out = branch_taken;
+    assign bru_writeback_in.pc_out = bru_insn_pkt.uop.pc;
+    assign bru_writeback_in.correction_offset_out = branch_offset;
+    assign bru_writeback_in.pc_incorrect_out = bru_insn_pkt.uop.data.predict_taken != branch_taken;
+    assign bru_writeback_in.bcond_resolved_out = bru_insn_pkt.valid;
     assign bru_nzcv_flags = read_data[15][3:0]; // NZCV flags from the register file
+
+    assign taken_out = bru_writeback_out.taken_out;
+    assign pc_out = bru_writeback_out.pc_out;
+    assign correction_offset_out = bru_writeback_out.correction_offset_out;
+    assign pc_incorrect_out = bru_writeback_out.pc_incorrect_out;
+    assign bcond_resolved_out = bru_writeback_out.bcond_resolved_out;
+
 
     bru_ins_decoder bru_decoder (
         .insn_in(bru_insn_pkt),
