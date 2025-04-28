@@ -73,7 +73,17 @@ module rat #(
           regFileOut[i].index_in <= 0;
           regFileOut[i].en       <= 0;
           regFileOut[i].data_in  <= 0;
-       end else begin  // we have an intermediate
+          if (is_xzr(regs_rr_in[i].src1)) begin
+          regFileOut[i].index_in <= free_register_data[2+i];
+          regFileOut[i].en       <= 1;
+          regFileOut[i].data_in  <= 0;
+          // TODO
+          end
+          if (is_xzr(regs_rr_in[i].src2)) begin
+            // TODO 
+          end
+        end
+        else begin  // we have an intermediate
           if (!reg_valid[regs_ri_in[i].src.gpr]) begin
             $display("UH OH THIS REG DOESNT HAVE ANYTHING VALID IN IT; basically NOBODYS USED IT YET");
           end
