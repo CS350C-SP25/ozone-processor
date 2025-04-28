@@ -63,24 +63,22 @@ module backend (
   assign read_en = {
     {4{alu_insn.valid}}, {3{fpu_insn.valid}}, 1'b0, {3{lsu_insn.valid}}, 1'b0, {4{bru_insn.valid}}
   };
-  assign read_index = {
-    alu_insn.dest_reg_phys,
-    alu_insn.r1_reg_phys,
-    alu_insn.r2_reg_phys,
-    alu_insn.nzcv_reg_phys,
-    fpu_insn.dest_reg_phys,
-    fpu_insn.r1_reg_phys,
-    fpu_insn.r2_reg_phys,
-    fpu_insn.nzcv_reg_phys,
-    lsu_insn.dest_reg_phys,
-    lsu_insn.r1_reg_phys,
-    lsu_insn.r2_reg_phys,
-    lsu_insn.nzcv_reg_phys,
-    bru_insn.dest_reg_phys,
-    bru_insn.r1_reg_phys,
-    bru_insn.r2_reg_phys,
-    bru_insn.nzcv_reg_phys
-  };
+  assign read_index[0] = alu_insn.dest_reg_phys;
+    assign read_index[1] = alu_insn.r1_reg_phys;
+    assign read_index[2] = alu_insn.r2_reg_phys;
+    assign read_index[3] = alu_insn.nzcv_reg_phys;
+    assign read_index[4] = fpu_insn.dest_reg_phys;
+    assign read_index[5] = fpu_insn.r1_reg_phys;
+    assign read_index[6] = fpu_insn.r2_reg_phys;
+    assign read_index[7] = fpu_insn.nzcv_reg_phys;
+    assign read_index[8] = lsu_insn.dest_reg_phys;
+    assign read_index[9] = lsu_insn.r1_reg_phys;
+    assign read_index[10] = lsu_insn.r2_reg_phys;
+    assign read_index[11] = lsu_insn.nzcv_reg_phys;
+    assign read_index[12] = bru_insn.dest_reg_phys;
+    assign read_index[13] = bru_insn.r1_reg_phys;
+    assign read_index[14] = bru_insn.r2_reg_phys;
+    assign read_index[15] = bru_insn.nzcv_reg_phys;
   assign alu_insn_pkt = {
     alu_insn.valid,
     alu_insn.uop,

@@ -31,7 +31,7 @@ module frl #(
 
   logic [$clog2(reg_pkg::NUM_PHYS_REGS):0] num_free_regs;
 
-  logic [$clog2(reg_pkg::NUM_PHYS_REGS)-1:0] temp_indices [2*uop_pkg::INSTR_Q_WIDTH+1:0];
+  logic [$clog2(reg_pkg::NUM_PHYS_REGS)-1:0] temp_indices [3*uop_pkg::INSTR_Q_WIDTH:0];
 
   // === COMBINATIONAL NEXT-STATE LOGIC ===
   always_comb begin

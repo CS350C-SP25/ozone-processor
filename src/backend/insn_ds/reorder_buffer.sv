@@ -254,6 +254,10 @@ module reorder_buffer #(
     fpu_insn_out_t = '0;
     issue_mark_pending = '0;
     next_issue_ptr = '0;
+    rrat_update_out = '0;
+    bru_writeback_out = '0;
+    bru_wb_valid_out = 1'b0;
+    rrat_update_valid_out = '0;
     if (!queue_empty) begin
 
       // ** INSTRUCTION WINDOW COMMIT **
