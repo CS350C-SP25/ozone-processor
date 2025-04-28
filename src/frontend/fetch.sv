@@ -113,9 +113,9 @@ module align_instructions #(
     input logic [CACHE_LINE_WIDTH*8-1:0] cacheline,
     output logic [INSTRUCTION_WIDTH-1:0] instr_out[SUPER_SCALAR_WIDTH-1:0]
 );
-
+  genvar i;
   generate
-    for (genvar i = 0; i < SUPER_SCALAR_WIDTH; i++) begin : instr_extract
+    for (i = 0; i < SUPER_SCALAR_WIDTH; i++) begin : instr_extract
       assign instr_out[i] = offset + i < CACHE_LINE_WIDTH ? 
                 cacheline[offset + (i*4) + 31 -:INSTRUCTION_WIDTH]
              : {

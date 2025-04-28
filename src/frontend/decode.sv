@@ -18,7 +18,7 @@ module decode #(
     input logic fetch_valid, //how many instructions from fetch are valid TODO implement this change
     input logic exe_ready,
     output logic decode_ready,
-    output uop_insn instruction_queue_in[INSTR_Q_WIDTH-1:0]
+    output uop_insn [INSTR_Q_WIDTH-1:0] instruction_queue_in
 );
   uop_insn enq_next[INSTR_Q_WIDTH-1:0];
 

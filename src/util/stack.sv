@@ -1,3 +1,5 @@
+`ifndef STACK_SV
+`define STACK_SV
 module stack #(
     parameter STACK_DEPTH = 8,
     parameter ENTRY_SIZE = 64
@@ -51,3 +53,4 @@ module stack #(
     assign stack_out = underlying[tail];
 
 endmodule
+`endif // STACK_SV

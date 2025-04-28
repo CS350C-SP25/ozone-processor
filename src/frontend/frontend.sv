@@ -1,6 +1,8 @@
 `include "../util/stack.sv"
 `include "./branch_pred.sv"
 `include "./cache/l1_instr_cache.sv"
+`include "./fetch.sv"
+`include "./decode.sv"
 import op_pkg::*;
 import uop_pkg::*;
 
@@ -81,14 +83,7 @@ module frontend #(
         .l0_cacheline(l0_cacheline) // this gets fed to fetch
     );
 
-    l1_instr_cache #(
-        // parameter int A = 3,
-        // parameter int B = 64,
-        // parameter int C = 1536,
-        // parameter int PADDR_BITS = 22,
-        // parameter int MSHR_COUNT = 4,
-        // parameter int TAG_BITS = 10
-    ) l1i (
+    l1_instr_cache l1i (
         // Inputs from LSU
         .clk_in(clk_in),
         .rst_N_in(rst_N_in),

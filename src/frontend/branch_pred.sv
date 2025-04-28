@@ -42,6 +42,9 @@ module branch_pred #(
   logic [GHR_K-1:0] ghr;
   logic [1:0] pht[PHT_SIZE-1:0];
 
+  byte_t [CACHE_LINE_WIDTH-1:0] split_cacheline_l1i;
+  byte_t [CACHE_LINE_WIDTH-1:0] split_cacheline_l10;
+
 
   // FSM control
   logic [63:0] current_pc;  // pc register
@@ -101,9 +104,11 @@ module branch_pred #(
   );
 
 typedef logic[7:0] byte_t;
-function byte_t [CACHE_LINE_WIDTH-1:0] split_cacheline (
-  input logic [CACHE_LINE_WIDTH*8-1:0] cacheline
+function automatic void split_cacheline (
+  input logic [CACHE_LINE_WIDTH*8-1:0] cacheline,
+  output byte_t [CACHE_LINE_WIDTH-1:0] split_cacheline
 );
+  split_cacheline = '0;
   for (int i = 0; i < CACHE_LINE_WIDTH; i++) begin
     split_cacheline[i] = cacheline[(i+1)*8-1-:8];
   end
@@ -129,89 +134,83 @@ endfunction
   // PRE - DECODE
   // TODO ZERO THESE TEMP VALUES BC IT WILL MYSTERY WRITE WHAT IT WAS PREVIOUSLY SENT TO
   function automatic void process_pc (
-  input byte_t [CACHE_LINE_WIDTH-1:0] cacheline, 
-  input logic [63:0] pc,
-  input logic [PHT_N+GHR_K-1:0] pht_index,
-  output logic [63:0] l1i_addr_out_next,
-  output logic ras_pop_temp,
-  output logic ras_push_temp,
-  output logic [63:0] ras_next_push_next_temp,
+    input byte_t [CACHE_LINE_WIDTH-1:0] cacheline, 
+    input logic [63:0] pc,
+    input logic [PHT_N+GHR_K-1:0] pht_index,
+    output logic [63:0] l1i_addr_out_next,
+    output logic ras_pop_temp,
+    output logic ras_push_temp,
+    output logic [63:0] ras_next_push_next_temp
   );
 
   logic done = 1'b0;
   for (int instr_idx = 0; instr_idx < SUPER_SCALAR_WIDTH; instr_idx++) begin
-    if (current_pc[5:0]+{(instr_idx<<2)}[5:0] <= 6'(CACHE_LINE_WIDTH - INSTRUCTION_WIDTH) && !done) begin
-      ras_pop_temp = get_instr_bits(
-          cacheline, current_pc, instr_idx
-        ) [31:21] == 11'b11010110010;
+    logic [5:0] instr_idx_shifted;
+    localparam [5:0] MAX_OFF = CACHE_LINE_WIDTH - INSTRUCTION_WIDTH; 
 
-          ras_push_temp = get_instr_bits(
-          cacheline, current_pc, instr_idx
-        ) [31:26] == 6'b100101;
+    assign instr_idx_shifted = instr_idx << 2;
+    if (current_pc[5:0]+instr_idx_shifted <= MAX_OFF && !done) begin
+      logic [31:0] ras_instr;
+      assign ras_instr = get_instr_bits(
+        cacheline, current_pc, instr_idx
+      );
+      ras_pop_temp = ras_instr[31:21] == 11'b11010110010;
+
+      ras_push_temp = ras_instr[31:26] == 6'b100101;
 
 
-      if (get_instr_bits(
-          cacheline, current_pc, instr_idx
-        ) [31:21] == 11'b11010110010) begin  // RET 
-      // pop off RAS, if RAS is empty, sucks to be us. 
-      branch_data_next[instr_idx].branch_target = ras_top;
-      // these 2 fields are the register put together (its a union but quartus doesnt support unions)
-      branch_data_next[instr_idx].condition =
-        get_instr_bits(cacheline, current_pc, instr_idx) [4:1];
-      branch_data_next[instr_idx].predict_taken =
-        get_instr_bits(cacheline, current_pc, instr_idx) [0];
-      l1i_addr_out_next = ras_top;  //fetch the next address
-      
-      done = 1;
-      end else if (get_instr_bits(
-          cacheline, current_pc, instr_idx
-        ) [31:26] == 6'b000101) begin  // B
+      if (ras_instr[31:21] == 11'b11010110010) begin  // RET 
+        // pop off RAS, if RAS is empty, sucks to be us. 
+        branch_data_next[instr_idx].branch_target = ras_top;
+        // these 2 fields are the register put together (its a union but quartus doesnt support unions)
+        branch_data_next[instr_idx].condition = ras_instr[4:1];
+        branch_data_next[instr_idx].predict_taken = ras_instr[0];
+        l1i_addr_out_next = ras_top;  //fetch the next address
+        
+        done = 1;
+      end else if (ras_instr[31:26] == 6'b000101) begin  // B
       // decode the predicted PC and do the add
       // store branching info, ignore the remaining
       // set branch data for this index
       branch_data_next[instr_idx].branch_target = pc +
-    ({{38{get_instr_bits(cacheline, current_pc, instr_idx)[25]}},
-      get_instr_bits(cacheline, current_pc, instr_idx)[25:0]} << 2) +
+    ({{38{ras_instr[25]}},
+      ras_instr[25:0]} << 2) +
     64'(instr_idx << 2); // MULTIPLIED BY FOUR!!!
 
       // set the next l1i target to the predicted PC
       l1i_addr_out_next = pc +
-        {{38{get_instr_bits(cacheline, current_pc, instr_idx) [25]}},
-        get_instr_bits(cacheline, current_pc, instr_idx) [25:0]} +
+        {{38{ras_instr [25]}},
+        ras_instr [25:0]} +
         64'(instr_idx << 2);
       done = 1;
-      end else if (get_instr_bits(
-          cacheline, current_pc, instr_idx
-        ) [31:26] == 6'b100101) begin  // BL (same as B but we need to push to RAS)
+      end else if (ras_instr[31:26] == 6'b100101) begin  // BL (same as B but we need to push to RAS)
       // push to RAS current_pc[5:0]+(instr_idx<<2) + 4
     ras_next_push_next_temp = 64'(current_pc[5:0]) + 64'(instr_idx << 2) + 64'd4;
       // decode the predicted PC and do the add
       // store branching info, ignore the remaining
       // set branch data for this index
       branch_data_next[instr_idx].branch_target = pc +
-    ({{38{get_instr_bits(cacheline, current_pc, instr_idx)[25]}},
-      get_instr_bits(cacheline, current_pc, instr_idx)[25:0]} << 2) +
+    ({{38{ras_instr[25]}},
+      ras_instr[25:0]} << 2) +
     64'(instr_idx << 2); // MULTIPLIED BY
   
     // set next to pred pc
     l1i_addr_out_next = pc +
-        ({{38{get_instr_bits(cacheline, current_pc, instr_idx)[25]}},
-          get_instr_bits(cacheline, current_pc, instr_idx)[25:0]} << 2) +
+        ({{38{ras_instr[25]}},
+          ras_instr[25:0]} << 2) +
         64'(instr_idx << 2);
 
       done = 1;
-      end else if (get_instr_bits(
-          cacheline, current_pc, instr_idx
-        ) [31:24] == 8'b01010100) begin // assumption is bcond
+      end else if (ras_instr[31:24] == 8'b01010100) begin // assumption is bcond
       // done = branch_taken;
       // for now lets just always assume branch not taken we can adjust this later with a GHR and PHT
       // offset is 5-23
            branch_data_next[instr_idx].branch_target = pc +
-    ({{45{get_instr_bits(cacheline, current_pc, instr_idx)[23]}},
-      get_instr_bits(cacheline, current_pc, instr_idx)[23:5]} << 2) +
+    ({{45{ras_instr[23]}},
+      ras_instr[23:5]} << 2) +
     64'(instr_idx << 2); // MULTIPLIED BY FOUR
       branch_data_next[instr_idx].condition =
-        get_instr_bits(cacheline, current_pc, instr_idx) [3:0];
+        ras_instr [3:0];
       branch_data_next[instr_idx].predict_taken = pht[pht_index] > 1; 
       end
     end
@@ -266,8 +265,9 @@ l1i_addr_out_next = current_pc + 64'(current_pc[5:0]) <= (64 - 64'(current_pc[5:
       l1i_addr_out <= '0;
       bp_l1i_valid_out <= 1'b0;
       instructions_inflight <= 1'b0;
-      foreach (decode_branch_data[i])
-        decode_branch_data[i] <= '0;
+      for (int i = 0; i < SUPER_SCALAR_WIDTH; i++) begin
+        branch_data_next[i] <= '0;
+      end
       l0_cacheline <= '0;
       bp_l0_valid <= 1'b0;
       ghr <= '0;
@@ -290,6 +290,8 @@ l1i_addr_out_next = current_pc + 64'(current_pc[5:0]) <= (64 - 64'(current_pc[5:
   l1i_q_next = l1i_q;
   pht_index_update = '0;
   pc_index_update = '0;
+  split_cacheline(l1i_cacheline, split_cacheline_l1i);
+  split_cacheline(l0_cacheline, split_cacheline_l10);
   if (x_bcond_resolved) begin
     // we got a PC and resolution from the execution phase.
     // we have gotten a valid pc from the pc, lets fetch the instruction bits from the l1i. 
@@ -334,7 +336,7 @@ l1i_addr_out_next = current_pc + 64'(current_pc[5:0]) <= (64 - 64'(current_pc[5:
       // this processes a cacheline from l1i
       // TODO dont directly send pred pc to l1i, check if the pred pc tag matches. 
 process_pc(
-  .cacheline(split_cacheline(l1i_cacheline)),
+  .cacheline(split_cacheline_l1i),
   .pc(current_pc),
   .pht_index({ghr, current_pc[PHT_N-1:0]}),
   .l1i_addr_out_next(l1i_addr_out_next),
@@ -346,7 +348,7 @@ process_pc(
     end else if (!instructions_inflight) begin
       //l1i was not valid, we check if any instructions are in flight if so stall otherwise we must be in l0.
 process_pc(
-  .cacheline(split_cacheline(l0_cacheline)),
+  .cacheline(split_cacheline_l10),
   .pc(current_pc),
   .pht_index({ghr, current_pc[PHT_N-1:0]}),
   .l1i_addr_out_next(l1i_addr_out_next),

@@ -1,3 +1,5 @@
+`ifndef OP_PKG_SV
+`define OP_PKG_SV
 package op_pkg;
 
     parameter int INSTRUCTION_WIDTH = 32;
@@ -55,7 +57,7 @@ package op_pkg;
 
     // Lookup table given an instruction
     function automatic opcode_t istable (
-        input logic [31:0] instruction,
+        input logic [31:0] instruction
     );
         casez (instruction[31-:11])
             11'b11111000010: // LOAD
@@ -105,8 +107,8 @@ package op_pkg;
             11'b11111100000: // FSTUR
                 return OPCODE_F_STUR;
             11'b00011110011: // FMOV - FCMP
-                return instruction[15-:6] == 6'b010000 ? (!|instruction[20-:5] ? OPCODE_FMOV : instruction[20-:5] == 5'b00001 ? OPCODE_FNEG : OPCODE_ERROR) : 
-                    instruction[15-:6] == 6'b001000 ? (!|instruction[20-:5] && instruction[4:0] == 5'b01000 ? OPCODE_FCMPI : !|instruction[4:0] ? OPCODE_FCMPR : OPCODE_ERROR) :
+                return instruction[15-:6] == 6'b010000 ? (~|instruction[20-:5] ? OPCODE_FMOV : instruction[20-:5] == 5'b00001 ? OPCODE_FNEG : OPCODE_ERROR) : 
+                    instruction[15-:6] == 6'b001000 ? (~|instruction[20-:5] && instruction[4:0] == 5'b01000 ? OPCODE_FCMPI : ~|instruction[4:0] ? OPCODE_FCMPR : OPCODE_ERROR) :
                     instruction[15-:6] == 6'b001110 ? OPCODE_FSUB : instruction[15-:6] == 6'b000010 ? OPCODE_FMUL : instruction[15-:6] == 6'b001010 ? OPCODE_FADD : OPCODE_ERROR;
             default: 
                 return OPCODE_ERROR;
@@ -114,3 +116,4 @@ package op_pkg;
     endfunction
 
 endpackage
+`endif
