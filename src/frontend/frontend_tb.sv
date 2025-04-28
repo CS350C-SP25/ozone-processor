@@ -128,8 +128,8 @@ module frontend_tb;
                     lc_value_in[9'(i*8) +: 8] <= 8'h1F;
                 end
             end
-            // @(posedge clk_in);
-            // lc_valid_in <= 0;
+        repeat (2) @(posedge clk_in);
+            lc_valid_in <= 0;
         end
         else begin
             $display("lc not valid and not ready");
