@@ -170,4 +170,5 @@ quartus-build-rtl:
 	quartus_map --read_settings_files=on --write_settings_files=off ozone -c ozone
 	quartus_npp ozone -c ozone --netlist_type=sgate
 
-
+verilator:
+	verilator --sv --lint-only --language 1800-2012 --Wall --relative-includes src/ozone.sv
