@@ -22,7 +22,7 @@ module ozone (
   logic taken_out;
   logic [63:0] pc_out;
   logic [18:0] correction_offset_out;
-  typedef uop_insn instr_queue_t[INSTR_Q_WIDTH-1:0];
+  //   typedef uop_insn instr_queue_t[INSTR_Q_WIDTH-1:0];
   instr_queue_t instruction_queue_in;
   logic exec_ready;
 
