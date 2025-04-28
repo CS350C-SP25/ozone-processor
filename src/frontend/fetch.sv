@@ -15,8 +15,8 @@ module fetch #(
     input logic clk_in,  // clock signal
     input logic rst_N_in,  // reset signal, active low       
     input logic flush_in,  // signal for misprediction                          
-    input logic [7:0] l0_cacheline[CACHE_LINE_WIDTH-1:0],  // cacheline sent from l0
-    input logic [7:0] l1i_cacheline[CACHE_LINE_WIDTH-1:0],  // cacheline sent from l0
+    input logic [CACHE_LINE_WIDTH*8-1:0] l0_cacheline,  // cacheline sent from l0
+    input logic [CACHE_LINE_WIDTH*8-1:0] l1i_cacheline,  // cacheline sent from l0
     input logic bp_l0_valid,  // branch prediction's cacheline is valid
     input logic l1i_valid,
     input logic pc_valid,  // all pcs valid
@@ -110,18 +110,15 @@ module align_instructions #(
     parameter INSTRUCTION_WIDTH  = op_pkg::INSTRUCTION_WIDTH
 ) (
     input logic [$clog2(CACHE_LINE_WIDTH)-1:0] offset,
-    input logic [7:0] cacheline[CACHE_LINE_WIDTH-1:0],
+    input logic [CACHE_LINE_WIDTH*8-1:0] cacheline,
     output logic [INSTRUCTION_WIDTH-1:0] instr_out[SUPER_SCALAR_WIDTH-1:0]
 );
 
   generate
     for (genvar i = 0; i < SUPER_SCALAR_WIDTH; i++) begin : instr_extract
-      assign instr_out[i] = offset + i < CACHE_LINE_WIDTH ? {
-                cacheline[offset + (i*4) + 3],
-                cacheline[offset + (i*4) + 2],
-                cacheline[offset + (i*4) + 1],
-                cacheline[offset + (i*4) + 0]
-            } : {
+      assign instr_out[i] = offset + i < CACHE_LINE_WIDTH ? 
+                cacheline[offset + (i*4) + 31 -:INSTRUCTION_WIDTH]
+             : {
                 8'hD5,
                 8'h03,
                 8'h20,
