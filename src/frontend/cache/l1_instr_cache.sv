@@ -142,11 +142,13 @@ module l1_instr_cache #(
         // if this was a write from lower cache, we can just write
         if (lc_valid_in_reg) begin
           next_state = SEND_RESP_HC;
+
         end else if (cache_lc_valid_out_reg) begin  // we missed, we need to req data
           $display("miss detected on read");
           // Requesting data from lower cache -- this is a MISS
           cache_lc_ready_in_next = 1;  // complete transcation
           next_state = SEND_REQ_LC;  // just request data now
+
         end else if (cache_hc_valid_out_reg) begin
           // READ HIT! We can move to sending data back to the top
           cache_hc_ready_next = 1;  // complete transcation
@@ -187,12 +189,30 @@ module l1_instr_cache #(
         // The original code {{{64 - PADDR_BITS} {'b0}}, cache_hc_addr_out_reg} caused an error
         // because the replication count was potentially unsized.
         // Casting to 64' achieves the same zero-padding result more robustly.
-        l0_addr_out_comb  = 64'(cache_hc_addr_out_reg);
-        l0_value_out_comb = cache_hc_value_out_reg;
-        if (l0_ready_in_reg) begin
+
+      
+      // l0_addr_out_comb  = 64'(cache_hc_addr_out_reg);
+      // l0_value_out_comb = cache_hc_value_out_reg;  
+      // if (l0_ready_in_reg) begin
+      //   next_state = IDLE;
+      // end
+      //leul: i found this to be a little too slow idk if the new code is correct tho. 
+
+
+        if (lc_valid_in_reg) begin
+          l0_value_out_comb = lc_value_in_reg;
+          l0_addr_out_comb  = 64'(lc_addr_in_reg);
+
+        end else begin
+          l0_value_out_comb = cache_hc_value_out_reg;
+          l0_addr_out_comb  = 64'(cache_hc_addr_out_reg);
+
+          end
+        if (l0_ready_in_reg) begin      
           next_state = IDLE;
         end
       end
+    
 
       default: begin
         next_state = IDLE;
