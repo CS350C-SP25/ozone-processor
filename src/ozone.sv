@@ -22,7 +22,7 @@ module ozone (
     logic taken_out;
     logic [63:0] pc_out;
     logic [18:0] correction_offset_out;
-    uop_insn instruction_queue_in [INSTR_Q_WIDTH-1:0];
+    uop_insn [INSTR_Q_WIDTH-1:0] instruction_queue_in ;
     logic exec_ready;
 
     frontend fe (
@@ -53,12 +53,12 @@ module ozone (
         .clk_in(clk_in),
         .rst_N_in(rst_N_in),
         .instr_queue(instruction_queue_in),
-        .ready(exec_ready),
         .bcond_resolved_out(bcond_resolved_out),
         .pc_incorrect_out(pc_incorrect_out),  // this means that the PC that we had originally predicted was incorrect. We need to fix.
         .taken_out(taken_out),  // if the branch resolved as taken or not -- to update PHT and GHR
         .pc_out(pc_out), // pc that is currently in the exec phase (the one that just was resolved)
-        .correction_offset_out(correction_offset_out) // the offset of the correction from x_pc (could change this to be just the actual correct PC instead ??)
+        .correction_offset_out(correction_offset_out), // the offset of the correction from x_pc (could change this to be just the actual correct PC instead ??)
+        .ready_out(exec_ready)
     );
 
 endmodule

@@ -31,7 +31,7 @@ module frontend #(
     output logic [63:0] lc_addr_out,
     output logic [511:0] lc_value_out,
     output logic lc_we_out,
-    output uop_insn instruction_queue_in [INSTR_Q_WIDTH-1:0] 
+    output uop_insn [INSTR_Q_WIDTH-1:0] instruction_queue_in  
 );
     logic l1i_valid;
     logic l1i_ready;
