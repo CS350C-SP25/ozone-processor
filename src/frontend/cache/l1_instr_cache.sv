@@ -195,17 +195,7 @@ module l1_instr_cache #(
         // Casting to 64' achieves the same zero-padding result more robustly.
         l0_addr_out_comb  = 64'(lc_addr_in_reg);
         l0_value_out_comb = lc_value_in_reg;
-                  $display("[Time %0t][L1] Sending data to L0 | Addr: 0x%h | Value (first 8B): %h %h %h %h %h %h %h %h", 
-                 $time, 
-                 l0_addr_out_comb, 
-                 l0_value_out_comb[7:0], 
-                 l0_value_out_comb[15:8], 
-                 l0_value_out_comb[23:16], 
-                 l0_value_out_comb[31:24], 
-                 l0_value_out_comb[39:32], 
-                 l0_value_out_comb[47:40], 
-                 l0_value_out_comb[55:48], 
-                 l0_value_out_comb[63:56]);
+
         if (l0_ready_in_reg) begin
                     // cache_hc_ready_next = 1; 
 
