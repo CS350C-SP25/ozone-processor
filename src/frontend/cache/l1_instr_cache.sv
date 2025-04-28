@@ -193,8 +193,8 @@ module l1_instr_cache #(
         // The original code {{{64 - PADDR_BITS} {'b0}}, cache_hc_addr_out_reg} caused an error
         // because the replication count was potentially unsized.
         // Casting to 64' achieves the same zero-padding result more robustly.
-        l0_addr_out_comb  = 64'(cache_hc_addr_out_reg);
-        l0_value_out_comb = cache_hc_value_out_reg;
+        l0_addr_out_comb  = 64'(lc_addr_in_reg);
+        l0_value_out_comb = lc_value_in_reg;
                   $display("[Time %0t][L1] Sending data to L0 | Addr: 0x%h | Value (first 8B): %h %h %h %h %h %h %h %h", 
                  $time, 
                  l0_addr_out_comb, 
