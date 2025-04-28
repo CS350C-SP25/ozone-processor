@@ -116,19 +116,21 @@ module align_instructions #(
     input logic [CACHE_LINE_WIDTH*8-1:0] cacheline,
     output logic [INSTRUCTION_WIDTH-1:0] instr_out[SUPER_SCALAR_WIDTH-1:0]
 );
-  genvar i;
-  generate
-    for (i = 0; i < SUPER_SCALAR_WIDTH; i++) begin : instr_extract
-      assign instr_out[i] = offset + i < CACHE_LINE_WIDTH ? 
-                cacheline[offset + (i*4) + 31 -:INSTRUCTION_WIDTH]
-             : {
-                8'hD5,
-                8'h03,
-                8'h20,
-                8'h1F
-            };
-    end
-  endgenerate
+    genvar i;
+    generate
+        for (i = 0; i < SUPER_SCALAR_WIDTH; i++) begin : instr_extract
+            // Compute the byte offset for the start of the instruction
+            logic [$clog2(CACHE_LINE_WIDTH)-1:0] byte_start;
+            assign byte_start = offset + (i * 4);
+            assign instr_out[i] = (byte_start + 3 < CACHE_LINE_WIDTH) ? 
+                {
+                    cacheline[(byte_start + 3) * 8 +: 8], // MSB (byte 3)
+                    cacheline[(byte_start + 2) * 8 +: 8],
+                    cacheline[(byte_start + 1) * 8 +: 8],
+                    cacheline[(byte_start + 0) * 8 +: 8]  // LSB (byte 0)
+                } : {8'hD5, 8'h03, 8'h20, 8'h1F};
+        end
+    endgenerate
 endmodule
 
 `endif

@@ -174,6 +174,12 @@ module decode #(
         end else begin
             buffered <= '0;
             decode_ready <= 1'b0;
+
+            //also reset the queue idk if this is good tho
+            for (int i = 0; i < INSTR_Q_WIDTH; i++) begin
+                instruction_queue_in[i] <= '{uopcode: UOP_NOP, default: '0};
+                buffer[i] <= '{uopcode: UOP_NOP, default: '0};
+            end
         end
     end
 
@@ -183,10 +189,7 @@ module decode #(
         done = 1'b0;
         enq_idx = 0;
         for (int i = 0; i < INSTR_Q_WIDTH; i++) begin : fill_enq_next
-            enq_next[i] =  { 
-                UOP_NOP,
-                140'b0
-            };
+            enq_next[i] = '{uopcode: UOP_NOP, default: '0};
         end
         if (fetch_valid) begin
             for (int instr_idx = 0; instr_idx < SUPER_SCALAR_WIDTH; instr_idx++) begin : super_scalar_decode
@@ -371,6 +374,14 @@ module decode #(
                     end
                 endcase
             end
+    //debug
+    if (enq_idx > 0) begin
+                        $display("[Decode] Instr %d at PC 0x%h: opcode=%s, instr=0x%h", instr_idx,
+                             enq_next[enq_idx-1].pc, enq_next[enq_idx-1].uopcode.name(), fetched_ops[instr_idx]);
+                    end
+                    //debug
+
+
         end
         end
     end
