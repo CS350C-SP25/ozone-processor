@@ -2,7 +2,7 @@
 
 // just needs to wrap the generic cache and block when missed
 module l1_instr_cache #(
-    parameter int A = 1,
+    parameter int A = 3,
     parameter int B = 64,
     parameter int C = 1536,
     parameter int PADDR_BITS = 64
@@ -276,7 +276,7 @@ module l1_instr_cache #(
   logic cache_hc_valid_reg;
   logic cache_hc_ready_reg;
   logic [PADDR_BITS-1:0] cache_hc_addr_reg;
-  logic [64-1:0] cache_hc_value_reg;
+  logic [512-1:0] cache_hc_value_reg;
   logic cache_hc_we_reg;
   logic [B*8-1:0] cache_cache_line_reg;
   logic cache_cl_reg;
