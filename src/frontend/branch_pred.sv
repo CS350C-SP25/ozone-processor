@@ -94,7 +94,6 @@ module branch_pred #(
   l0_instruction_cache #(
       .SETS(8),
       .LINE_SIZE_BYTES(64),
-      .A(1),
       .PC_SIZE(64)
   ) l0 (
       .l1i_pc(l1i_addr_awaiting),  // address we check cache for

@@ -7,7 +7,7 @@ package uop_pkg;
   // Parameters for queue depth/width
   parameter int INSTR_Q_DEPTH = 32;
   parameter int INSTR_Q_WIDTH = 4;
-  typedef uop_branch [SUPER_SCALAR_WIDTH-1:0] branch_data_array;
+  typedef uop_branch branch_data_array [SUPER_SCALAR_WIDTH-1:0];
 
   typedef enum logic [4:0] {
     UOP_LOAD,
