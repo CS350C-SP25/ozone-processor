@@ -18,7 +18,7 @@ module decode #(
     input logic fetch_valid, //how many instructions from fetch are valid TODO implement this change
     input logic exe_ready,
     output logic decode_ready,
-    output uop_insn instruction_queue_in[INSTR_Q_WIDTH-1:0]
+    output uop_insn  instruction_queue_in [INSTR_Q_WIDTH-1:0]
 );
   uop_insn enq_next[INSTR_Q_WIDTH-1:0];
 
@@ -93,7 +93,7 @@ module decode #(
     ri.src.gpr = 5'b0;
     ri.src.is_sp = '0;
     ri.src.is_fp = '0;
-    ri.imm = {op_bits[30:29], op_bits[23:5]};
+    ri.imm = {op_bits[23:5], op_bits[30:29]};
     ri.set_nzcv = '0;
     set_data_ri(ri, uop_out.data);
     uop_out.valb_sel = '0;
@@ -188,6 +188,7 @@ module decode #(
         if (fetch_valid) begin
             for (int instr_idx = 0; instr_idx < SUPER_SCALAR_WIDTH; instr_idx++) begin : super_scalar_decode
             if (!done) begin
+
                 case (istable(fetched_ops[instr_idx]))
                     // Data Transfer
                     OPCODE_LDUR, OPCODE_STUR, OPCODE_F_LDUR, OPCODE_F_STUR: begin
@@ -368,6 +369,8 @@ module decode #(
                     end
                 endcase
             end
+                            $display("[Decode] Instr %d at PC 0x%h: opcode=%s, instr=0x%h", instr_idx,
+         instruction_queue_in[instr_idx].pc, instruction_queue_in[instr_idx].uopcode.name(), instr_idx);
         end
         end
     end
