@@ -187,12 +187,15 @@ module branch_pred #(
 
           done = 1;
         end else if (ras_instr[31:24] == 8'b01010100) begin  // assumption is bcond
-          // done = branch_taken;
-          // for now lets just always assume branch not taken we can adjust this later with a GHR and PHT
+          done = pht[pht_index] > 1;
           // offset is 5-23
           branch_data_next[instr_idx].branch_target = pc + ({{45{ras_instr[23]}}, ras_instr[23:5]} << 2) + 64'(instr_idx << 2); // MULTIPLIED BY FOUR
           branch_data_next[instr_idx].condition = ras_instr[3:0];
           branch_data_next[instr_idx].predict_taken = pht[pht_index] > 1;
+          l1i_addr_out_next = pc +
+        ({{38{ras_instr[25]}},
+          ras_instr[25:0]} << 2) +
+        64'(instr_idx << 2);
         end
       end
     end
@@ -205,8 +208,9 @@ module branch_pred #(
 
       //leul: for some reason this does not compute the right pc TODO
       //for now i will just advance pc + 8
-      l1i_addr_out_next = current_pc + (SUPER_SCALAR_WIDTH * 4);
-
+      l1i_addr_out_next = current_pc[$clog2(CACHE_LINE_WIDTH)-1:0] + 6'(SUPER_SCALAR_WIDTH * 4) <= CACHE_LINE_WIDTH ?
+           current_pc + (SUPER_SCALAR_WIDTH * 4) :
+           (current_pc & ~(CACHE_LINE_WIDTH-1)) + CACHE_LINE_WIDTH;
 
     end
   endfunction

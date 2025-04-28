@@ -29,7 +29,7 @@ logic [511:0] lc_value_out;
 logic lc_we_out;
 
 // Instantiate the DUT (entire ozone processor)
-ozone dut {
+ozone dut (
     .clk_in         (clk_in),
     .rst_N          (rst_N),
     .cs_N_in        (cs_N_in),
@@ -44,7 +44,7 @@ ozone dut {
     .lc_addr_out    (lc_addr_in), 
     .lc_value_out   (lc_value_in), 
     .lc_we_out      (lc_we_out) // can ignore this
-};
+);
 
 // Clock Generation
 localparam CLK_PERIOD = 10; // in ns
@@ -57,7 +57,7 @@ end
 initial begin
     rst_N = 1'b0;
     cs_N_in = 1'b1;
-    start = 1b'0;
+    start = 1'b0;
     start_pc = '0;
     lc_ready_in = 1'b0;
     lc_valid_in = 1'b0;
