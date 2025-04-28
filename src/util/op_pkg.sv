@@ -3,7 +3,7 @@
 package op_pkg;
 
     typedef logic [INSTRUCTION_WIDTH-1:0] instruction_four_byte;
-    typedef instruction_four_byte instruction_array [SUPER_SCALAR_WIDTH-1:0];
+    typedef instruction_four_byte [SUPER_SCALAR_WIDTH-1:0] instruction_array ;
     parameter int INSTRUCTION_WIDTH = 32;
     parameter int SUPER_SCALAR_WIDTH = 2;
 
