@@ -70,3 +70,6 @@ fetch:
 
 bp:
 	$(VERILATOR) $(VFLAGS) --cc ./branch_pred.sv
+
+frontend:
+	$(VERILATOR) $(VFLAGS) --cc ./frontend.sv

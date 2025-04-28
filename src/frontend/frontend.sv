@@ -35,13 +35,14 @@ module frontend #(
 );
     logic l1i_valid;
     logic l1i_ready;
-    logic [7:0] l1i_cacheline[CACHE_LINE_WIDTH-1:0];
+    logic [CACHE_LINE_WIDTH*8-1:0] l1i_cacheline;
     logic [63:0] pred_pc;
     uop_branch decode_branch_data [SUPER_SCALAR_WIDTH-1:0];
     logic pc_valid_out;
     logic bp_l1i_valid_out;
+    logic [63:0] bp_addr_out;
     logic [63:0] l1i_addr_out;
-    logic [7:0] l0_cacheline [CACHE_LINE_WIDTH-1:0];
+    logic [CACHE_LINE_WIDTH*8-1:0] l0_cacheline;
     logic [INSTRUCTION_WIDTH-1:0] fetched_ops [SUPER_SCALAR_WIDTH-1:0];
     logic fetch_valid;
     logic fetch_ready;
@@ -76,7 +77,7 @@ module frontend #(
         .pc_valid_out(pc_valid_out),  // sending a predicted instruction address. 
         .bp_l1i_valid_out(bp_l1i_valid_out), //fetch uses this + pc valid out to determine if waiting for l1i or 
         .bp_l0_valid(bp_l0_valid),
-        .l1i_addr_out(l1i_addr_out),
+        .l1i_addr_out(bp_addr_out),
         .l0_cacheline(l0_cacheline) // this gets fed to fetch
     );
 
@@ -94,7 +95,7 @@ module frontend #(
         .cs_N_in(cs_N_in),
         .flush_in(x_pc_incorrect),
         .l0_ready_in(1'b1),
-        .l0_addr_in(l1i_addr_out),
+        .l0_addr_in(bp_addr_out),
         // signals that go to l0
         .l0_valid_out(l1i_valid),
         .l0_ready_out(l1i_ready),
@@ -126,7 +127,8 @@ module frontend #(
         .bp_l0_valid(pc_valid_out & ~bp_l1i_valid_out),                                 // branch prediction's cacheline is valid
         .l1i_valid(l1i_valid),
         .pc_valid(pc_valid_out),  // all pcs valid
-        .pred_pc(pred_pc),                              // predicted pc
+        .pred_pc(pred_pc), 
+        .decode_ready(decode_ready),                             // predicted pc
         .fetched_instrs(fetched_ops), // instrns to send to decode
         .fetch_valid(fetch_valid),                                // valid when done (sent to decode)
         .fetch_ready(fetch_ready),                                // fetch is ready to receive cacheline (sent to bp)
