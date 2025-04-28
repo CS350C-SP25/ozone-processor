@@ -1,5 +1,6 @@
 `include "../packages/reg_pkg.sv"
-
+`ifndef REG_FILE_SV
+`define REG_FILE_SV
 import reg_pkg::*;
 
 module reg_file #(
@@ -16,6 +17,7 @@ module reg_file #(
     input  logic [$clog2(NUM_PHYS_REGS)-1:0] read_index [NUM_READ_PORTS-1:0],
     // Read data outputs: an array to output the register contents
     output logic [WORD_SIZE-1:0] read_data [NUM_READ_PORTS-1:0],
+    output logic [NUM_PHYS_REGS-1:0] scoreboard, // Whether its been updated or not
     // Write ports as defined in the package
     input  RegFileWritePort [NUM_WRITE_PORTS-1:0] write_ports,
     input NZCVWritePort nzcv_write_port // NZCV write port
@@ -30,6 +32,7 @@ module reg_file #(
     always_comb begin
         for (int i = 0; i < NUM_READ_PORTS; i++) begin
             if (read_en[i]) begin
+                $display("Reading from register %0d: %0h, storing in read_data[%0d]", read_index[i], registers[ read_index[i] ], i);
                 read_data[i] = registers[ read_index[i] ];
             end else begin
                 read_data[i] = '0;  // Default output when disabled (customize as needed)
@@ -39,24 +42,29 @@ module reg_file #(
 
     // Synchronous logic for writing to registers and reset behavior.
     always_ff @(posedge clk) begin
-        if (rst) begin
+        if (~rst) begin
             // Reset all registers to zero
             for (int i = 0; i < NUM_PHYS_REGS; i++) begin
                 registers[i] <= '0;
+                scoreboard[i] <= '0;
             end
         end else begin
             // For each write port, if enabled, perform the write operation.
             for (int i = 0; i < NUM_WRITE_PORTS; i++) begin
                 if (write_ports[i].en) begin
+                    $display("Writing to register %0d: %0h", write_ports[i].index_in, write_ports[i].data_in);
                     registers[ write_ports[i].index_in ] <= write_ports[i].data_in;
+                    scoreboard[ write_ports[i].index_in ] <= 1'b1; // Mark as valid
                 end
             end
             if (nzcv_write_port.valid) begin
                 // Write to NZCV register if valid
+                $display("Writing NZCV to register %0d: %0h", nzcv_write_port.index_in, 1'b1);
                 registers[nzcv_write_port.index_in] <= nzcv_write_port.nzcv;
+                scoreboard[nzcv_write_port.index_in] <= 1'b1; // Mark as valid
             end
         end
     end
 
 endmodule
-
+`endif // REG_FILE_SV

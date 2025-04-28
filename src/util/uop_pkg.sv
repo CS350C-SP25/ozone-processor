@@ -28,6 +28,7 @@ package uop_pkg;
         UOP_FSUB,
         UOP_CHECK_RET,
         UOP_ADRP_MOV,
+        UOP_NOP,
         UOP_HLT // NOPS wont be sent at all, HLT is exception will need.
     } uop_code;
 

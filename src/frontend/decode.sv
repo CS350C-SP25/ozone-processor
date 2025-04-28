@@ -12,193 +12,165 @@ module decode #(
     input logic clk_in,
     input logic rst_N_in,
     input logic flush_in,
-    input logic [INSTRUCTION_WIDTH-1:0] fetched_ops [SUPER_SCALAR_WIDTH-1:0],
-    input uop_branch branch_data [SUPER_SCALAR_WIDTH-1:0],
+    input logic [INSTRUCTION_WIDTH-1:0] fetched_ops[SUPER_SCALAR_WIDTH-1:0],
+    input uop_branch branch_data[SUPER_SCALAR_WIDTH-1:0],
     input logic [63:0] pc,
     input logic fetch_valid, //how many instructions from fetch are valid TODO implement this change
     input logic exe_ready,
     output logic decode_ready,
-    output logic decode_valid,
-    output logic [$clog2(INSTR_Q_WIDTH+1)-1:0] instruction_queue_pushes,
     output uop_insn instruction_queue_in [INSTR_Q_WIDTH-1:0]
 );
-    uop_insn enq_next [INSTR_Q_WIDTH-1:0];
-    logic [$clog2(INSTR_Q_WIDTH+1)-1:0] enq_width;
+  uop_insn enq_next[INSTR_Q_WIDTH-1:0];
 
-    uop_insn buffer [INSTR_Q_WIDTH-1:0];
-    logic [$clog2(INSTR_Q_WIDTH+1)-1:0] buffer_width;
-    logic buffered;
+  uop_insn buffer[INSTR_Q_WIDTH-1:0];
+  logic buffered;
 
-    function automatic void decode_m_format_add(
-        input logic [INSTRUCTION_WIDTH-1:0] op_bits,
-        output uop_insn uop_out
-    );
-        uop_ri ri;
-        ri.dst.gpr = op_bits[4:0];
-        ri.dst.is_sp = '0;
-        ri.dst.is_fp = '0; // if we are adding then this isnt a fop 
-        ri.src.gpr = op_bits[9:5];
-        ri.src.is_sp = &op_bits[9:5];
-        ri.src.is_fp = '0;
-        ri.imm = {12'b0, op_bits[20:12]};
-        ri.set_nzcv = '0;
-        set_data_ri(ri, uop_out.data);
-        uop_out.valb_sel = '0; //use imm (there is no src2)
-        uop_out.mem_read = '0;
-        uop_out.mem_write = '0;
-        uop_out.w_enable = '1;
-        uop_out.uopcode = op_bits[20] ? UOP_SUB : UOP_ADD; //add and sub are unsigned
-        uop_out.tx_begin = 1'b1;
-        uop_out.tx_end = 1'b0;
-    endfunction
+  function automatic void decode_m_format_add(input logic [INSTRUCTION_WIDTH-1:0] op_bits,
+                                              output uop_insn uop_out);
+    uop_ri ri;
+    ri.dst.gpr = op_bits[4:0];
+    ri.dst.is_sp = '0;
+    ri.dst.is_fp = '0;  // if we are adding then this isnt a fop 
+    ri.src.gpr = op_bits[9:5];
+    ri.src.is_sp = &op_bits[9:5];
+    ri.src.is_fp = '0;
+    ri.imm = {12'b0, op_bits[20:12]};
+    ri.set_nzcv = '0;
+    set_data_ri(ri, uop_out.data);
+    uop_out.valb_sel = '0;  //use imm (there is no src2)
+    uop_out.mem_read = '0;
+    uop_out.mem_write = '0;
+    uop_out.w_enable = '1;
+    uop_out.uopcode = op_bits[20] ? UOP_SUB : UOP_ADD;  //add and sub are unsigned
+    uop_out.tx_begin = 1'b1;
+    uop_out.tx_end = 1'b0;
+  endfunction
 
-    function automatic void decode_m_format_mem(
-        input logic[INSTRUCTION_WIDTH-1:0] op_bits,
-        output uop_insn uop_out 
-    );
-        uop_ri ri;
-        ri.dst.gpr = op_bits[4:0];
-        ri.dst.is_sp = '0;
-        ri.dst.is_fp = op_bits[26];
-        ri.src.gpr = op_bits[20:12] == 0 ? op_bits[9:5] : op_bits[4:0]; //if we add we store the add result into dst, then we reuse dst
-        ri.src.is_sp = op_bits[20:12] == 0 ? &op_bits[9:5] : '0;
-        ri.src.is_fp = '0;
-        ri.imm = 21'b0;
-        ri.hw = 2'b0;
-        ri.set_nzcv = '0;
-        set_data_ri(ri, uop_out.data);
-        uop_out.valb_sel = '0;
-    endfunction
+  function automatic void decode_m_format_mem(input logic [INSTRUCTION_WIDTH-1:0] op_bits,
+                                              output uop_insn uop_out);
+    uop_ri ri;
+    ri.dst.gpr = op_bits[4:0];
+    ri.dst.is_sp = '0;
+    ri.dst.is_fp = op_bits[26];
+    ri.src.gpr = op_bits[20:12] == 0 ? op_bits[9:5] : op_bits[4:0]; //if we add we store the add result into dst, then we reuse dst
+    ri.src.is_sp = op_bits[20:12] == 0 ? &op_bits[9:5] : '0;
+    ri.src.is_fp = '0;
+    ri.imm = 21'b0;
+    ri.hw = 2'b0;
+    ri.set_nzcv = '0;
+    set_data_ri(ri, uop_out.data);
+    uop_out.valb_sel = '0;
+  endfunction
 
-    function automatic void decode_i1_format(
-        input logic[INSTRUCTION_WIDTH-1:0] op_bits,
-        output uop_insn uop_out
-    );
-        uop_ri ri;
-        ri.dst.gpr = op_bits[4:0];
-        ri.dst.is_sp = '0;
-        ri.dst.is_fp = '0;
-        ri.src.gpr = 5'b0;
-        ri.src.is_sp = '0;
-        ri.src.is_fp = '0;
-        ri.imm = {5'b0, op_bits[20:5]};
-        ri.hw = op_bits[22:21];
-        ri.set_nzcv = '0;
-        set_data_ri(ri, uop_out.data);
-        uop_out.valb_sel = '0;
-        uop_out.mem_read = '0;
-        uop_out.mem_write = '0;
-        uop_out.w_enable = '1;
-        uop_out.tx_begin = 1'b1;
-        uop_out.tx_end = 1'b1;
-    endfunction
+  function automatic void decode_i1_format(input logic [INSTRUCTION_WIDTH-1:0] op_bits,
+                                           output uop_insn uop_out);
+    uop_ri ri;
+    ri.dst.gpr = op_bits[4:0];
+    ri.dst.is_sp = '0;
+    ri.dst.is_fp = '0;
+    ri.src.gpr = 5'b0;
+    ri.src.is_sp = '0;
+    ri.src.is_fp = '0;
+    ri.imm = {5'b0, op_bits[20:5]};
+    ri.hw = op_bits[22:21];
+    ri.set_nzcv = '0;
+    set_data_ri(ri, uop_out.data);
+    uop_out.valb_sel = '0;
+    uop_out.mem_read = '0;
+    uop_out.mem_write = '0;
+    uop_out.w_enable = '1;
+    uop_out.tx_begin = 1'b1;
+    uop_out.tx_end = 1'b1;
+  endfunction
 
-    function automatic void decode_i2_format(
-        input logic[INSTRUCTION_WIDTH-1:0] op_bits,
-        output uop_insn uop_out
-    );
-        uop_ri ri;
-        ri.dst.gpr = op_bits[4:0];
-        ri.dst.is_sp = '0;
-        ri.dst.is_fp = '0;
+  function automatic void decode_i2_format(input logic [INSTRUCTION_WIDTH-1:0] op_bits,
+                                           output uop_insn uop_out);
+    uop_ri ri;
+    ri.dst.gpr = op_bits[4:0];
+    ri.dst.is_sp = '0;
+    ri.dst.is_fp = '0;
 
-        ri.src.gpr = 5'b0;
-        ri.src.is_sp = '0;
-        ri.src.is_fp = '0;
-        ri.imm = {op_bits[30:29], op_bits[23:5]};
-        ri.set_nzcv = '0;
-        set_data_ri(ri, uop_out.data);
-        uop_out.valb_sel = '0;
-        uop_out.mem_read = '0;
-        uop_out.mem_write = '0;
-        uop_out.w_enable = '1;
-        uop_out.tx_begin = 1'b1;
-        uop_out.tx_end = 1'b1;
-    endfunction
+    ri.src.gpr = 5'b0;
+    ri.src.is_sp = '0;
+    ri.src.is_fp = '0;
+    ri.imm = {op_bits[30:29], op_bits[23:5]};
+    ri.set_nzcv = '0;
+    set_data_ri(ri, uop_out.data);
+    uop_out.valb_sel = '0;
+    uop_out.mem_read = '0;
+    uop_out.mem_write = '0;
+    uop_out.w_enable = '1;
+    uop_out.tx_begin = 1'b1;
+    uop_out.tx_end = 1'b1;
+  endfunction
 
-    function automatic void decode_rr_format(
-        input logic[INSTRUCTION_WIDTH-1:0] op_bits,
-        output uop_insn uop_out
-    );
-        uop_rr rr;
-        rr.dst.gpr = istable(op_bits) == OPCODE_CMN ? 5'h1f : op_bits[4:0];
-        rr.dst.is_sp = '0;
-        rr.dst.is_fp = op_bits[26];
-        rr.src1.gpr = op_bits[9:5];
-        rr.src1.is_sp = '0;
-        rr.src1.is_fp = op_bits[26];
-        rr.src2.gpr = op_bits[20:16];
-        rr.src2.is_sp = '0;
-        rr.src2.is_fp = op_bits[26];
-        set_data_rr(rr, uop_out.data);
-        uop_out.valb_sel = 1'b1;
-        uop_out.mem_read = '0;
-        uop_out.mem_write = '0;
-        uop_out.w_enable = '1;
-        uop_out.tx_begin = 1'b1;
-        uop_out.tx_end = 1'b1;
-    endfunction
+  function automatic void decode_rr_format(input logic [INSTRUCTION_WIDTH-1:0] op_bits,
+                                           output uop_insn uop_out);
+    uop_rr rr;
+    rr.dst.gpr = istable(op_bits) == OPCODE_CMN ? 5'h1f : op_bits[4:0];
+    rr.dst.is_sp = '0;
+    rr.dst.is_fp = op_bits[26];
+    rr.src1.gpr = op_bits[9:5];
+    rr.src1.is_sp = '0;
+    rr.src1.is_fp = op_bits[26];
+    rr.src2.gpr = op_bits[20:16];
+    rr.src2.is_sp = '0;
+    rr.src2.is_fp = op_bits[26];
+    set_data_rr(rr, uop_out.data);
+    uop_out.valb_sel = 1'b1;
+    uop_out.mem_read = '0;
+    uop_out.mem_write = '0;
+    uop_out.w_enable = '1;
+    uop_out.tx_begin = 1'b1;
+    uop_out.tx_end = 1'b1;
+  endfunction
 
-    function automatic void decode_ri_format(
-        input logic[INSTRUCTION_WIDTH-1:0] op_bits,
-        output uop_insn uop_out
-    );
-        uop_ri ri;
-        ri.dst.gpr = op_bits[4:0];
-        ri.dst.is_sp = &op_bits[4:0] & (op_bits[31:22] == 10'b1001000100 | op_bits[31:22] == 10'b1101000100) & &op_bits[9:5];
-        ri.dst.is_fp = op_bits[26];
-        ri.src.gpr = op_bits[9:5];
-        ri.src.is_sp = &op_bits[9:5] & (op_bits[31:22] == 10'b1001000100 | op_bits[31:22] == 10'b1101000100); //ADD or SUB
-        ri.src.is_fp = op_bits[26];
-        ri.imm = {9'b0, op_bits[21:10]};
-        ri.set_nzcv = '0;
-        set_data_ri(ri, uop_out.data);
-        uop_out.valb_sel = '0;
-        uop_out.mem_read = '0;
-        uop_out.mem_write = '0;
-        uop_out.w_enable = '1;
-        uop_out.tx_begin = 1'b1;
-        uop_out.tx_end = 1'b1;
-    endfunction
+  function automatic void decode_ri_format(input logic [INSTRUCTION_WIDTH-1:0] op_bits,
+                                           output uop_insn uop_out);
+    uop_ri ri;
+    ri.dst.gpr = op_bits[4:0];
+    ri.dst.is_sp = &op_bits[4:0] & (op_bits[31:22] == 10'b1001000100 | op_bits[31:22] == 10'b1101000100) & &op_bits[9:5];
+    ri.dst.is_fp = op_bits[26];
+    ri.src.gpr = op_bits[9:5];
+    ri.src.is_sp = &op_bits[9:5] & (op_bits[31:22] == 10'b1001000100 | op_bits[31:22] == 10'b1101000100); //ADD or SUB
+    ri.src.is_fp = op_bits[26];
+    ri.imm = {9'b0, op_bits[21:10]};
+    ri.set_nzcv = '0;
+    set_data_ri(ri, uop_out.data);
+    uop_out.valb_sel = '0;
+    uop_out.mem_read = '0;
+    uop_out.mem_write = '0;
+    uop_out.w_enable = '1;
+    uop_out.tx_begin = 1'b1;
+    uop_out.tx_end = 1'b1;
+  endfunction
 
     always_ff @(posedge clk_in) begin : decode_fsm
         if (rst_N_in && !flush_in) begin
             if (fetch_valid) begin
                 if (exe_ready) begin
                     instruction_queue_in <= buffered ? buffer : enq_next;
-                    instruction_queue_pushes <= buffered ? buffer_width : enq_width;
                     buffered <= buffered; //this should be 0 if the fsm is working correctly 
                     buffer <= enq_next; 
-                    buffer_width <= enq_width;
-                    decode_valid <= 1'b1;
                     decode_ready <= 1'b1;
                 end else begin
                     buffer <= enq_next;
-                    buffer_width <= enq_width;
                     buffered <= 1'b1;
-                    decode_valid <= 1'b0;
                     decode_ready <= 1'b0;
                 end
             end else begin
                 if (exe_ready) begin
-                    instruction_queue_in <= buffer;
-                    instruction_queue_pushes <= buffered ? buffer_width : '0;
+                    instruction_queue_in <= buffered ? buffer : enq_next;
                     buffered <= '0;
-                    decode_valid <= '1;
                     decode_ready <= '1;
                 end else begin
-                    instruction_queue_pushes <= '0;
                     decode_ready <= ~buffered;
                     buffered <= buffered;
-                    decode_valid <= '0;
                 end
             end
         end else begin
             buffered <= '0;
-            buffer_width <= '0;
-            decode_valid <= 1'b0;
             decode_ready <= 1'b0;
-            instruction_queue_pushes <= '0;
         end
     end
 
@@ -207,11 +179,14 @@ module decode #(
     always_comb begin : decode_comb_logic
         done = 1'b0;
         enq_idx = 0;
-        enq_width = '0;
         for (int i = 0; i < INSTR_Q_WIDTH; i++) begin : fill_enq_next
-            enq_next[i] = '0;
+            enq_next[i] =  { 
+                UOP_NOP,
+                140'b0
+            };
         end
-        for (int instr_idx = 0; instr_idx < SUPER_SCALAR_WIDTH; instr_idx++) begin : super_scalar_decode
+        if (fetch_valid) begin
+            for (int instr_idx = 0; instr_idx < SUPER_SCALAR_WIDTH; instr_idx++) begin : super_scalar_decode
             if (!done) begin
                 case (istable(fetched_ops[instr_idx]))
                     // Data Transfer
@@ -394,7 +369,7 @@ module decode #(
                 endcase
             end
         end
-        enq_width = enq_idx;
+        end
     end
 
 endmodule

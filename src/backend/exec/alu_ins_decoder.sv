@@ -25,6 +25,7 @@ module alu_ins_decoder (
     output rob_writeback writeback_out
 );
     uop_ri reg_imm;
+    uop_rr reg_rr;
     logic [63:0] result_add, result_sub, result_and, result_or, result_eor, result_mvn;
     logic [63:0] result_ubfm, result_asr, result_movz, result_movk;
     logic [63:0] result_final;
@@ -53,8 +54,8 @@ module alu_ins_decoder (
         result_mvn  = ~r1;
         result_ubfm = (r0 >> insn_in.uop.data[5:0]) & ((1 << (insn_in.uop.data[11:6] - insn_in.uop.data[5:0] + 1)) - 1);
         result_asr  = $signed(r0) >>> r1;
-        result_movz = r1 << (reg_imm.hw * 16);
-        result_movk = (r0 & ~(64'hFFFF << (reg_imm.hw * 16))) | (r1 << (reg_imm.hw * 16));
+        result_movz = r2 << (reg_imm.hw * 16);
+        result_movk = (r0 & ~(64'hFFFF << (reg_imm.hw * 16))) | (r2 << (reg_imm.hw * 16));
         writeback_out = '0;
 
         // Default result
@@ -77,10 +78,12 @@ module alu_ins_decoder (
             reg_pkt_out.index_in = insn_in.dest_reg_phys;
             reg_pkt_out.data_in  = result_final;
             reg_pkt_out.en       = 1'b1;
+            $display("[ALU] Writing to register %0d: %0h", insn_in.dest_reg_phys, result_final);
 
             get_data_ri(insn_in.uop.data, reg_imm);
+            get_data_rr(insn_in.uop.data, reg_rr);
 
-            if (reg_imm.set_nzcv) begin
+            if ((insn_in.uop.valb_sel && reg_rr.set_nzcv) || (~insn_in.uop.valb_sel && reg_imm.set_nzcv)) begin
                 flags[0] = result_final[63];               // N
                 flags[1] = (result_final == 64'd0);        // Z
                 flags[2] = nzcv_in[2];

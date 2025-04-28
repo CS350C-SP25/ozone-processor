@@ -1,4 +1,9 @@
 `include "../packages/rob_pkg.sv"
+`ifndef RAT_SV
+`define RAT_SV
+import rob_pkg::*;
+import reg_pkg::*;
+import uop_pkg::*;
 
 module rat #(
     parameter NUM_PHYS_REGS = reg_pkg::NUM_PHYS_REGS,
@@ -16,12 +21,11 @@ module rat #(
     output rob_pkg::rob_entry [uop_pkg::INSTR_Q_WIDTH-1:0] rob_data,
     output logic rob_data_valid,
     input logic rob_ready,
-
-    // from FRL
+   
+	  // from FRL
     output logic [3*uop_pkg::INSTR_Q_WIDTH-1:0] frl_ready,  // we consumed the values (6 per cycle)
     input logic [3*uop_pkg::INSTR_Q_WIDTH-1:0][$clog2(NUM_PHYS_REGS) - 1:0] free_register_data,
     input logic frl_valid,  // all regs are full already, just wait it out
-
     // for intermediate writing
     output reg_pkg::RegFileWritePort [uop_pkg::INSTR_Q_WIDTH-1:0] regfile
 );
@@ -83,7 +87,9 @@ module rat #(
             // TODO 
           end
         end
-        else begin  // we have an intermediate
+       else if (instr[i].uopcode != UOP_HLT) begin  // we have an intermediate
+          get_data_ri(instr[i].data, regs_ri_in[i]);
+
           if (!reg_valid[regs_ri_in[i].src.gpr]) begin
             $display("UH OH THIS REG DOESNT HAVE ANYTHING VALID IN IT; basically NOBODYS USED IT YET");
           end
@@ -92,7 +98,8 @@ module rat #(
           src1 = regs_ri_in[i].src;
           set_nzcv = regs_ri_in[i].set_nzcv;
           src2 = free_register_data[2+i];  // intermediate phys reg
-
+          $display("Allocated %0d->%0d %0d->%0d %0d for RRI uopcode 0x%0h", 
+            dst, free_register_data[i], src1, store[src1], src2, instr[i].uopcode);
           regFileOut[i].index_in <= free_register_data[2+i];
           regFileOut[i].en       <= 1;
           regFileOut[i].data_in  <= 64'(regs_ri_in[i].imm);
@@ -113,7 +120,7 @@ module rat #(
         outputs[i].r2_reg_phys   <= store[src2];
         outputs[i].dest_reg_phys <= free_register_data[0*uop_pkg::INSTR_Q_WIDTH+i];
         outputs[i].nzcv_reg_phys <= set_nzcv ? free_register_data[2*uop_pkg::INSTR_Q_WIDTH+i] : store[NUM_ARCH_REGS];
-        outputs[i].status        <= ISSUED;
+        outputs[i].status        <= READY;
 
         if (making_progress) begin
           reg_valid[dst.gpr] <= 1;
@@ -127,3 +134,4 @@ module rat #(
     end
   end
 endmodule
+`endif // RAT_SV

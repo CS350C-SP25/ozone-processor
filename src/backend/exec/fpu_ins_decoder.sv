@@ -73,9 +73,9 @@ module fpu_ins_decoder #(
                 cycle_expiration <= cycle_count + (is_fmul ? FP_MULT_LATENCY : FP_ADD_LATENCY);
                 ready <= 0;
             end else begin
-                ready <= (cycle_count == cycle_expiration);
+                ready <= ~ready ? (cycle_count == cycle_expiration) : 1;
             end
-            ready_out <= ready && fpu_valid;
+            ready_out <= ready || fpu_valid;
         end
     end
 

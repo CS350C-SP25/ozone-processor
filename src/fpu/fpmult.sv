@@ -1,3 +1,5 @@
+`ifndef FPMULT_SV
+`define FPMULT_SV
 // FSM implementation of fpmult, takes 13 cycles
 // TODO implement combinational FPU that takes 1 cycle
 
@@ -611,3 +613,4 @@ module leading_zero_cap #(parameter int P, parameter int Q) (
 );
     assign max_exp_shift = lz > {{(32-(Q+1)){1'b0}}, exp_in} ? {{(32-(Q+1)){1'b0}}, exp_in} : lz;
 endmodule
+`endif

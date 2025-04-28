@@ -55,6 +55,9 @@ l1d.sh
 *.pof
 *.ptf.*
 *.qar
+*.qpf
+*.qsf
+*.qdf
 *.qarlog
 *.qws
 *.rpt

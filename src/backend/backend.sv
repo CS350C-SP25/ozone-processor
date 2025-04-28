@@ -2,7 +2,7 @@
 `include "./registers/rrat.sv"
 `include "./registers/frl.sv"
 `include "./registers/reg_file.sv"
-`include "./packages/rob_pkg"
+`include "./packages/rob_pkg.sv"
 `include "./insn_ds/reorder_buffer.sv"
 `include "./exec/alu_ins_decoder.sv"
 `include "./exec/fpu_ins_decoder.sv"
@@ -14,7 +14,7 @@ import rob_pkg::*;
 module backend(
     input logic clk_in,
     input logic rst_N_in,
-    uop_pkg::uop_insn [uop_pkg::INSTR_Q_WIDTH-1:0] instr_queue,
+    input uop_pkg::uop_insn [uop_pkg::INSTR_Q_WIDTH-1:0] instr_queue,
 
     // ** Signals to Branch Predictor **
     output logic bcond_resolved_out,
@@ -22,6 +22,7 @@ module backend(
     output logic taken_out,  // if the branch resolved as taken or not -- to update PHT and GHR
     output logic [63:0] pc_out, // pc that is currently in the exec phase (the one that just was resolved)
     output logic [18:0] correction_offset_out, // the offset of the correction from x_pc (could change this to be just the actual correct PC instead ??)
+    output logic ready_out // this is the ready signal for the backend to send to the fetch stage
 );
 
     // Interconnect signals (a subset, connect as needed)
@@ -45,6 +46,19 @@ module backend(
     is_pkg::exec_packet alu_insn_pkt, fpu_insn_pkt, lsu_insn_pkt, bru_insn_pkt;
     rob_pkg::rob_writeback alu_wb_out, fpu_wb_out, lsu_wb_out, bru_wb_out;
     logic alu_ready, fpu_ready, lsu_ready, bru_ready;
+    logic [reg_pkg::NUM_PHYS_REGS-1:0] scoreboard;
+    logic rob_ready_out;
+
+    rob_bru bru_writeback_out;
+    rob_bru bru_writeback_in;
+    logic bru_wb_valid_out;
+    logic bru_wb_valid_in;
+    logic [$clog2(rob_pkg::ROB_ENTRIES)-1:0] bru_wb_ptr_in;
+
+    assign bru_wb_valid_in = bru_writeback_in.bcond_resolved_out;
+    assign bru_wb_ptr_in = bru_insn_pkt.ptr;
+
+    assign ready_out = rob_ready_out && frl_valid;
 
     assign read_en = {{4{alu_insn.valid}}, {3{fpu_insn.valid}}, 1'b0, {3{lsu_insn.valid}}, 1'b0, {4{bru_insn.valid}}};
     assign read_index = {
@@ -59,9 +73,9 @@ module backend(
         alu_insn.ptr, 
         alu_insn.dest_reg_phys, 
         alu_insn.nzcv_reg_phys,
-        read_data[0], 
-        read_data[1],
-        read_data[2]
+        read_data[15], 
+        read_data[14],
+        read_data[13]
     };
     assign fpu_insn_pkt = {
         fpu_insn.valid, 
@@ -69,9 +83,9 @@ module backend(
         fpu_insn.ptr, 
         fpu_insn.dest_reg_phys, 
         fpu_insn.nzcv_reg_phys,
-        read_data[4], 
-        read_data[5],
-        read_data[6]
+        read_data[11], 
+        read_data[10],
+        read_data[9]
     };
     assign lsu_insn_pkt = {
         lsu_insn.valid, 
@@ -79,9 +93,9 @@ module backend(
         lsu_insn.ptr, 
         lsu_insn.dest_reg_phys,
         lsu_insn.nzcv_reg_phys, 
-        read_data[8], 
-        read_data[9],
-        read_data[10]
+        read_data[7], 
+        read_data[6],
+        read_data[5]
     };
     assign bru_insn_pkt = {
         bru_insn.valid, 
@@ -89,9 +103,9 @@ module backend(
         bru_insn.ptr, 
         bru_insn.dest_reg_phys, 
         bru_insn.nzcv_reg_phys,
-        read_data[12], 
-        read_data[13],
-        read_data[14]
+        read_data[3], 
+        read_data[2],
+        read_data[1]
     };
 
     // RRAT
@@ -150,20 +164,27 @@ module backend(
         .lsu_ready_in(lsu_ready),
         .bru_ready_in(bru_ready),
         .writeback_in('{alu_wb_out, lsu_wb_out, bru_wb_out, fpu_wb_out}),
+        .scoreboard_in(scoreboard),
+        .bru_writeback_in(bru_writeback_in),
+        .bru_wb_valid_in(bru_wb_valid_in),
+        .bru_wb_ptr_in(bru_wb_ptr_in),
 
         .alu_insn_out(alu_insn),
         .fpu_insn_out(fpu_insn),
         .lsu_insn_out(lsu_insn),
         .bru_insn_out(bru_insn),
         .rrat_update_out(rrat_update_entries),
-        .rrat_update_valid_out(rrat_update_valid)
+        .rrat_update_valid_out(rrat_update_valid),
+        .bru_writeback_out(bru_writeback_out),
+        .bru_wb_valid_out(bru_wb_valid_out),
+        .rob_ready_out(rob_ready_out)
     );
 
     // ALU
     RegFileWritePort alu_reg_pkt;
     NZCVWritePort alu_nzcv;
     logic [3:0] alu_nzcv_flags;
-    assign alu_nzcv_flags = read_data[3][3:0]; // NZCV flags from the register file
+    assign alu_nzcv_flags = read_data[12][3:0]; // NZCV flags from the register file
 
     alu_ins_decoder alu_decoder (
         .clk_in(clk_in),
@@ -177,7 +198,7 @@ module backend(
 
     // FPU
     RegFileWritePort fpu_reg_pkt;
-    logic [reg_pkg::WORD_SIZE-1:0] fpu_result;
+    logic [reg_pkg::WORD_SIZE-1:0] fpmult_result, fpadder_result;
     logic [reg_pkg::WORD_SIZE-1:0] fpu_a_out;
     logic [reg_pkg::WORD_SIZE-1:0] fpu_b_out;
     logic fpmult_valid_out, fpadder_valid_out;
@@ -188,7 +209,7 @@ module backend(
         .rst_N_in(rst_N_in),
         .flush_in(1'b0),
         .insn_in(fpu_insn_pkt),
-        .fpu_result(fpu_result),
+        .fpu_result(fpmult_result_valid ? fpmult_result : fpadder_result),
         .fpu_valid(fpmult_result_valid | fpadder_result_valid),
         .ready_out(fpu_ready),
         .reg_pkt_out(fpu_reg_pkt),
@@ -211,7 +232,7 @@ module backend(
         .subtract('0),
 
         // Output signals
-        .out(fpu_result),
+        .out(fpadder_result),
         .valid_out(fpadder_result_valid),
         .underflow_flag(),
         .overflow_flag(),
@@ -226,7 +247,7 @@ module backend(
         .y_in(fpu_b_out),     // input Y: y_in[15] is the sign bit
         .round_in(1),  // rounding mode specifier
         .start_in(fpmult_valid_out),        // signal to start multiplication
-        .p_out(fpu_result),  // output P: p_out[15] is the sign bit
+        .p_out(fpmult_result),  // output P: p_out[15] is the sign bit
         .oor_out(), // out-of-range indicator vector
         .done_out(fpmult_result_valid)       // signal that outputs are ready
     );
@@ -255,12 +276,19 @@ module backend(
     logic [18:0] branch_offset;
     logic branch_taken;
     logic [3:0] bru_nzcv_flags;
-    assign taken_out = branch_taken;
-    assign pc_out = bru_insn_pkt.uop.pc;
-    assign correction_offset_out = branch_offset;
-    assign pc_incorrect_out = bru_insn_pkt.uop.data.predict_taken != branch_taken;
-    assign bcond_resolved_out = bru_insn_pkt.valid;
+    assign bru_writeback_in.taken_out = branch_taken;
+    assign bru_writeback_in.pc_out = bru_insn_pkt.uop.pc;
+    assign bru_writeback_in.correction_offset_out = branch_offset;
+    assign bru_writeback_in.pc_incorrect_out = bru_insn_pkt.uop.data.predict_taken != branch_taken;
+    assign bru_writeback_in.bcond_resolved_out = bru_insn_pkt.valid;
     assign bru_nzcv_flags = read_data[15][3:0]; // NZCV flags from the register file
+
+    assign taken_out = bru_writeback_out.taken_out;
+    assign pc_out = bru_writeback_out.pc_out;
+    assign correction_offset_out = bru_writeback_out.correction_offset_out;
+    assign pc_incorrect_out = bru_writeback_out.pc_incorrect_out;
+    assign bcond_resolved_out = bru_writeback_out.bcond_resolved_out;
+
 
     bru_ins_decoder bru_decoder (
         .insn_in(bru_insn_pkt),
@@ -283,6 +311,7 @@ module backend(
         .read_en(read_en), 
         .read_index(read_index),
         .read_data(read_data),
+        .scoreboard(scoreboard),
         .write_ports('{alu_reg_pkt, fpu_reg_pkt, lsu_reg_pkt, bru_reg_pkt, 
             regfile_ports[0], regfile_ports[1], regfile_ports[2], regfile_ports[3]}),
         .nzcv_write_port(alu_nzcv)

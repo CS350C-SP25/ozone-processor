@@ -1,4 +1,6 @@
-`include "../reg_pkg.sv"
+`include "../packages/reg_pkg.sv"
+`ifndef REG_MAP_SV
+`define REG_MAP_SV
 import reg_pkg::*;
 
 // used for the RAT + RRAT
@@ -44,3 +46,4 @@ module reg_map #(
     end
 
 endmodule
+`endif // REG_MAP_SV
