@@ -142,11 +142,11 @@ module branch_pred #(
       logic [5:0] instr_idx_shifted;
       localparam [5:0] MAX_OFF = 6'(CACHE_LINE_WIDTH) - 6'(INSTRUCTION_WIDTH);
 
-      assign instr_idx_shifted = 6'(instr_idx << 2);
+      instr_idx_shifted = 6'(instr_idx << 2);
       if (current_pc[5:0] + instr_idx_shifted <= MAX_OFF && !done) begin
         logic [31:0] ras_instr;
-        assign ras_instr = get_instr_bits(cacheline, current_pc, instr_idx);
-        ras_pop_temp  = ras_instr[31:21] == 11'b11010110010;
+        ras_instr = get_instr_bits(cacheline, current_pc, instr_idx);
+        ras_pop_temp = ras_instr[31:21] == 11'b11010110010;
 
         ras_push_temp = ras_instr[31:26] == 6'b100101;
 
