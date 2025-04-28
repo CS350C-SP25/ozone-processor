@@ -34,8 +34,10 @@ module bru_ins_decoder (
     assign is_bcond = insn_in.uop.uopcode == UOP_BCOND;
     assign is_bl    = insn_in.uop.uopcode == UOP_BL;
 
-    logic [18:0] offset = $signed(insn_in.r2_val) << 2; // Shift left by 2 for ARM instruction set
-    logic [3:0] cond    = insn_in.uop.data.condition;
+    logic [18:0] offset;
+    assign offset = $signed(insn_in.r2_val) << 2; // Shift left by 2 for ARM instruction set
+    logic [3:0] cond;
+    assign cond = insn_in.uop.data.condition;
     logic flag_Z, flag_N, flag_V;
     assign flag_Z = NZCV_flags[1];
     assign flag_N = NZCV_flags[0];     

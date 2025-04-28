@@ -9,7 +9,7 @@ import uop_pkg::*;
 import reg_pkg::*;
 
 
-    parameter int ROB_ENTRIES = 128;
+    parameter int ROB_ENTRIES = 32;
 
     typedef enum logic [2:0] {
         READY,

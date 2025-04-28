@@ -122,7 +122,8 @@ module negative_truncate_exp_in #(parameter P, parameter Q)(
     output logic[$clog2(P+1)-1:0] trunc_out,
     output logic[P:0] masked_bits
 );
-    logic[Q:0] neg_exp_in = ~exp_in + 1;
+    logic[Q:0] neg_exp_in;
+    assign neg_exp_in = ~exp_in + 1;
     assign trunc_out = neg_exp_in[$clog2(P+1)-1:0];
     assign masked_bits = (1 << (trunc_out)) - 1;
 endmodule
@@ -602,7 +603,8 @@ module upper_P_bits #(parameter int P) (
     input logic[P*2-1:0] vec,
     output logic[P-1:0] out
 );
-    logic[P*2-1:0] mid = vec << lz;
+    logic[P*2-1:0] mid;
+    assign mid = vec << lz;
     assign out = mid[P*2-1 -: P];
 endmodule
 

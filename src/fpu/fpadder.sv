@@ -162,7 +162,8 @@ module fpadder #(
             s5_valid <= s4_valid;
             if (s4_has_leading) begin
                 logic [MANTISSA_WIDTH+TrueRoundingBits+2:0] shifted;
-                int shift_amt = s4_leading_pos - (MANTISSA_WIDTH + RoundingBits);
+                int shift_amt;
+                shift_amt = s4_leading_pos - (MANTISSA_WIDTH + RoundingBits);
                 if (shift_amt > 0) shifted = s4_sum >> shift_amt;
                 else shifted = s4_sum << -shift_amt;
                 s5_man <= shifted[MANTISSA_WIDTH+RoundingBits-1:RoundingBits];
