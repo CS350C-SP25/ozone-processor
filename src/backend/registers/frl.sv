@@ -3,7 +3,7 @@
 import rob_pkg::*;
 
 
-module frl #() (
+module frl (
     input  logic clk,
     input  logic rst,
     input  logic [2*uop_pkg::INSTR_Q_WIDTH+1:0] acquire_ready_in,
