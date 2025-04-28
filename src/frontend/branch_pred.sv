@@ -145,7 +145,7 @@ module branch_pred #(
       if (current_pc[5:0] + instr_idx_shifted <= MAX_OFF && !done) begin
         logic [31:0] ras_instr;
         ras_instr = get_instr_bits(cacheline, current_pc, instr_idx);
-        ras_pop_temp = ras_instr[31:21] == 11'b11010110010;
+        ras_pop_temp  = ras_instr[31:21] == 11'b11010110010;
 
         ras_push_temp = ras_instr[31:26] == 6'b100101;
 
