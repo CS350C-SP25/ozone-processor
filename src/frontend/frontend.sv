@@ -42,7 +42,7 @@ module frontend #(
   logic l1i_ready;
   logic [CACHE_LINE_WIDTH*8-1:0] l1i_cacheline;
   logic [63:0] pred_pc;
-  uop_branch decode_branch_data[SUPER_SCALAR_WIDTH-1:0];
+  branch_data_array decode_branch_data;
   logic pc_valid_out;
   logic bp_l1i_valid_out;
   logic [63:0] bp_addr_out;

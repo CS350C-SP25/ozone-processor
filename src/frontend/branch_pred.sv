@@ -33,7 +33,7 @@ module branch_pred #(
     input logic [CACHE_LINE_WIDTH*8-1:0] l1i_cacheline,
     input logic fetch_ready,
     output logic [63:0] pred_pc,  //goes into the fetch
-    output uop_branch  decode_branch_data [SUPER_SCALAR_WIDTH-1:0], //goes straight into decode. what the branches are and if the super scalar needs to be squashed
+    output branch_data_array decode_branch_data, //goes straight into decode. what the branches are and if the super scalar needs to be squashed
     output logic pc_valid_out,  // sending a predicted instruction address. 
     output logic bp_l1i_valid_out, //fetch uses this + pc valid out to determine if waiting for l1i or 
     output logic bp_l0_valid,  // this is the l0 cacheline valid ???
@@ -53,9 +53,7 @@ module branch_pred #(
   // FSM control
   logic [63:0] current_pc;  // pc register
   logic [63:0] l1i_addr_awaiting;  //address we are waiting on from cache; register
-  uop_branch branch_data_next[SUPER_SCALAR_WIDTH-1:0];
-  uop_branch branch_data_buffer[SUPER_SCALAR_WIDTH-1:0];
-  uop_branch branch_data_buffer_next[SUPER_SCALAR_WIDTH-1:0];
+  branch_data_array branch_data_next;
   logic [CACHE_LINE_WIDTH*8-1:0] l0_cacheline_next;  // wire (saved to the fetch out and local)
   logic l0_hit;
   logic pc_valid_out_next;
@@ -164,7 +162,7 @@ module branch_pred #(
           // decode the predicted PC and do the add
           // store branching info, ignore the remaining
           // set branch data for this index
-          branch_data_next[instr_idx].branch_target = pc + ({{38{ras_instr[25]}}),
+          branch_data_next[instr_idx].branch_target = pc + ({{38{ras_instr[25]}},
           ras_instr[25:0]} << 2) + 64'(instr_idx << 2); // MULTIPLIED BY FOUR!!!
 
           // set the next l1i target to the predicted PC
@@ -260,9 +258,7 @@ module branch_pred #(
       l1i_addr_out <= '0;
       bp_l1i_valid_out <= 1'b0;
       instructions_inflight <= 1'b0;
-      for (int i = 0; i < SUPER_SCALAR_WIDTH; i++) begin
-        branch_data_next[i] <= '0;
-      end
+      decode_branch_data <= 0;
       l0_cacheline <= '0;
       bp_l0_valid <= 1'b0;
       ghr <= '0;
@@ -279,7 +275,6 @@ module branch_pred #(
     ghr_next = ghr;
     ras_next_push_next = ras_next_push;
     ras_push_next = '0;
-    branch_data_next = branch_data_buffer;
     pc_valid_out_next = '0;
     l1i_addr_out_next = current_pc;
     l1i_q_next = l1i_q;
