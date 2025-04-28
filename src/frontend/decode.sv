@@ -15,7 +15,7 @@ module decode #(
     input logic clk_in,
     input logic rst_N_in,
     input logic flush_in,
-    input logic [INSTRUCTION_WIDTH-1:0] fetched_ops[SUPER_SCALAR_WIDTH-1:0],
+    input instruction_array fetched_ops,
     input uop_branch branch_data[SUPER_SCALAR_WIDTH-1:0],
     input logic [63:0] pc,
     input logic fetch_valid, //how many instructions from fetch are valid TODO implement this change
