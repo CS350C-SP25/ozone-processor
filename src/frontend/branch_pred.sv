@@ -164,7 +164,7 @@ module branch_pred #(
           // decode the predicted PC and do the add
           // store branching info, ignore the remaining
           // set branch data for this index
-          branch_data_next[instr_idx].branch_target = pc + ({{38{ras_instr[25]}}),
+          branch_data_next[instr_idx].branch_target = pc + ({{38{ras_instr[25]}},
           ras_instr[25:0]} << 2) + 64'(instr_idx << 2); // MULTIPLIED BY FOUR!!!
 
           // set the next l1i target to the predicted PC
