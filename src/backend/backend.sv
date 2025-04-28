@@ -8,6 +8,7 @@
 `include "./exec/fpu_ins_decoder.sv"
 `include "./exec/lsu_ins_decoder.sv"
 `include "./exec/bru_ins_decoder.sv"
+`include "../util/mem_pkg.sv"
 
 import rob_pkg::*;
 
@@ -18,7 +19,7 @@ module backend (
 
     // ** Signals from Memory Subsystem **
     input  logic [reg_pkg::WORD_SIZE-1:0] mem_data_in,
-    input  logic [$clog2(LQ_SIZE)-1:0] mem_resp_tag,
+    input  logic [$clog2(mem_pkg::LQ_SIZE)-1:0] mem_resp_tag,
     input  logic mem_valid_in,
 
     // ** Signals to Branch Predictor **
@@ -29,12 +30,12 @@ module backend (
     output logic [18:0] correction_offset_out, // the offset of the correction from x_pc (could change this to be just the actual correct PC instead ??)
 
     // ** Valid/Ready Protocol **
-    output logic ready_out  // this is the ready signal for the backend to send to the fetch stage
+    output logic ready_out,  // this is the ready signal for the backend to send to the fetch stage
 
     // ** Signals to Memory Subsystem **
     output logic [reg_pkg::WORD_SIZE-1:0] mem_addr_out,
-    output logic [$clog2(LQ_SIZE)-1:0] mem_tag_out,
-    output logic mem_valid_out,
+    output logic [$clog2(mem_pkg::LQ_SIZE)-1:0] mem_tag_out,
+    output logic mem_valid_out
 );
 
   // Interconnect signals (a subset, connect as needed)
@@ -76,21 +77,21 @@ module backend (
     {4{alu_insn.valid}}, {3{fpu_insn.valid}}, 1'b0, {3{lsu_insn.valid}}, 1'b0, {4{bru_insn.valid}}
   };
   assign read_index[0] = alu_insn.dest_reg_phys;
-    assign read_index[1] = alu_insn.r1_reg_phys;
-    assign read_index[2] = alu_insn.r2_reg_phys;
-    assign read_index[3] = alu_insn.nzcv_reg_phys;
-    assign read_index[4] = fpu_insn.dest_reg_phys;
-    assign read_index[5] = fpu_insn.r1_reg_phys;
-    assign read_index[6] = fpu_insn.r2_reg_phys;
-    assign read_index[7] = fpu_insn.nzcv_reg_phys;
-    assign read_index[8] = lsu_insn.dest_reg_phys;
-    assign read_index[9] = lsu_insn.r1_reg_phys;
-    assign read_index[10] = lsu_insn.r2_reg_phys;
-    assign read_index[11] = lsu_insn.nzcv_reg_phys;
-    assign read_index[12] = bru_insn.dest_reg_phys;
-    assign read_index[13] = bru_insn.r1_reg_phys;
-    assign read_index[14] = bru_insn.r2_reg_phys;
-    assign read_index[15] = bru_insn.nzcv_reg_phys;
+  assign read_index[1] = alu_insn.r1_reg_phys;
+  assign read_index[2] = alu_insn.r2_reg_phys;
+  assign read_index[3] = alu_insn.nzcv_reg_phys;
+  assign read_index[4] = fpu_insn.dest_reg_phys;
+  assign read_index[5] = fpu_insn.r1_reg_phys;
+  assign read_index[6] = fpu_insn.r2_reg_phys;
+  assign read_index[7] = fpu_insn.nzcv_reg_phys;
+  assign read_index[8] = lsu_insn.dest_reg_phys;
+  assign read_index[9] = lsu_insn.r1_reg_phys;
+  assign read_index[10] = lsu_insn.r2_reg_phys;
+  assign read_index[11] = lsu_insn.nzcv_reg_phys;
+  assign read_index[12] = bru_insn.dest_reg_phys;
+  assign read_index[13] = bru_insn.r1_reg_phys;
+  assign read_index[14] = bru_insn.r2_reg_phys;
+  assign read_index[15] = bru_insn.nzcv_reg_phys;
   assign alu_insn_pkt = {
     alu_insn.valid,
     alu_insn.uop,
@@ -250,6 +251,8 @@ module backend (
       .ROUND_TO_NEAREST_TIES_TO_EVEN(1),  // 0: round to zero (chopping last bits), 1: round to nearest
       .IGNORE_SIGN_BIT_FOR_NAN(1)
   ) fpadder_inst (
+      .clk(clk_in),
+      .rst_N_in(rst_N_in),
       .a(fpu_a_out),
       .b(fpu_b_out),
       .valid_in(fpadder_valid_out),
@@ -281,7 +284,8 @@ module backend (
   // LSU
   RegFileWritePort lsu_reg_pkt;
 
-  lsu_ins_decoder lsu_decoder (
+  lsu_ins_decoder #( .LQ_SIZE(mem_pkg::LQ_SIZE) ) 
+    lsu_decoder (
       .clk_in(clk_in),
       .rst_N_in(rst_N_in),
       .flush_in(1'b0),

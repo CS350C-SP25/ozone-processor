@@ -10,7 +10,7 @@ import rob_pkg::*;
 import is_pkg::*;
 
 module lsu_ins_decoder #(
-    parameter LQ_SIZE = 8
+    parameter LQ_SIZE = 32
 ) (
     input  logic clk_in,
     input  logic rst_N_in,

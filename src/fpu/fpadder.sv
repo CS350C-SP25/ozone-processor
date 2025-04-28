@@ -16,7 +16,7 @@ module fpadder #(
     parameter int FloatBitWidth = EXPONENT_WIDTH + MANTISSA_WIDTH + 1
 ) (
     input logic clk,
-    input logic rst,
+    input logic rst_N_in,
 
     input logic [FloatBitWidth-1:0] a,
     input logic [FloatBitWidth-1:0] b,
@@ -38,8 +38,8 @@ module fpadder #(
     logic [FloatBitWidth-1:0] s0_a, s0_b;
     logic s0_subtract;
 
-    always_ff @(posedge clk or posedge rst) begin
-        if (rst) s0_valid <= 0;
+    always_ff @(posedge clk) begin
+        if (~rst_N_in) s0_valid <= 0;
         else begin
             s0_valid <= valid_in;
             s0_a <= a;
@@ -55,8 +55,8 @@ module fpadder #(
     logic [MANTISSA_WIDTH-1:0] s1_a_man, s1_b_man;
     logic s1_a_implicit, s1_b_implicit;
 
-    always_ff @(posedge clk or posedge rst) begin
-        if (rst) s1_valid <= 0;
+    always_ff @(posedge clk) begin
+        if (~rst_N_in) s1_valid <= 0;
         else begin
             s1_valid <= s0_valid;
             s1_a_sign <= s0_a[FloatBitWidth-1];
@@ -77,8 +77,8 @@ module fpadder #(
     logic [EXPONENT_WIDTH-1:0] s2_large_exp;
     logic [EXPONENT_WIDTH:0] s2_exp_diff;
 
-    always_ff @(posedge clk or posedge rst) begin
-        if (rst) s2_valid <= 0;
+    always_ff @(posedge clk) begin
+        if (~rst_N_in) s2_valid <= 0;
         else begin
             s2_valid <= s1_valid;
             if (s1_a_exp >= s1_b_exp) begin
@@ -105,8 +105,8 @@ module fpadder #(
     logic [MANTISSA_WIDTH+TrueRoundingBits+2:0] s3_sum;
     logic [EXPONENT_WIDTH-1:0] s3_exp;
 
-    always_ff @(posedge clk or posedge rst) begin
-        if (rst) s3_valid <= 0;
+    always_ff @(posedge clk) begin
+        if (~rst_N_in) s3_valid <= 0;
         else begin
             s3_valid <= s2_valid;
             s3_exp <= s2_large_exp;
@@ -139,8 +139,8 @@ module fpadder #(
         .has_leading_one(s4_has_leading)
     );
 
-    always_ff @(posedge clk or posedge rst) begin
-        if (rst) s4_valid <= 0;
+    always_ff @(posedge clk) begin
+        if (~rst_N_in) s4_valid <= 0;
         else begin
             s4_valid <= s3_valid;
             s4_sum <= s3_sum;
@@ -156,8 +156,8 @@ module fpadder #(
     logic [EXPONENT_WIDTH-1:0] s5_exp;
     logic s5_sign;
 
-    always_ff @(posedge clk or posedge rst) begin
-        if (rst) s5_valid <= 0;
+    always_ff @(posedge clk) begin
+        if (~rst_N_in) s5_valid <= 0;
         else begin
             s5_valid <= s4_valid;
             if (s4_has_leading) begin
@@ -200,8 +200,8 @@ module fpadder #(
         .overflow_flag(round_ovf)
     );
 
-    always_ff @(posedge clk or posedge rst) begin
-        if (rst) s6_valid <= 0;
+    always_ff @(posedge clk) begin
+        if (~rst_N_in) s6_valid <= 0;
         else begin
             s6_valid <= s5_valid;
             s6_out <= {s5_sign, round_exp, round_man};
