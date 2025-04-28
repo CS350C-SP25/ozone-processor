@@ -16,13 +16,25 @@ module backend (
     input logic rst_N_in,
     input uop_pkg::instr_queue_t instr_queue,
 
+    // ** Signals from Memory Subsystem **
+    input  logic [reg_pkg::WORD_SIZE-1:0] mem_data_in,
+    input  logic [$clog2(LQ_SIZE)-1:0] mem_resp_tag,
+    input  logic mem_valid_in,
+
     // ** Signals to Branch Predictor **
     output logic bcond_resolved_out,
     output logic pc_incorrect_out,  // this means that the PC that we had originally predicted was incorrect. We need to fix.
     output logic taken_out,  // if the branch resolved as taken or not -- to update PHT and GHR
     output logic [63:0] pc_out, // pc that is currently in the exec phase (the one that just was resolved)
     output logic [18:0] correction_offset_out, // the offset of the correction from x_pc (could change this to be just the actual correct PC instead ??)
+
+    // ** Valid/Ready Protocol **
     output logic ready_out  // this is the ready signal for the backend to send to the fetch stage
+
+    // ** Signals to Memory Subsystem **
+    output logic [reg_pkg::WORD_SIZE-1:0] mem_addr_out,
+    output logic [$clog2(LQ_SIZE)-1:0] mem_tag_out,
+    output logic mem_valid_out,
 );
 
   // Interconnect signals (a subset, connect as needed)
@@ -274,12 +286,17 @@ module backend (
       .rst_N_in(rst_N_in),
       .flush_in(1'b0),
       .insn_in(lsu_insn_pkt),
-      .mem_data_in(64'b0),  // stub for now
-      .mem_resp_tag(0),
-      .mem_valid_in(0),
-      .mem_addr_out(),
-      .mem_tag_out(),
-      .mem_valid_out(),
+
+      // feedback from the memory system
+      .mem_data_in(mem_data_in),  // stub for now
+      .mem_resp_tag(mem_resp_tag),
+      .mem_valid_in(mem_valid_in),
+
+      // issue to the memory system
+      .mem_addr_out(mem_addr_out),
+      .mem_tag_out(mem_tag_out),
+      .mem_valid_out(mem_valid_out),
+
       .reg_pkt_out(lsu_reg_pkt),
       .ready_out(lsu_ready),
       .writeback_out(lsu_wb_out)
