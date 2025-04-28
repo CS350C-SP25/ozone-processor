@@ -48,7 +48,7 @@ VERILATOR ?= /u/nate/verilator
 ifeq ($(shell uname),Linux)
 	VFLAGS = --binary -j $$(( `nproc` - 1 )) --trace --trace-underscore --compiler clang --relative-includes
 else
-	VFLAGS = --binary -j $$(( `sysctl -n hw.logicalcpu` - 1 )) --trace --trace-underscore --compiler clang -Wno-lint --relative-includes
+	VFLAGS = --binary -j $$(( `sysctl -n hw.logicalcpu` - 1 )) --trace --trace-underscore --compiler clang --relative-includes
 endif
 
 FRONTEND_VFLAGS = $(VFLAGS) --top-module frontend_tb

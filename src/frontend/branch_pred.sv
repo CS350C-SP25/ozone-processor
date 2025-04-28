@@ -149,9 +149,9 @@ endfunction
   logic done = 1'b0;
   for (int instr_idx = 0; instr_idx < SUPER_SCALAR_WIDTH; instr_idx++) begin
     logic [5:0] instr_idx_shifted;
-    localparam [5:0] MAX_OFF = CACHE_LINE_WIDTH - INSTRUCTION_WIDTH; 
+    localparam [5:0] MAX_OFF = 6'(CACHE_LINE_WIDTH) - 6'(INSTRUCTION_WIDTH); 
 
-    assign instr_idx_shifted = instr_idx << 2;
+    assign instr_idx_shifted = 6'(instr_idx << 2);
     if (current_pc[5:0]+instr_idx_shifted <= MAX_OFF && !done) begin
       logic [31:0] ras_instr;
       assign ras_instr = get_instr_bits(
@@ -220,9 +220,16 @@ endfunction
   end
   if (!done) begin
     // two cases: cut short by cacheline alignment OR full super scalar. set pred PC accordingly and ensure l1i is ready
-l1i_addr_out_next = current_pc + 64'(current_pc[5:0]) <= (64 - 64'(current_pc[5:0])) ?
-                    (64'(SUPER_SCALAR_WIDTH) << 2) :
-                    ((64 - 64'(current_pc[5:0])) >> 2);
+
+// l1i_addr_out_next = current_pc + 64'(current_pc[5:0]) <= (64 - 64'(current_pc[5:0])) ?
+//                     (64'(SUPER_SCALAR_WIDTH) << 2) :
+//                     ((64 - 64'(current_pc[5:0])) >> 2);
+  
+  //leul: for some reason this does not compute the right pc TODO
+  //for now i will just advance pc + 8
+  l1i_addr_out_next = current_pc + (SUPER_SCALAR_WIDTH * 4);  
+
+
   end
   endfunction
 
@@ -238,6 +245,10 @@ l1i_addr_out_next = current_pc + 64'(current_pc[5:0]) <= (64 - 64'(current_pc[5:
         current_pc <= current_pc;
       end
       pc_valid_out <= pc_valid_out_next; // Update the main valid signal
+      if (pc_valid_out_next && ~l0_hit) begin
+          l1i_addr_awaiting <= l1i_addr_out_next; //new
+        end
+
 
       if (pc_valid_out_next) begin
          // update outputs regardless of fetch_ready
@@ -265,6 +276,7 @@ l1i_addr_out_next = current_pc + 64'(current_pc[5:0]) <= (64 - 64'(current_pc[5:
       current_pc <= '0;
       pred_pc <= '0;
       pc_valid_out <= 1'b0; 
+      l1i_addr_awaiting <= '0;
       l1i_addr_out <= '0;
       bp_l1i_valid_out <= 1'b0;
       instructions_inflight <= 1'b0;

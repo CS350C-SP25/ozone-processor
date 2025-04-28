@@ -338,10 +338,10 @@ module frontend_tb;
         // Load instructions into memory (big-endian)
         for (int i = 0; i < 18; i++) begin
             logic [31:0] instr = instructions[i];
-mem[addr + i*4 + 0] = instr[ 7:0];   // LSB first
-mem[addr + i*4 + 1] = instr[15:8];
-mem[addr + i*4 + 2] = instr[23:16];
-mem[addr + i*4 + 3] = instr[31:24];  // MSB last
+mem[12'(addr + i*4 + 0)] = instr[ 7:0];   // LSB first
+mem[12'(addr + i*4 + 1)] = instr[15:8];
+mem[12'(addr + i*4 + 2)] = instr[23:16];   //this casting might be cooked
+mem[12'(addr + i*4 + 3)] = instr[31:24];  // MSB last
         end
 
         // Debug output for memory contents
