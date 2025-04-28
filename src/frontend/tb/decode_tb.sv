@@ -60,6 +60,8 @@ module decode_tb;
   
   // Test procedure
   initial begin
+    $dumpfile("decode_tb.vcd");  // Name of the VCD file
+    $dumpvars(0, decode_tb);     // Dump all variables in the testbench
     // Initialize signals
     clk_in = 0;
     rst_N_in = 0;
