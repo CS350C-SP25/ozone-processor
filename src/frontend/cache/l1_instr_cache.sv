@@ -2,7 +2,7 @@
 
 // just needs to wrap the generic cache and block when missed
 module l1_instr_cache #(
-    parameter int A = 3,
+    parameter int A = 4,
     parameter int B = 64,
     parameter int C = 1536,
     parameter int PADDR_BITS = 64
