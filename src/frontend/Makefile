@@ -34,7 +34,7 @@ ifeq ($(shell uname),Linux)
 else
 	# VFLAGS = --binary -j $$(( `sysctl -n hw.logicalcpu` - 1 ))  --compiler clang --relative-includes
     VFLAGS = --binary -j 15  --compiler clang --relative-includes -fno-inline\
-    --threads $(NPROC) --output-split 10000 -MMD -CFLAGS $(OPTFLAGS) --sv --language 1800-2012 --timing -Wno-lint
+    --threads $(NPROC) --output-split 10000 -MMD -CFLAGS $(OPTFLAGS) --sv --language 1800-2012 --timing #-Wno-lint
 
 endif
 
