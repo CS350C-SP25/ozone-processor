@@ -26,7 +26,9 @@ module reg_file #(
     import reg_pkg::*;
 
     // Internal register file storage
-    logic [WORD_SIZE-1:0] registers [NUM_PHYS_REGS-1:0];
+    typedef logic [WORD_SIZE-1:0] reg_word;
+    typedef reg_word regfile [NUM_PHYS_REGS-1:0];
+    regfile registers;
 
     // Combinational read logic: for each read port, if read enabled, output the register data.
     always_comb begin
@@ -44,10 +46,10 @@ module reg_file #(
     always_ff @(posedge clk) begin
         if (~rst) begin
             // Reset all registers to zero
-            for (int i = 0; i < NUM_PHYS_REGS; i++) begin
-                registers[i] <= '0;
-                scoreboard[i] <= '0;
-            end
+                registers <= 0;
+                scoreboard <= 0;
+            //for (int i = 0; i < NUM_PHYS_REGS; i++) begin
+            //end
         end else begin
             // For each write port, if enabled, perform the write operation.
             for (int i = 0; i < NUM_WRITE_PORTS; i++) begin

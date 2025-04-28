@@ -94,8 +94,8 @@ module frl #(
   always_ff @(posedge clk) begin
     if (rst) begin
       for (int i = 0; i < reg_pkg::NUM_PHYS_REGS; i++) begin
-        phys_regs_r[i]        <= i[$clog2(reg_pkg::NUM_PHYS_REGS)-1:0];
-        phys_reg_indices_r[i] <= i[$clog2(reg_pkg::NUM_PHYS_REGS)-1:0];
+        phys_regs_r[i]        = i[$clog2(reg_pkg::NUM_PHYS_REGS)-1:0];
+        phys_reg_indices_r[i] = i[$clog2(reg_pkg::NUM_PHYS_REGS)-1:0];
       end
       head_r <= 0;
       tail_r <= 0;

@@ -27,8 +27,9 @@ module reorder_buffer_queue #(
     output logic [$clog2(Q_DEPTH)-1:0] size
 );
 
-    rob_entry q       [Q_DEPTH-1:0];
-    rob_entry q_next  [Q_DEPTH-1:0];
+    typedef rob_entry rob_q [Q_DEPTH-1:0];
+    rob_q q;
+    rob_q q_next;
 
     logic [$clog2(Q_DEPTH)-1:0] head, tail;
     logic [$clog2(Q_DEPTH)-1:0] head_next, tail_next;
@@ -76,16 +77,17 @@ module reorder_buffer_queue #(
             head <= '0;
             tail <= '0;
             size <= '0;
-            for (int i = 0; i < Q_DEPTH; i++) begin
-                q[i] <= '0;
-            end
+            //for (int i = 0; i < Q_DEPTH; i++) begin
+                q <= 0;
+            //end
         end else begin
             head <= head_next;
             tail <= tail_next;
             size <= size_next;
-            for (int i = 0; i < Q_DEPTH; i++) begin
-                q[i] <= q_next[i];
-            end
+            //for (int i = 0; i < Q_DEPTH; i++) begin
+                //q[i] <= q_next[i];
+            //end
+            q <= q_next;
         end
     end
 
