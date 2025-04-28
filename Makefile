@@ -171,5 +171,4 @@ quartus-build-rtl:
 	quartus_npp ozone -c ozone --netlist_type=sgate
 
 verilator:
-	rm -r obj_dir
 	verilator --sv --cc --language 1800-2012 --Wall --relative-includes src/ozone.sv --trace -Wno-lint --top-module ozone
