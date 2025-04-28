@@ -14,8 +14,8 @@ module branch_pred #(
     parameter SUPER_SCALAR_WIDTH = op_pkg::SUPER_SCALAR_WIDTH,
     parameter IST_ENTRIES = 1024,
     parameter BTB_ENTRIES = 128,
-    parameter GHR_K = 8,
-    parameter PHT_N = 8,
+    parameter GHR_K = 4,
+    parameter PHT_N = 4,
     parameter L0_WAYS = 8
 ) (
     // TODO also include inputs for GHR updates.
