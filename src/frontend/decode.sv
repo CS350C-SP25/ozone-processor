@@ -1,3 +1,6 @@
+`ifndef DECODE
+`define DECODE
+
 `include "../util/uop_pkg.sv"
 `include "../util/op_pkg.sv"
 import uop_pkg::*;
@@ -18,7 +21,7 @@ module decode #(
     input logic fetch_valid, //how many instructions from fetch are valid TODO implement this change
     input logic exe_ready,
     output logic decode_ready,
-    output uop_insn [INSTR_Q_WIDTH-1:0] instruction_queue_in
+    output uop_insn instruction_queue_in [INSTR_Q_WIDTH-1:0]
 );
   uop_insn enq_next[INSTR_Q_WIDTH-1:0];
 
@@ -373,3 +376,5 @@ module decode #(
     end
 
 endmodule
+
+`endif

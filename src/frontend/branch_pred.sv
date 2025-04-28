@@ -1,3 +1,6 @@
+`ifndef BP
+`define BP
+
 `include "../util/uop_pkg.sv"
 `include "../util/op_pkg.sv"
 `include "../util/stack.sv"
@@ -42,6 +45,7 @@ module branch_pred #(
   logic [GHR_K-1:0] ghr;
   logic [1:0] pht[PHT_SIZE-1:0];
 
+  typedef logic[7:0] byte_t;
   byte_t [CACHE_LINE_WIDTH-1:0] split_cacheline_l1i;
   byte_t [CACHE_LINE_WIDTH-1:0] split_cacheline_l10;
 
@@ -103,7 +107,6 @@ module branch_pred #(
     .cache_hit(l0_hit)  // high on a hit, low on a miss (this is for the next cycle)
   );
 
-typedef logic[7:0] byte_t;
 function automatic void split_cacheline (
   input logic [CACHE_LINE_WIDTH*8-1:0] cacheline,
   output byte_t [CACHE_LINE_WIDTH-1:0] split_cacheline
@@ -361,3 +364,5 @@ process_pc(
   end
   end
 endmodule
+
+`endif

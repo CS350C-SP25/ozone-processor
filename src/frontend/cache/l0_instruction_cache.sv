@@ -1,3 +1,6 @@
+`ifndef L0
+`define L0
+
 /** 
 * This cache is meant to be completely combinational -- 0 cycle latency, but also req data to the L1 when requested.
 */
@@ -14,6 +17,7 @@ module l0_instruction_cache #(
     input logic [LINE_SIZE_BYTES*8-1:0] l1_data,  // data coming in from L1
     input logic [PC_SIZE-1:0] bp_pc, // ????
     input logic [PC_SIZE-1:0] bp_pred_pc, // ?? 
+    //l1 ready signal or no
 
     output logic [LINE_SIZE_BYTES*8-1:0] cache_line,  // data output to branch predictor
     output logic cache_hit  // high on a hit, low on a miss
@@ -68,7 +72,30 @@ module l0_instruction_cache #(
       cache_data[0][l1i_index] = l1_data;  // assumption index the same
       tag_array[0][l1i_index].valid = 1'b1;
       tag_array[0][l1i_index].tag = l1i_tag;
+
+//--- debug
+      // Display info
+    $display("\n=====================L0 data=============================");
+    $display("[Time %0t] [L0 Cache] Data came in from L1!", $time);
+    $display("    Incoming Address (l1i_pc): 0x%h", l1i_pc);
+    $display("    Incoming Data (l1_data): 0x%h", l1_data);
+    $display("    Written to Set Index: %0d", l1i_index);
+    $display("==================================================");
+    $display("Current L0 Cache Contents:");
+    
+    for (int set_idx = 0; set_idx < SETS; set_idx++) begin
+      $display("  [Set %0d] Valid=%0b | Tag=0x%h | Data=0x%h",
+               set_idx,
+               tag_array[0][set_idx].valid,
+               tag_array[0][set_idx].tag,
+               cache_data[0][set_idx]);
+    end
+    $display("==================================================\n");
+//---
+
+
     end
   end
 
 endmodule
+`endif

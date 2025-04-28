@@ -1,3 +1,6 @@
+`ifndef FRONTEND
+`define FRONTEND
+
 `include "../util/stack.sv"
 `include "./branch_pred.sv"
 `include "./cache/l1_instr_cache.sv"
@@ -150,3 +153,5 @@ module frontend #(
         .instruction_queue_in(instruction_queue_in)
     );
 endmodule
+
+`endif

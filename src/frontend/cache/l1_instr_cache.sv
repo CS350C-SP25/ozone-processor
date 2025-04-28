@@ -1,3 +1,6 @@
+`ifndef L1
+`define L1
+
 `include "../../../mem/src/cache.sv"
 
 // just needs to wrap the generic cache and block when missed
@@ -357,3 +360,5 @@ module l1_instr_cache #(
 
 
 endmodule : l1_instr_cache
+
+`endif

@@ -48,11 +48,11 @@ VERILATOR ?= /u/nate/verilator
 ifeq ($(shell uname),Linux)
 	VFLAGS = --binary -j $$(( `nproc` - 1 )) --trace --trace-underscore --compiler clang --relative-includes
 else
-	VFLAGS = --binary -j $$(( `sysctl -n hw.logicalcpu` - 1 )) --trace --trace-underscore --compiler clang --relative-includes
+	VFLAGS = --binary -j $$(( `sysctl -n hw.logicalcpu` - 1 )) --trace --trace-underscore --compiler clang -Wno-lint --relative-includes
 endif
 
 FRONTEND_VFLAGS = $(VFLAGS) --top-module frontend_tb
-FRONTEND_SRCS = --cc ./frontend_tb.sv ./frontend.sv ./fetch.sv ./decode.sv ./branch_pred.sv ./cache/l0_instr_cache.sv ./cache/l1_instr_cache.sv \
+FRONTEND_SRCS = --cc ./tb/frontend_tb.sv ./frontend.sv ./fetch.sv ./decode.sv ./branch_pred.sv ./cache/l0_instruction_cache.sv ./cache/l1_instr_cache.sv \
 				--cc  ../util/uop_pkg.sv ../util/stack.sv ../util/op_pkg.sv
 FRONTEND_BIN = obj_dir/Vfrontend_tb
 

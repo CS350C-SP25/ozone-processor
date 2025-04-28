@@ -1,3 +1,6 @@
+`ifndef FETCH
+`define FETCH
+
 `include "../util/uop_pkg.sv"
 `include "../util/op_pkg.sv"
 
@@ -127,3 +130,5 @@ module align_instructions #(
     end
   endgenerate
 endmodule
+
+`endif
