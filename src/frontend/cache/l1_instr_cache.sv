@@ -315,7 +315,7 @@ module l1_instr_cache #(
       .A(A),
       .B(B),
       .C(C),
-      .W(64),
+      .W(512),
       .ADDR_BITS(PADDR_BITS)
   ) cache_module (
       .rst_N_in(rst_N_in),
