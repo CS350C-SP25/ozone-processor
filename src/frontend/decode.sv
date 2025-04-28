@@ -385,10 +385,11 @@ module decode #(
         end
         $display("fetched_ops: %x", fetched_ops);
         //debug
-        if (enq_idx > 0) begin
-                            $display("[Decode] Instr %d at PC 0x%h: opcode=%s, instr=0x%h", instr_idx,
-                                 enq_next[enq_idx-1].pc, enq_next[enq_idx-1].uopcode.name(), fetched_ops[instr_idx]);
-                        end
+        // if (enq_idx > 0) begin
+        //   $display("[Decode] Instr %d at PC 0x%h: opcode=%s, instr=0x%h", instr_idx,
+        //            enq_next[enq_idx-1].pc, enq_next[enq_idx-1].uopcode.name(),
+        //            fetched_ops[instr_idx]);
+        // end
         //                 //debug
 
 
