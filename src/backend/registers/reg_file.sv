@@ -1,5 +1,6 @@
 `include "../packages/reg_pkg.sv"
-
+`ifndef REG_FILE_SV
+`define REG_FILE_SV
 import reg_pkg::*;
 
 module reg_file #(
@@ -66,4 +67,4 @@ module reg_file #(
     end
 
 endmodule
-
+`endif // REG_FILE_SV

@@ -1,6 +1,8 @@
 `include "../packages/rob_pkg.sv"
 `include "../packages/reg_pkg.sv"
 `include "../../util/uop_pkg.sv"
+`ifndef RRAT_SV
+`define RRAT_SV
 
 import uop_pkg::*;
 import reg_pkg::*;
@@ -91,3 +93,4 @@ module rrat #(
     end
 
 endmodule
+`endif // RRAT_SV

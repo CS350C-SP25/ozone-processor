@@ -2,7 +2,7 @@
 `include "./registers/rrat.sv"
 `include "./registers/frl.sv"
 `include "./registers/reg_file.sv"
-`include "./packages/rob_pkg"
+`include "./packages/rob_pkg.sv"
 `include "./insn_ds/reorder_buffer.sv"
 `include "./exec/alu_ins_decoder.sv"
 `include "./exec/fpu_ins_decoder.sv"
@@ -14,7 +14,7 @@ import rob_pkg::*;
 module backend(
     input logic clk_in,
     input logic rst_N_in,
-    uop_pkg::uop_insn [uop_pkg::INSTR_Q_WIDTH-1:0] instr_queue,
+    input uop_pkg::uop_insn [uop_pkg::INSTR_Q_WIDTH-1:0] instr_queue,
 
     // ** Signals to Branch Predictor **
     output logic bcond_resolved_out,

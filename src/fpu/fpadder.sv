@@ -13,7 +13,7 @@ module fpadder #(
     parameter int MANTISSA_WIDTH = 23,
     parameter int ROUND_TO_NEAREST_TIES_TO_EVEN = 1,
     parameter int IGNORE_SIGN_BIT_FOR_NAN = 1,
-    localparam int FloatBitWidth = EXPONENT_WIDTH + MANTISSA_WIDTH + 1
+    parameter int FloatBitWidth = EXPONENT_WIDTH + MANTISSA_WIDTH + 1
 ) (
     input logic clk,
     input logic rst,

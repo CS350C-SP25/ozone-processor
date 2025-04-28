@@ -1,5 +1,6 @@
 `include "../packages/rob_pkg.sv"
-
+`ifndef RAT_SV
+`define RAT_SV
 import rob_pkg::*;
 import reg_pkg::*;
 import uop_pkg::*;
@@ -117,3 +118,4 @@ module rat #(
     end
   end
 endmodule
+`endif // RAT_SV

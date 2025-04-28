@@ -1,9 +1,10 @@
 `include "../packages/rob_pkg.sv"
-
+`ifndef FRL_SV
+`define FRL_SV
 import rob_pkg::*;
 
 
-module frl #() (
+module frl (
     input  logic clk,
     input  logic rst,
     input  logic [2*uop_pkg::INSTR_Q_WIDTH+1:0] acquire_ready_in,
@@ -107,3 +108,4 @@ module frl #() (
   end
 
 endmodule
+`endif // FRL_SV
