@@ -114,5 +114,12 @@ package uop_pkg;
     );
         out = in;
     endfunction
+
+    function automatic logic is_xzr (
+        input uop_reg r
+    );
+        is_xzr = r.gpr == 31 && r.is_sp == 0;
+    endfunction
 endpackage
-`endif
+
+`endif // UOP_PKG_SV

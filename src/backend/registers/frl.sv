@@ -4,15 +4,17 @@
 import rob_pkg::*;
 
 
-module frl (
+module frl #(
+  parameter MAX_NUM_REGS = 3 * uop_pkg::INSTR_Q_WIDTH
+) (
     input  logic clk,
     input  logic rst,
-    input  logic [2*uop_pkg::INSTR_Q_WIDTH+1:0] acquire_ready_in,
+    input  logic [MAX_NUM_REGS - 1:0] acquire_ready_in,
     output logic acquire_valid_out,
-    output logic [2*uop_pkg::INSTR_Q_WIDTH+1:0][$clog2(reg_pkg::NUM_PHYS_REGS)-1:0] registers_out,
+    output logic [MAX_NUM_REGS - 1:0][$clog2(reg_pkg::NUM_PHYS_REGS)-1:0] registers_out,
 
-    input  logic [2*uop_pkg::INSTR_Q_WIDTH+1:0] free_valid_in,
-    input  logic [2*uop_pkg::INSTR_Q_WIDTH+1:0][$clog2(reg_pkg::NUM_PHYS_REGS)-1:0] freeing_registers
+    input  logic [MAX_NUM_REGS - 1:0] free_valid_in,
+    input  logic [MAX_NUM_REGS - 1:0][$clog2(reg_pkg::NUM_PHYS_REGS)-1:0] freeing_registers
 );
 
   // === STATE ===
@@ -41,7 +43,7 @@ module frl (
     empty_n = empty_r;
 
     // Handle freeing registers
-    for (int i = 0; i < 2*uop_pkg::INSTR_Q_WIDTH+2; i++) begin
+    for (int i = 0; i < MAX_NUM_REGS; i++) begin
       if (free_valid_in[i]) begin
         temp_indices[i] = phys_reg_indices_r[freeing_registers[i]];
 
@@ -62,7 +64,7 @@ module frl (
     end
 
     // Handle acquired registers
-    for (int i = 0; i < 2*uop_pkg::INSTR_Q_WIDTH+2; i++) begin
+    for (int i = 0; i < MAX_NUM_REGS; i++) begin
       if (acquire_ready_in[i]) begin
         head_n = head_n + 1;
         empty_n = 1'b0;
@@ -77,12 +79,12 @@ module frl (
 
     // Output free registers
     // v e r i l a t o r   is FORCING ME to pad this value
-    if ({{(reg_pkg::NUM_PHYS_REGS - $clog2(reg_pkg::NUM_PHYS_REGS)){1'b0}}, num_free_regs} < 2*uop_pkg::INSTR_Q_WIDTH+2) begin // I hate SystemVerilog
+    if ({{(reg_pkg::NUM_PHYS_REGS - $clog2(reg_pkg::NUM_PHYS_REGS)){1'b0}}, num_free_regs} < MAX_NUM_REGS + 1) begin // I hate SystemVerilog
       acquire_valid_out = 1'b0;
       registers_out = '0;
     end else begin
       acquire_valid_out = 1'b1;
-      for (int i = 0; i < 2*uop_pkg::INSTR_Q_WIDTH+2; i++) begin
+      for (int i = 0; i < MAX_NUM_REGS; i++) begin
         registers_out[i] = phys_regs_r[($clog2(reg_pkg::NUM_PHYS_REGS))'(head_r + i)];
       end
     end

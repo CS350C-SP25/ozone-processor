@@ -33,7 +33,7 @@ module frontend #(
     output logic [63:0] lc_addr_out,
     output logic [511:0] lc_value_out,
     output logic lc_we_out,
-    output uop_insn [INSTR_Q_WIDTH-1:0] instruction_queue_in  
+    output uop_insn  instruction_queue_in [INSTR_Q_WIDTH-1:0]
 );
     logic l1i_valid;
     logic l1i_ready;
@@ -74,6 +74,7 @@ module frontend #(
         .x_pc(x_pc), // pc that is currently in the exec phase (the one that just was resolved)
         .x_correction_offset(x_correction_offset), // the offset of the correction from x_pc (could change this to be just the actual correct PC instead ??)
         .l1i_cacheline(l1i_cacheline),
+        .fetch_ready(decode_ready),
         .pred_pc(pred_pc),  //goes into the fetch
         .decode_branch_data(decode_branch_data), //goes straight into decode. what the branches are and if the super scalar needs to be squashed
         .pc_valid_out(pc_valid_out),  // sending a predicted instruction address. 
@@ -91,6 +92,7 @@ module frontend #(
         .flush_in(x_pc_incorrect),
         .l0_ready_in(1'b1),
         .l0_addr_in(bp_addr_out),
+        .l0_valid_in(bp_l1i_valid_out),
         // signals that go to l0
         .l0_valid_out(l1i_valid),
         .l0_ready_out(l1i_ready),

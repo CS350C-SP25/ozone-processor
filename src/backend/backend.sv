@@ -30,12 +30,12 @@ module backend(
     logic [uop_pkg::INSTR_Q_WIDTH-1:0] rrat_update_valid;
     rob_pkg::rob_entry [uop_pkg::INSTR_Q_WIDTH-1:0] rrat_update_entries;
 
-    logic [2*uop_pkg::INSTR_Q_WIDTH+1:0][$clog2(reg_pkg::NUM_PHYS_REGS)-1:0] frl_registers;
-    logic [2*uop_pkg::INSTR_Q_WIDTH+1:0] frl_ready;
+    logic [3*uop_pkg::INSTR_Q_WIDTH-1:0][$clog2(reg_pkg::NUM_PHYS_REGS)-1:0] frl_registers;
+    logic [3*uop_pkg::INSTR_Q_WIDTH-1:0] frl_ready;
     logic frl_valid;
 
-    logic [2*uop_pkg::INSTR_Q_WIDTH+1:0][$clog2(reg_pkg::NUM_PHYS_REGS)-1:0] rrat_free_regs;
-    logic [2*uop_pkg::INSTR_Q_WIDTH+1:0] rrat_free_valid;
+    logic [3*uop_pkg::INSTR_Q_WIDTH-1:0][$clog2(reg_pkg::NUM_PHYS_REGS)-1:0] rrat_free_regs;
+    logic [3*uop_pkg::INSTR_Q_WIDTH-1:0] rrat_free_valid;
 
     logic [15:0] read_en;
     logic [$clog2(reg_pkg::NUM_PHYS_REGS)-1:0] read_index[15:0];
