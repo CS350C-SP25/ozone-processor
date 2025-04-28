@@ -164,10 +164,8 @@ module branch_pred #(
           // decode the predicted PC and do the add
           // store branching info, ignore the remaining
           // set branch data for this index
-          branch_data_next[instr_idx].branch_target = pc +
-    ({{38{ras_instr[25]}},
-      ras_instr[25:0]} << 2) +
-    64'(instr_idx << 2); // MULTIPLIED BY FOUR!!!
+          branch_data_next[instr_idx].branch_target = pc + ({{38'{ras_instr[25]}},
+          ras_instr[25:0]} << 2) + 64'(instr_idx << 2); // MULTIPLIED BY FOUR!!!
 
           // set the next l1i target to the predicted PC
           l1i_addr_out_next = pc + {{38{ras_instr[25]}}, ras_instr[25:0]} + 64'(instr_idx << 2);
@@ -194,10 +192,7 @@ module branch_pred #(
           // done = branch_taken;
           // for now lets just always assume branch not taken we can adjust this later with a GHR and PHT
           // offset is 5-23
-          branch_data_next[instr_idx].branch_target = pc +
-    ({{45{ras_instr[23]}},
-      ras_instr[23:5]} << 2) +
-    64'(instr_idx << 2); // MULTIPLIED BY FOUR
+          branch_data_next[instr_idx].branch_target = pc + ({{45{ras_instr[23]}}, ras_instr[23:5]} << 2) + 64'(instr_idx << 2); // MULTIPLIED BY FOUR
           branch_data_next[instr_idx].condition = ras_instr[3:0];
           branch_data_next[instr_idx].predict_taken = pht[pht_index] > 1;
         end
