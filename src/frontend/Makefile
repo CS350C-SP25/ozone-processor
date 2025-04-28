@@ -72,4 +72,4 @@ bp:
 	$(VERILATOR) $(VFLAGS) --cc ./branch_pred.sv -Wno-lint
 
 frontend:
-	$(VERILATOR) $(VFLAGS) --cc ./frontend.sv
+	$(VERILATOR) $(VFLAGS) --cc ./frontend.sv -Wno-lint

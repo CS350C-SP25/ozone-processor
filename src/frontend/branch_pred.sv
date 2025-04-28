@@ -129,12 +129,11 @@ module branch_pred #(
 
   // PRE - DECODE
   // TODO ZERO THESE TEMP VALUES BC IT WILL MYSTERY WRITE WHAT IT WAS PREVIOUSLY SENT TO
-  function automatic void process_pc(input byte_t [CACHE_LINE_WIDTH-1:0] cacheline,
-                                     input logic [63:0] pc, input logic [PHT_N+GHR_K-1:0] pht_index,
-                                     output logic [63:0] l1i_addr_out_next,
-                                     output logic ras_pop_temp, output logic ras_push_temp,
-                                     output logic [63:0] ras_next_push_next_temp,
-                                     output branch_data_array branch_data_next);
+  function automatic void process_pc(
+      input byte_t [CACHE_LINE_WIDTH-1:0] cacheline, input logic [63:0] pc,
+      input logic [PHT_N+GHR_K-1:0] pht_index, output logic [63:0] l1i_addr_out_next,
+      output logic ras_pop_temp, output logic ras_push_temp,
+      output logic [63:0] ras_next_push_next_temp, output branch_data_array branch_data_next);
 
     logic done = 1'b0;
     for (int instr_idx = 0; instr_idx < SUPER_SCALAR_WIDTH; instr_idx++) begin
@@ -145,7 +144,7 @@ module branch_pred #(
       if (current_pc[5:0] + instr_idx_shifted <= MAX_OFF && !done) begin
         logic [31:0] ras_instr;
         ras_instr = get_instr_bits(cacheline, current_pc, instr_idx);
-        ras_pop_temp  = ras_instr[31:21] == 11'b11010110010;
+        ras_pop_temp = ras_instr[31:21] == 11'b11010110010;
 
         ras_push_temp = ras_instr[31:26] == 6'b100101;
 
@@ -259,7 +258,11 @@ module branch_pred #(
       l1i_addr_out <= '0;
       bp_l1i_valid_out <= 1'b0;
       instructions_inflight <= 1'b0;
-      decode_branch_data <= 0;
+
+      for (int i = 0; i < SUPER_SCALAR_WIDTH; i++) begin
+        decode_branch_data[i] <= 0;
+      end
+
       l0_cacheline <= '0;
       bp_l0_valid <= 1'b0;
       ghr <= '0;
@@ -329,14 +332,16 @@ module branch_pred #(
         process_pc(.cacheline(split_cacheline_l1i), .pc(current_pc),
                    .pht_index({ghr, current_pc[PHT_N-1:0]}), .l1i_addr_out_next(l1i_addr_out_next),
                    .ras_pop_temp(ras_pop_next), .ras_push_temp(ras_push_next),
-                   .ras_next_push_next_temp(ras_next_push_next), .branch_data_next(branch_data_next));
+                   .ras_next_push_next_temp(ras_next_push_next),
+                   .branch_data_next(branch_data_next));
         pc_valid_out_next = 1'b1;
       end else if (!instructions_inflight) begin
         //l1i was not valid, we check if any instructions are in flight if so stall otherwise we must be in l0.
         process_pc(.cacheline(split_cacheline_l10), .pc(current_pc),
                    .pht_index({ghr, current_pc[PHT_N-1:0]}), .l1i_addr_out_next(l1i_addr_out_next),
                    .ras_pop_temp(ras_pop_next), .ras_push_temp(ras_push_next),
-                   .ras_next_push_next_temp(ras_next_push_next), .branch_data_next(branch_data_next));
+                   .ras_next_push_next_temp(ras_next_push_next),
+                   .branch_data_next(branch_data_next));
         pc_valid_out_next = 1'b1;
       end
     end
