@@ -1,5 +1,5 @@
 `ifndef FETCH
-`define FETCH
+`define FETCH 
 
 `include "../util/uop_pkg.sv"
 `include "../util/op_pkg.sv"
@@ -26,27 +26,27 @@ module fetch #(
     input logic pc_valid,  // all pcs valid
     input logic [63:0] pred_pc,  // predicted pc
     input logic decode_ready,  // when decode is ready
-    output instruction_array fetched_instrs, // instrns to send to decode
+    output instruction_array fetched_instrs,  // instrns to send to decode
     output logic fetch_valid,  // valid when done (sent to decode)
     output logic fetch_ready,  // fetch is ready to receive cacheline (sent to bp)
     output logic [63:0] next_pc  // next PC, predicted from bp to decode
 );
 
   localparam int BLOCK_OFFSET_BITS = $clog2(CACHE_LINE_WIDTH);
-  logic                         buffer_done;
-  logic                         l1i_waiting;
-  logic                         l1i_waiting_next;
-  logic                         fetch_valid_next;
-  logic                         discard_l1i;
-  logic                         discard_l1i_next;
+  logic                    buffer_done;
+  logic                    l1i_waiting;
+  logic                    l1i_waiting_next;
+  logic                    fetch_valid_next;
+  logic                    discard_l1i;
+  logic                    discard_l1i_next;
 
-  instruction_array l1i_fetched_instrs;
-  instruction_array l0_fetched_instrs;
+  instruction_array        l1i_fetched_instrs;
+  instruction_array        l0_fetched_instrs;
 
 
-  logic                         ready_next;  // 1-bit signal
-  logic [                 63:0] pc_next;  // 64-bit signal
-  instruction_array next_instrs;
+  logic                    ready_next;  // 1-bit signal
+  logic             [63:0] pc_next;  // 64-bit signal
+  instruction_array        next_instrs;
 
 
   align_instructions #(
@@ -78,13 +78,11 @@ module fetch #(
   // we got a new l1i request, we are waiting for an l1i request, the l1i request hasnt been resolved, the discard one needs to be handled first
   assign l1i_waiting_next = (((pc_valid & ~bp_l0_valid) | l1i_waiting) & ~l1i_valid) | discard_l1i;
   assign pc_next = pred_pc;
-  generate
 
-    endgenerate
   assign next_instrs = flush_in ?
       '{default: 0}
-      : l1i_valid ?
-          l1i_fetched_instrs : (bp_l0_valid && pc_valid) ? l0_fetched_instrs : fetched_instrs;
+      : (l1i_valid ?
+         l1i_fetched_instrs : ((bp_l0_valid && pc_valid) ? l0_fetched_instrs : fetched_instrs));
 
 
   // ctrl signals to keep checking for on every posedge of the clock
@@ -121,21 +119,21 @@ module align_instructions #(
     input logic [CACHE_LINE_WIDTH*8-1:0] cacheline,
     output instruction_array instr_out
 );
-    genvar i;
-    generate
-        for (i = 0; i < SUPER_SCALAR_WIDTH; i++) begin : instr_extract
-            // Compute the byte offset for the start of the instruction
-            logic [$clog2(CACHE_LINE_WIDTH)-1:0] byte_start;
-            assign byte_start = offset + (i * 4);
-            assign instr_out[i] = (byte_start + 3 < CACHE_LINE_WIDTH) ? 
+  genvar i;
+  generate
+    for (i = 0; i < SUPER_SCALAR_WIDTH; i++) begin : instr_extract
+      // Compute the byte offset for the start of the instruction
+      logic [$clog2(CACHE_LINE_WIDTH)-1:0] byte_start;
+      assign byte_start = offset + (i * 4);
+      assign instr_out[i] = (byte_start + 3 < CACHE_LINE_WIDTH) ? 
                 {
                     cacheline[(byte_start + 3) * 8 +: 8], // MSB (byte 3)
-                    cacheline[(byte_start + 2) * 8 +: 8],
+          cacheline[(byte_start + 2) * 8 +: 8],
                     cacheline[(byte_start + 1) * 8 +: 8],
                     cacheline[(byte_start + 0) * 8 +: 8]  // LSB (byte 0)
-                } : {8'hD5, 8'h03, 8'h20, 8'h1F};
-        end
-    endgenerate
+          } : {8'hD5, 8'h03, 8'h20, 8'h1F};
+    end
+  endgenerate
 endmodule
 
 `endif
