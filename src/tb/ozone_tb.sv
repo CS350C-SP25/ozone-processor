@@ -1,5 +1,3 @@
-`timescale 1ns / 1ps
-
 `include "../frontend/frontend.sv"
 `include "../backend/backend.sv"
 `include "../ozone.sv"

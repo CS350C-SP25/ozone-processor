@@ -17,9 +17,15 @@ module backend_tb(
     import uop_pkg::*;
 
     // Define the instruction queue
-    uop_insn [INSTR_Q_WIDTH-1:0] instr_queue;
+    instr_queue_t instr_queue;
     logic [$bits(uop_branch)-1:0] packed_data;
     uop_ri ri;
+
+    always_ff @(posedge clk_in) begin
+        $display("+=============================================+");
+        $display("|      Backend Testbench: Clock Cycle %0d       |", $time/2);
+        $display("+=============================================+");
+    end
 
     // Combinationally populate the instruction queue
     always_comb begin
@@ -47,7 +53,7 @@ module backend_tb(
         // Fill remaining instructions with UOP_HLT
         for (int i = 1; i < INSTR_Q_WIDTH; ++i) begin
             instr_queue[i] = '{
-                uopcode: UOP_HLT,
+                uopcode: UOP_NOP,
                 data: '0,
                 pc: '0,
                 valb_sel: 0,

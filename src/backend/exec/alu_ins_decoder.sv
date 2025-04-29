@@ -90,12 +90,13 @@ module alu_ins_decoder (
                 flags[3] = nzcv_in[3];
                 case (insn_in.uop.uopcode)
                     UOP_ADD: begin
-                        flags[1] = (result_final < r1); // C
-                        flags[0] = (~(r1[63] ^ r2[63]) & (r1[63] ^ result_final[63])); // V
+                        flags[2] = (result_final < r1); // C
+                        flags[3] = (~(r1[63] ^ r2[63]) & (r1[63] ^ result_final[63])); // V
                     end
                     UOP_SUB: begin
-                        flags[1] = (r1 >= r2);          // C
-                        flags[0] = ((r1[63] ^ r2[63]) & (r1[63] ^ result_final[63])); // V
+                        flags[2] = (r1 >= r2);          // C
+                        flags[3] = ((r1[63] ^ r2[63]) & (r1[63] ^ result_final[63])); // V
+                        $display("SUB: %0d - %0d = %0d, Z: %0d, N: %0d", r1, r2, result_final, flags[1], flags[0]);
                     end
                 endcase
                 nzcv_out = '{valid: 1'b1, nzcv: flags, index_in: insn_in.nzcv_reg_phys};

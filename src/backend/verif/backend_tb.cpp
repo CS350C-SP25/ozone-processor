@@ -54,11 +54,13 @@ int main(int argc, char** argv) {
         tfp->dump(main_time++);
     }
     top->rst_N_in = 1;
+    set_instr(top, tfp, 0x15, 0, 0, 0, 0, 0, 0, 0x1000); // NOP
 
     // Provide values for instruction inputs (passed into instr_queue[0] by backend_tb logic)
-    set_instr(top, tfp, 0xC, 1, 0, 0xF, 0, 0, 0, 0x1000); // MVZ x1 0xF 0
-    set_instr(top, tfp, 0x2, 2, 1, 0xF, 0, 0, 0, 0x1000); // ADD x2 x1 0xF (should be 0x1E)
-    set_instr(top, tfp, 0x15, 0, 0, 0, 0, 0, 0, 0x1000); // HLT
+    set_instr(top, tfp, 0xC, 0x1, 0, 0x1, 0, 0, 0, 0x1000); // MVZ x1 0xF 0
+    set_instr(top, tfp, 0x3, 0x2, 1, 0x2, 0, 1, 0, 0x1000); // SUB x2 x1 0xF (should be 0xFF...F)
+    set_instr(top, tfp, 0x3, 0x3, 2, 0x2, 0, 1, 0, 0x1000); // SUB x3 x2 0xF (should be 0x1E)
+    set_instr(top, tfp, 0x15, 0, 0, 0, 0, 0, 0, 0x1000); // NOP
 
     // Simulate
     for (int i = 0; i < 20; ++i) {

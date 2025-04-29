@@ -56,10 +56,15 @@ module reorder_buffer_queue #(
     // Handle writebacks and issue marks
     for (int i = 0; i < 4; i++) begin
       if (writeback_in[i].valid) begin
-        q_next[writeback_in[i].ptr].status = writeback_in[i].status;
+        $display("[ROB] Marked Writeback[%0d]: ROB[%0d] as STATUS: %0d", i, writeback_in[i].ptr, writeback_in[i].status);
+        q_next[head + writeback_in[i].ptr].status = writeback_in[i].status;
       end else if (issue_mark_pending[i].valid) begin
-        q_next[issue_mark_pending[i].ptr].status = ISSUED;
+        q_next[head + issue_mark_pending[i].ptr].status = issue_mark_pending[i].status;
       end
+    end
+
+    for (int i = 0; i < deq_in; i++) begin
+      $display("[ROB] Dequeueing rob_queue[%0d] UOPCODE 0x%0x; old UOPCODE 0x%0x", i, q_next[head+i].uop.uopcode, q[head+i].uop.uopcode);
     end
 
     if (flush_in) begin
@@ -94,7 +99,7 @@ module reorder_buffer_queue #(
   generate
     genvar i;
     for (i = 0; i < Q_DEPTH; i++) begin : gen_q_out
-      assign q_out[i] = q[i];
+      assign q_out[i] = q[head+i];
     end
   endgenerate
   assign full  = (size == Q_DEPTH);
@@ -150,8 +155,12 @@ module reorder_buffer #(
   logic queue_full;
   logic queue_empty;
   logic [$clog2(Q_DEPTH)-1:0] queue_size;
-  rob_writeback [3:0] issue_mark_pending;  // mark pending instructions as issued
-  logic [1:0] next_issue_ptr;
+  rob_writeback [3:0] issue_mark_pending;  // mark pending instructions as issued (ALU, FPU, LSU, BRU, NOP)
+  rob_writeback alu_is_mk;
+  rob_writeback fpu_is_mk;
+  rob_writeback lsu_is_mk;
+  rob_writeback bru_is_mk;
+  logic [2:0] next_issue_ptr;
 
   // ** INTERNAL LOGISTIC WIRES **
   uop_rr cur_uop;
@@ -160,6 +169,7 @@ module reorder_buffer #(
   logic cur_bru_check;
   logic cur_alu_check;
   logic cur_fpu_check;
+  logic cur_nop_check;
   logic next_check;
   logic [$clog2(uop_pkg::INSTR_Q_WIDTH)-1:0] next_rrat_ptr;  // idx for rrat update
 
@@ -171,7 +181,7 @@ module reorder_buffer #(
 
   rob_bru [Q_DEPTH-1:0] bru_status;
 
-  assign rob_ready_out = !queue_full;
+  assign rob_ready_out = ~queue_full;
 
   reorder_buffer_queue #(
       .Q_DEPTH(Q_DEPTH),
@@ -192,36 +202,35 @@ module reorder_buffer #(
       queue_size
   );
 
-  function automatic void insn_check(
-      input logic cur_check, input rob_entry cur_entry,
-      input logic dep_check,  // are dependencies satisfied
-      input logic [$clog2(Q_DEPTH)-1:0] queue_size, input rob_entry [Q_DEPTH-1:0] queue_out,
-      input logic [$clog2(Q_DEPTH)-1:0] i, output logic next_check, output rob_issue insn_out_t);
-    next_check = 1'b0;
-    insn_out_t = '0;
-    next_check = '0;
-    if (cur_check == 1'b0) begin
-      $display("[ROB] Considering scheduling current instruction %0d {UOPCODE: %0b}", i,
-               cur_entry.uop.uopcode);
-      next_check = 1'b1;
-      if (!dep_check || cur_entry.status != READY) begin
-        next_check = 1'b0;
-        $display(
-            "[ROB] Instruction %0d was not scheduled because dependencies were not satisfied or its already been issued",
-            i);
-      end
-      if (next_check == 1'b1) begin
-        $display("[ROB] Instruction %0d was scheduled", i);
-        insn_out_t.valid = 1'b1;
-        insn_out_t.uop = cur_entry.uop;
-        insn_out_t.ptr = i;
-        insn_out_t.dest_reg_phys = cur_entry.dest_reg_phys;
-        insn_out_t.r1_reg_phys = cur_entry.r1_reg_phys;
-        insn_out_t.r2_reg_phys = cur_entry.r2_reg_phys;
-        insn_out_t.nzcv_reg_phys = cur_entry.nzcv_reg_phys;
-      end
-    end
-  endfunction
+  // TODO Rewrite this COMB macro to be a function to save on hardware area/logical units
+`define INSN_CHECK(cur_check, cur_entry, dep_check, queue_size, queue_out, i, next_check, insn_out_t, is_mk) \
+  next_check = cur_check; \
+  if ((cur_check) == 1'b0) begin \
+    insn_out_t = '0; \
+    is_mk = '0; \
+    $display("[ROB] Considering scheduling current instruction %0d {UOPCODE: 0x%0x} p%0d p%0d", \
+             i, cur_entry.uop.uopcode, cur_entry.r1_reg_phys, cur_entry.r2_reg_phys); \
+    next_check = 1'b1; \
+    if (!(dep_check) || cur_entry.status != READY) begin \
+      next_check = 1'b0; \
+      if (!(dep_check)) begin \
+        $display("[ROB] Instruction %0d was not scheduled because dependencies were not satisfied", i); \
+      end else begin \
+        $display("[ROB] Instruction %0d was not scheduled because it has been marked as %0d", \
+                 i, cur_entry.status); \
+      end \
+    end else if (next_check == 1'b1) begin \
+      $display("[ROB] Instruction %0d was scheduled", i); \
+      insn_out_t.valid = 1'b1; \
+      insn_out_t.uop = cur_entry.uop; \
+      insn_out_t.ptr = i; \
+      insn_out_t.dest_reg_phys = cur_entry.dest_reg_phys; \
+      insn_out_t.r1_reg_phys = cur_entry.r1_reg_phys; \
+      insn_out_t.r2_reg_phys = cur_entry.r2_reg_phys; \
+      insn_out_t.nzcv_reg_phys = cur_entry.nzcv_reg_phys; \
+      is_mk = '{valid: 1'b1, ptr: i, status: ISSUED}; \
+    end \
+  end
 
   always_ff @(posedge clk_in) begin : reorder_buffer_fsm
     if (rst_N_in) begin  // not reset
@@ -246,6 +255,7 @@ module reorder_buffer #(
     cur_bru_check = '0;
     cur_alu_check = '0;
     cur_fpu_check = '0;
+    cur_nop_check = '0;
     next_rrat_ptr = '0;
 
     lsu_insn_out_t = '0;
@@ -263,12 +273,13 @@ module reorder_buffer #(
       // ** INSTRUCTION WINDOW COMMIT **
       if (queue_size >= uop_pkg::INSTR_Q_WIDTH) begin
         for (int i = 0; i < uop_pkg::INSTR_Q_WIDTH; i++) begin
-          if (queue_out[i].status == DONE) begin
+          $display("Considering commit for instruction %0d UOPCODE: 0x%0x, STATUS: %0d", i, queue_out[i].uop.uopcode, queue_out[i].status);
+          if (queue_out[i].status == DONE || queue_out[i].uop.uopcode == UOP_NOP) begin
             if (queue_out[i].uop.uopcode == UOP_STORE) begin  // only str on commit
-              insn_check(
+              `INSN_CHECK(
                   cur_lsu_check, cur_entry,
                   scoreboard_in[cur_entry.r1_reg_phys] && scoreboard_in[cur_entry.r2_reg_phys],
-                  queue_size, queue_out, i[6:0], next_check, lsu_insn_out_t);
+                  queue_size, queue_out, i[6:0], next_check, lsu_insn_out_t, lsu_is_mk);
               cur_lsu_check = next_check; // commit store will take priority over any load in the buffer
             end else if (queue_out[i].uop.uopcode == UOP_BCOND || queue_out[i].uop.uopcode == UOP_BL) begin
               bru_writeback_out = bru_status[i];
@@ -281,10 +292,10 @@ module reorder_buffer #(
           end else if (
                         queue_out[i].status == EXCEPTION || 
                         queue_out[i].status == INTERRUPT || 
-                        queue_out[i].status == TRAP) begin
+                        queue_out[i].status == TRAP || queue_out[i].uop.uopcode == UOP_HLT) begin
             // normally would be separated but for the sake of demonstration just turn on a LED or smth
-          end
-          if (queue_out[i].status == READY || next_rrat_ptr == 1) begin
+          end else if (queue_out[i].status == READY || queue_out[i].status == ISSUED || next_rrat_ptr == 1) begin
+            $display("[ROB] Ending commit consideration for instruction %0d UOPCODE: 0x%0x, STATUS: %0d", i, queue_out[i].uop.uopcode, queue_out[i].status);
             break;
           end
           next_rrat_ptr = 1;  // shortcut for addition since its only 2-issue
@@ -306,55 +317,56 @@ module reorder_buffer #(
           UOP_LOAD: begin
             if (lsu_ready_in) begin
               // LDUR is M format which specifies 1 register and 1 imm, but all imms will be written to regs. 
-              insn_check(
+              `INSN_CHECK(
                   cur_lsu_check, cur_entry,
                   scoreboard_in[cur_entry.r1_reg_phys] && scoreboard_in[cur_entry.r2_reg_phys],
-                  queue_size, queue_out, i, next_check, lsu_insn_out_t);
+                  queue_size, queue_out, i, next_check, lsu_insn_out_t, lsu_is_mk);
               cur_lsu_check = next_check;
-              issue_mark_pending[next_issue_ptr] = '{valid: 1'b1, ptr: i, status: ISSUED};
+              issue_mark_pending[next_issue_ptr] = lsu_is_mk;
               next_issue_ptr = next_issue_ptr + 1;
             end
           end
           UOP_MOVZ, UOP_MOVK, UOP_ADRP_MOV: begin
             if (alu_ready_in) begin
               // Data processing immediates (only 1 immediate value which will be written to r2)
-              $display("Reg Status %0d", scoreboard_in[cur_entry.r2_reg_phys]);
-              insn_check(cur_alu_check, cur_entry, scoreboard_in[cur_entry.r2_reg_phys], queue_size,
-                         queue_out, i, next_check, alu_insn_out_t);
+              $display("[ROB] Reg Status for ALU MOV %0d", scoreboard_in[cur_entry.r2_reg_phys]);
+              `INSN_CHECK(cur_alu_check, cur_entry, scoreboard_in[cur_entry.r2_reg_phys], queue_size,
+                         queue_out, i, next_check, alu_insn_out_t, alu_is_mk);
               cur_alu_check = next_check;
-              issue_mark_pending[next_issue_ptr] = '{valid: 1'b1, ptr: i, status: ISSUED};
+              issue_mark_pending[next_issue_ptr] = alu_is_mk;
               next_issue_ptr = next_issue_ptr + 1;
             end
           end
           UOP_ADD, UOP_SUB, UOP_AND, UOP_ORR, UOP_EOR, UOP_MVN, UOP_UBFM, UOP_ASR: begin
+            $display("[ROB] ALU Ready %0d for insn %0d", alu_ready_in, i);
             if (alu_ready_in) begin
-              insn_check(
+              `INSN_CHECK(
                   cur_alu_check, cur_entry,
                   scoreboard_in[cur_entry.r1_reg_phys] && scoreboard_in[cur_entry.r2_reg_phys],
-                  queue_size, queue_out, i, next_check, alu_insn_out_t);
+                  queue_size, queue_out, i, next_check, alu_insn_out_t, alu_is_mk);
               cur_alu_check = next_check;
-              issue_mark_pending[next_issue_ptr] = '{valid: 1'b1, ptr: i, status: ISSUED};
+              issue_mark_pending[next_issue_ptr] = alu_is_mk;
               next_issue_ptr = next_issue_ptr + 1;
             end
           end
           UOP_FMOV, UOP_FNEG, UOP_FADD, UOP_FMUL, UOP_FSUB: begin
             if (fpu_ready_in) begin
-              insn_check(
+              `INSN_CHECK(
                   cur_fpu_check, cur_entry,
                   scoreboard_in[cur_entry.r1_reg_phys] && scoreboard_in[cur_entry.r2_reg_phys],
-                  queue_size, queue_out, i, next_check, fpu_insn_out_t);
+                  queue_size, queue_out, i, next_check, fpu_insn_out_t, fpu_is_mk);
               cur_fpu_check = next_check;
-              issue_mark_pending[next_issue_ptr] = '{valid: 1'b1, ptr: i, status: ISSUED};
+              issue_mark_pending[next_issue_ptr] = fpu_is_mk;
               next_issue_ptr = next_issue_ptr + 1;
             end
           end
           UOP_BCOND: begin
             if (bru_ready_in) begin
               // Branching instructions only have 1 immediate which will be written to a register
-              insn_check(cur_bru_check, cur_entry, scoreboard_in[cur_entry.r1_reg_phys], queue_size,
-                         queue_out, i, next_check, bru_insn_out_t);
+              `INSN_CHECK(cur_bru_check, cur_entry, scoreboard_in[cur_entry.r1_reg_phys], queue_size,
+                         queue_out, i, next_check, bru_insn_out_t, bru_is_mk);
               cur_bru_check = next_check;
-              issue_mark_pending[next_issue_ptr] = '{valid: 1'b1, ptr: i, status: ISSUED};
+              issue_mark_pending[next_issue_ptr] = bru_is_mk;
               next_issue_ptr = next_issue_ptr + 1;
             end
           end

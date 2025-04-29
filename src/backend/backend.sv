@@ -43,8 +43,8 @@ module backend (
   logic [uop_pkg::INSTR_Q_WIDTH-1:0] rrat_update_valid;
   rob_pkg::rob_entry [uop_pkg::INSTR_Q_WIDTH-1:0] rrat_update_entries;
 
-  logic [3*uop_pkg::INSTR_Q_WIDTH-1:0][$clog2(reg_pkg::NUM_PHYS_REGS)-1:0] frl_registers;
-  logic [3*uop_pkg::INSTR_Q_WIDTH-1:0] frl_ready;
+  logic [2*3*uop_pkg::INSTR_Q_WIDTH-1:0][$clog2(reg_pkg::NUM_PHYS_REGS)-1:0] frl_registers;
+  logic [2*3*uop_pkg::INSTR_Q_WIDTH-1:0] frl_ready;
   logic frl_valid;
 
   logic [3*uop_pkg::INSTR_Q_WIDTH-1:0][$clog2(reg_pkg::NUM_PHYS_REGS)-1:0] rrat_free_regs;
@@ -76,22 +76,22 @@ module backend (
   assign read_en = {
     {4{alu_insn.valid}}, {3{fpu_insn.valid}}, 1'b0, {3{lsu_insn.valid}}, 1'b0, {4{bru_insn.valid}}
   };
-  assign read_index[0] = alu_insn.dest_reg_phys;
-  assign read_index[1] = alu_insn.r1_reg_phys;
-  assign read_index[2] = alu_insn.r2_reg_phys;
-  assign read_index[3] = alu_insn.nzcv_reg_phys;
-  assign read_index[4] = fpu_insn.dest_reg_phys;
-  assign read_index[5] = fpu_insn.r1_reg_phys;
-  assign read_index[6] = fpu_insn.r2_reg_phys;
-  assign read_index[7] = fpu_insn.nzcv_reg_phys;
-  assign read_index[8] = lsu_insn.dest_reg_phys;
-  assign read_index[9] = lsu_insn.r1_reg_phys;
-  assign read_index[10] = lsu_insn.r2_reg_phys;
-  assign read_index[11] = lsu_insn.nzcv_reg_phys;
-  assign read_index[12] = bru_insn.dest_reg_phys;
-  assign read_index[13] = bru_insn.r1_reg_phys;
-  assign read_index[14] = bru_insn.r2_reg_phys;
-  assign read_index[15] = bru_insn.nzcv_reg_phys;
+  assign read_index[15] = alu_insn.dest_reg_phys;
+  assign read_index[14] = alu_insn.r1_reg_phys;
+  assign read_index[13] = alu_insn.r2_reg_phys;
+  assign read_index[12] = alu_insn.nzcv_reg_phys;
+  assign read_index[11] = fpu_insn.dest_reg_phys;
+  assign read_index[10] = fpu_insn.r1_reg_phys;
+  assign read_index[9] = fpu_insn.r2_reg_phys;
+  assign read_index[8] = fpu_insn.nzcv_reg_phys;
+  assign read_index[7] = lsu_insn.dest_reg_phys;
+  assign read_index[6] = lsu_insn.r1_reg_phys;
+  assign read_index[5] = lsu_insn.r2_reg_phys;
+  assign read_index[4] = lsu_insn.nzcv_reg_phys;
+  assign read_index[3] = bru_insn.dest_reg_phys;
+  assign read_index[2] = bru_insn.r1_reg_phys;
+  assign read_index[1] = bru_insn.r2_reg_phys;
+  assign read_index[0] = bru_insn.nzcv_reg_phys;
   assign alu_insn_pkt = {
     alu_insn.valid,
     alu_insn.uop,
@@ -146,7 +146,7 @@ module backend (
   // FRL
   frl frl_inst (
       .clk(clk_in),
-      .rst(rst_N_in),
+      .rst_N_in(rst_N_in),
       .acquire_ready_in(frl_ready),
       .acquire_valid_out(frl_valid),
       .registers_out(frl_registers),
@@ -159,7 +159,6 @@ module backend (
   logic rat_q_ready;
   rob_pkg::rob_entry [uop_pkg::INSTR_Q_WIDTH-1:0] rob_entries_out;
   logic rob_data_valid;
-  logic rob_ready;
   reg_pkg::RegFileWritePort [uop_pkg::INSTR_Q_WIDTH-1:0] regfile_ports;
 
   rat rat_inst (
@@ -170,7 +169,7 @@ module backend (
       .q_increment_ready(rat_q_ready),
       .rob_data(rob_entries_out),
       .rob_data_valid(rob_data_valid),
-      .rob_ready(rob_ready),
+      .rob_ready(rob_ready_out),
       .frl_ready(frl_ready),
       .free_register_data(frl_registers),
       .frl_valid(frl_valid),
@@ -209,7 +208,7 @@ module backend (
   RegFileWritePort alu_reg_pkt;
   NZCVWritePort alu_nzcv;
   logic [3:0] alu_nzcv_flags;
-  assign alu_nzcv_flags = read_data[12][3:0];  // NZCV flags from the register file
+  assign alu_nzcv_flags = read_data[3][3:0];  // NZCV flags from the register file
 
   alu_ins_decoder alu_decoder (
       .clk_in(clk_in),
