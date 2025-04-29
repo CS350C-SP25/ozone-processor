@@ -106,7 +106,7 @@ module ozone (
 
   // --- Load Store Unit ---
   load_store_unit #(
-    .QUEUE_DEPTH(32),
+    .QUEUE_DEPTH(8),
     .TAG_WIDTH(10)
   ) lsu (
     .clk_in(clk_in),
