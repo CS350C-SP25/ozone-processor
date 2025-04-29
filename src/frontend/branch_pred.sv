@@ -181,26 +181,26 @@ module branch_pred #(
           branch_data_next[instr_idx].branch_target = pc +
     ({{38{ras_instr[25]}},
       ras_instr[25:0]} << 2) +
-    64'(instr_idx << 2); // MULTIPLIED BY
+    64'(instr_idx << 2) + 64'(4); // MULTIPLIED BY
 
           // set next to pred pc
           l1i_addr_out_next = pc +
         ({{38{ras_instr[25]}},
           ras_instr[25:0]} << 2) +
-        64'(instr_idx << 2);
+        64'(instr_idx << 2) + 64'(4);
 
           done = 1;
         end else if (ras_instr[31:24] == 8'b01010100) begin  // assumption is bcond
           $display("im diggin in bcond");
           done = pht[pht_index] > 1;
           // offset is 5-23
-          branch_data_next[instr_idx].branch_target = pc + ({{45{ras_instr[23]}}, ras_instr[23:5]} << 2) + 64'(instr_idx << 2); // MULTIPLIED BY FOUR
+          branch_data_next[instr_idx].branch_target = pc + ({{45{ras_instr[23]}}, ras_instr[23:5]} << 2) + 64'(instr_idx << 2) + 64'(4); // MULTIPLIED BY FOUR
           branch_data_next[instr_idx].condition = ras_instr[3:0];
           branch_data_next[instr_idx].predict_taken = pht[pht_index] > 1;
           l1i_addr_out_next = pc +
         ({{38{ras_instr[25]}},
           ras_instr[25:0]} << 2) +
-        64'(instr_idx << 2);
+        64'(instr_idx << 2) + 64'(4);
         end
       end
     end
