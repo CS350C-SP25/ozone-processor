@@ -80,6 +80,28 @@ module ozone (
       .lc_we_out(),
       .instruction_queue_in(instruction_queue_in)
   );
+  
+  instruction_queue u_instruction_queue (
+    .clk_in      (clk_in),
+    .rst_N_in    (rst_N_in),
+    // resets the q completely, empty, 0 size, etc.
+    .flush_in    (flush_in),
+    // same function as reset
+    .q_in        (instruction_queue_in),
+    .enq_in      (enq_in),
+    // how many to push IMPORTANT, IT IS ENQERS JOB TO DETERMINE HOW MANY IS SAFE TO ENQ
+    .deq_in      (deq_in),
+    // how many to pop IMPORTANT, IT IS DEQERS JOB TO DETERMINE HOW MANY IS SAFE TO DEQ (USE SIZE)
+
+    .q_out       (q_out),
+    // the top width elements of the queue
+    .full        (full),
+    // 1 if the queue is full
+    .empty       (empty),
+    // 1 if the queue is empty
+    // the #elems in the queue
+    .size        (size)
+);
 
   // --- Backend ---
   backend be (
