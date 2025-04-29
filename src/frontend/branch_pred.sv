@@ -137,15 +137,18 @@ module branch_pred #(
 
     logic done = 1'b0;
     for (int instr_idx = 0; instr_idx < SUPER_SCALAR_WIDTH; instr_idx++) begin
+
       logic [5:0] instr_idx_shifted;
       localparam [5:0] MAX_OFF = 6'(CACHE_LINE_WIDTH) - 6'(INSTRUCTION_WIDTH);
+
+      // $display("in da loop");
+
 
       instr_idx_shifted = 6'(instr_idx << 2);
       if (current_pc[5:0] + instr_idx_shifted <= MAX_OFF && !done) begin
         logic [31:0] ras_instr;
         ras_instr = get_instr_bits(cacheline, current_pc, instr_idx);
         ras_pop_temp = ras_instr[31:21] == 11'b11010110010;
-
         ras_push_temp = ras_instr[31:26] == 6'b100101;
 
 
@@ -159,14 +162,15 @@ module branch_pred #(
 
           done = 1;
         end else if (ras_instr[31:26] == 6'b000101) begin  // B
+          $display("I'm finna branch");
           // decode the predicted PC and do the add
           // store branching info, ignore the remaining
           // set branch data for this index
           branch_data_next[instr_idx].branch_target = pc + ({{38{ras_instr[25]}},
-          ras_instr[25:0]} << 2) + 64'(instr_idx << 2); // MULTIPLIED BY FOUR!!!
+          ras_instr[25:0]} << 2) + 64'(instr_idx << 2) + 64'(4); // MULTIPLIED BY FOUR!!!
 
           // set the next l1i target to the predicted PC
-          l1i_addr_out_next = pc + {{38{ras_instr[25]}}, ras_instr[25:0]} + 64'(instr_idx << 2);
+          l1i_addr_out_next = pc + ({{38{ras_instr[25]}}, ras_instr[25:0]} << 2) + 64'(instr_idx << 2) + 64'h4;
           done = 1;
         end else if (ras_instr[31:26] == 6'b100101) begin  // BL (same as B but we need to push to RAS)
           // push to RAS current_pc[5:0]+(instr_idx<<2) + 4
@@ -187,6 +191,7 @@ module branch_pred #(
 
           done = 1;
         end else if (ras_instr[31:24] == 8'b01010100) begin  // assumption is bcond
+          $display("im diggin in bcond");
           done = pht[pht_index] > 1;
           // offset is 5-23
           branch_data_next[instr_idx].branch_target = pc + ({{45{ras_instr[23]}}, ras_instr[23:5]} << 2) + 64'(instr_idx << 2); // MULTIPLIED BY FOUR
@@ -208,9 +213,9 @@ module branch_pred #(
 
       //leul: for some reason this does not compute the right pc TODO
       //for now i will just advance pc + 8
-      l1i_addr_out_next = current_pc[$clog2(CACHE_LINE_WIDTH)-1:0] + 6'(SUPER_SCALAR_WIDTH * 4) <= CACHE_LINE_WIDTH ?
-           current_pc + (SUPER_SCALAR_WIDTH * 4) :
-           (current_pc & ~(CACHE_LINE_WIDTH-1)) + CACHE_LINE_WIDTH;
+      l1i_addr_out_next = current_pc[$clog2(CACHE_LINE_WIDTH)-1:0] + 6'(SUPER_SCALAR_WIDTH * 4) <=
+          CACHE_LINE_WIDTH ? current_pc +
+          (SUPER_SCALAR_WIDTH * 4) : (current_pc & ~(CACHE_LINE_WIDTH - 1)) + CACHE_LINE_WIDTH;
 
     end
   endfunction
@@ -340,6 +345,7 @@ module branch_pred #(
                    .branch_data_next(branch_data_next));
         pc_valid_out_next = 1'b1;
       end else if (!instructions_inflight) begin
+
         //l1i was not valid, we check if any instructions are in flight if so stall otherwise we must be in l0.
         process_pc(.cacheline(split_cacheline_l10), .pc(current_pc),
                    .pht_index({ghr, current_pc[PHT_N-1:0]}), .l1i_addr_out_next(l1i_addr_out_next),
