@@ -122,7 +122,7 @@ initial begin
     $display("Test Case 2: Simple Branching");
         // start
         lc_value_out[31:0] = 32'h200080D2; // movz x0, #1
-        lv_value_out[63:0] = 32'h410080D2; // movz x1, #2
+        lc_value_out[63:0] = 32'h410080D2; // movz x1, #2
         lc_value_out[95:64] = 32'h030001EB; // subs x3, x0, x1
         lc_value_out[127:96] = 32'hA1090054; // b.ne .notequal
         // .goback
@@ -136,7 +136,7 @@ initial begin
         lc_value_out[351:320] = 32'h16000014; // b .goback
 
     lc_addr_out = 64'b0;
-    lv_valid_out = 1'b1;
+    lc_valid_out = 1'b1;
     start_pc = 64'b0;
 
     @(posedge clk_in);
@@ -148,9 +148,7 @@ initial begin
     #(CLK_PERIOD * 50); // allow some cycles for execution
 
     $display("Finished Test Case 2 at time %0t", $time);
-
-end 
     $finish;
-
+end
 
 endmodule
