@@ -16,11 +16,14 @@ module backend (
     input logic clk_in,
     input logic rst_N_in,
     input uop_pkg::instr_queue_t instr_queue,
+    input logic q_valid,
+    output logic q_increment_ready,
 
     // ** Signals from Memory Subsystem **
     input  logic [reg_pkg::WORD_SIZE-1:0] mem_data_in,
     input  logic [$clog2(mem_pkg::LQ_SIZE)-1:0] mem_resp_tag,
     input  logic mem_valid_in,
+
 
     // ** Signals to Branch Predictor **
     output logic bcond_resolved_out,
@@ -155,8 +158,6 @@ module backend (
   );
 
   // RAT
-  logic q_valid;
-  logic rat_q_ready;
   rob_pkg::rob_entry [uop_pkg::INSTR_Q_WIDTH-1:0] rob_entries_out;
   logic rob_data_valid;
   reg_pkg::RegFileWritePort [uop_pkg::INSTR_Q_WIDTH-1:0] regfile_ports;
@@ -166,7 +167,7 @@ module backend (
       .rst_N_in(rst_N_in),
       .q_valid(q_valid),
       .instr(instr_queue),
-      .q_increment_ready(rat_q_ready),
+      .q_increment_ready(q_increment_ready),
       .rob_data(rob_entries_out),
       .rob_data_valid(rob_data_valid),
       .rob_ready(rob_ready_out),

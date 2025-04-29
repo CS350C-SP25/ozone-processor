@@ -9,29 +9,29 @@ module instruction_queue #(
     input logic clk_in,
     input logic rst_N_in,                       // resets the q completely, empty, 0 size, etc.
     input logic flush_in,                       // same function as reset
-    input uop_insn [Q_WIDTH-1:0] q_in,
+    input instr_queue_t q_in,
     input logic [$clog2(Q_WIDTH+1)-1:0] enq_in, // how many to push IMPORTANT, IT IS ENQERS JOB TO DETERMINE HOW MANY IS SAFE TO ENQ
     input logic [$clog2(Q_WIDTH+1)-1:0] deq_in, // how many to pop IMPORTANT, IT IS DEQERS JOB TO DETERMINE HOW MANY IS SAFE TO DEQ (USE SIZE)
 
-    output uop_insn [Q_WIDTH-1:0] q_out,       // the top width elements of the queue
+    output instr_queue_t q_out,       // the top width elements of the queue
     output logic full,                         // 1 if the queue is full
     output logic empty,                         // 1 if the queue is empty
-    output logic [$clog2(Q_DEPTH)-1:0] size,    // the #elems in the queue
+    output logic [$clog2(Q_DEPTH)-1:0] size    // the #elems in the queue
 ); 
-    uop_insn [Q_DEPTH-1:0] q;
+    instr_queue_t q;
     logic [$clog2(Q_DEPTH)-1:0] head;
     logic [$clog2(Q_DEPTH)-1:0] tail;
 
-    uop_insn [Q_WIDTH-1:0] q_next;
+    instr_queue_t q_next;
     logic [$clog2(Q_WIDTH+1)-1:0] size_incr;
     logic [$clog2(Q_WIDTH+1)-1:0] size_decr; 
     always_ff @( posedge clk_in ) begin : instruction_queue_fsm
         if (rst_N_in && !flush_in) begin
-            generate
-                for (genvar i = 0; i < Q_WIDTH; i++) begin
+            // generate
+                for (int i = 0; i < Q_WIDTH; i++) begin
                     q[tail + i] <= size_incr > i ? q_next[i] : q[tail];
                 end
-            endgenerate
+            // endgenerate
             head <= head + size_decr;
             tail <= tail + size_incr;
             size <= tail - head + size_incr - size_decr;
@@ -48,8 +48,9 @@ module instruction_queue #(
         size_decr = flush_in ? tail - head : deq_in;
     end
     generate
-        for (genvar i = 0; i < Q_WIDTH; i++) begin
-            assign q_out[i] <= q[head + i];
+        genvar i;
+        for (i = 0; i < Q_WIDTH; i++) begin : gen_q_out_loop
+            assign q_out[i] = q[head + i];
         end
     endgenerate
     assign full = (size == Q_DEPTH);

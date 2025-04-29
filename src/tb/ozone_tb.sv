@@ -1,5 +1,4 @@
-`include "../frontend/frontend.sv"
-`include "../backend/backend.sv"
+`timescale 1ns / 1ps
 `include "../ozone.sv"
 `include "../util/op_pkg.sv"
 `include "../util/instr-queue.sv"
@@ -114,7 +113,38 @@ initial begin
 
     #(CLK_PERIOD * 50); // allow some cycles for execution
 
-    $display("Finished simulation at time %0t", $time);
+    $display("Finished Test Case 1 at time %0t", $time);
+
+    // Test Case 2: bcond
+    $display("Test Case 2: Simple Branching");
+        // start
+        lc_value_out[31:0] = 32'h200080D2; // movz x0, #1
+        lc_value_out[63:0] = 32'h410080D2; // movz x1, #2
+        lc_value_out[95:64] = 32'h030001EB; // subs x3, x0, x1
+        lc_value_out[127:96] = 32'hA1090054; // b.ne .notequal
+        // .goback
+        lc_value_out[159:128] = 32'hA50005CA; // eor 	x5, x5, x5
+        lc_value_out[191:160] = 32'hE50325AA; // mvn 	x5, x5
+        lc_value_out[223:192] = 32'hA00000F8; // stur	x0, [x5]
+        lc_value_out[255:224] = {OPCODE_HLT, 21'b0}; // halt
+        // .notequal
+        lc_value_out[287:256] = 32'h00340091; // add x0, x0, #13
+        lc_value_out[319:288] = 32'h00300091; // add x0, x0, #12
+        lc_value_out[351:320] = 32'h16000014; // b .goback
+
+    lc_addr_out = 64'b0;
+    lc_valid_out = 1'b1;
+    start_pc = 64'b0;
+
+    @(posedge clk_in);
+    lc_valid_out = 1'b0; // stop driving after one cycle
+    start = 1'b1;
+    @(posedge clk_in);
+    start = 1'b0;
+
+    #(CLK_PERIOD * 50); // allow some cycles for execution
+
+    $display("Finished Test Case 2 at time %0t", $time);
     $finish;
 end
 
