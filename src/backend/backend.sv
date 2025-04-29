@@ -165,7 +165,7 @@ module backend (
   );
 
   // Reorder Buffer
-  reorder_buffer rob_inst (
+   (* keep_hierarchy = "yes", preserve = "yes", dont_touch = "yes" *) reorder_buffer rob_inst (
       .clk_in(clk_in),
       .rst_N_in(rst_N_in),
       .q_in(rob_entries_out),
@@ -193,12 +193,12 @@ module backend (
   );
 
   // ALU
-  RegFileWritePort alu_reg_pkt;
-  NZCVWritePort alu_nzcv;
-  logic [3:0] alu_nzcv_flags;
+  (*keep*)RegFileWritePort alu_reg_pkt;
+  (*keep*)NZCVWritePort alu_nzcv;
+  (*keep*) logic [3:0] alu_nzcv_flags;
   assign alu_nzcv_flags = read_data[12][3:0];  // NZCV flags from the register file
 
-  alu_ins_decoder alu_decoder (
+ (* keep_hierarchy = "yes", preserve = "yes", dont_touch = "yes" *) alu_ins_decoder alu_decoder (
       .clk_in(clk_in),
       .insn_in(alu_insn_pkt),
       .nzcv_in(alu_nzcv_flags),

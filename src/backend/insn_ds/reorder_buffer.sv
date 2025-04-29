@@ -158,7 +158,7 @@ module reorder_buffer #(
   rob_entry cur_entry;
   logic cur_lsu_check;  // are dependencies satisfied
   logic cur_bru_check;
-  logic cur_alu_check;
+  (* keep, preserve *)logic cur_alu_check;
   logic cur_fpu_check;
   logic next_check;
   logic [$clog2(uop_pkg::INSTR_Q_WIDTH)-1:0] next_rrat_ptr;  // idx for rrat update
