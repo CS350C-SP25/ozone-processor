@@ -2,6 +2,7 @@
 `include "./frontend/frontend.sv"
 `include "../mem/src/load_store_unit.sv"
 `include "../mem/src/l1_data_cache.sv"
+`include "./util/instr-queue.sv"
 
 module ozone (
     input logic clk_in,
@@ -27,6 +28,7 @@ module ozone (
   logic exec_ready;
 
   instr_queue_t instruction_queue_in;
+  instr_queue_t instruction_queue_out;
 
   // --- Wires between backend <-> LSU ---
   logic [63:0] backend_mem_addr_out;
@@ -81,33 +83,38 @@ module ozone (
       .instruction_queue_in(instruction_queue_in)
   );
   
+  logic q_full, q_empty;
+  logic [$clog2(uop_pkg::INSTR_Q_DEPTH)-1:0] q_size;
   instruction_queue u_instruction_queue (
     .clk_in      (clk_in),
     .rst_N_in    (rst_N_in),
     // resets the q completely, empty, 0 size, etc.
-    .flush_in    (flush_in),
+    .flush_in    (pc_incorrect_out),
     // same function as reset
+    // fix: pass a scalar element instead of the entire array
     .q_in        (instruction_queue_in),
-    .enq_in      (enq_in),
-    // how many to push IMPORTANT, IT IS ENQERS JOB TO DETERMINE HOW MANY IS SAFE TO ENQ
-    .deq_in      (deq_in),
-    // how many to pop IMPORTANT, IT IS DEQERS JOB TO DETERMINE HOW MANY IS SAFE TO DEQ (USE SIZE)
+    // fix: pack constant into an array to match port
+    .enq_in      ({uop_pkg::INSTR_Q_WIDTH}),
+    .deq_in      ({uop_pkg::INSTR_Q_WIDTH}),
 
-    .q_out       (q_out),
+    // fix: pass a scalar element from the output array
+    .q_out       (instruction_queue_out),
     // the top width elements of the queue
-    .full        (full),
+    .full        (q_full),
     // 1 if the queue is full
-    .empty       (empty),
+    .empty       (q_empty),
     // 1 if the queue is empty
     // the #elems in the queue
-    .size        (size)
+    .size        (q_size)
 );
 
   // --- Backend ---
   backend be (
       .clk_in(clk_in),
       .rst_N_in(rst_N_in),
-      .instr_queue(instruction_queue_in),
+      .instr_queue(instruction_queue_out),
+      .q_valid(!q_full && !q_empty && q_size > uop_pkg::INSTR_Q_WIDTH),
+      .q_increment_ready(q_increment_ready),
 
       // Mem interface
       .mem_data_in (completion_value_out),
