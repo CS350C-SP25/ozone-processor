@@ -174,4 +174,4 @@ verilator:
 	verilator --sv --cc --language 1800-2012 --Wall --relative-includes src/ozone.sv --trace -Wno-lint --top-module ozone --binary
 
 tb:
-	$(VERILATOR) $(VFLAGS) --cc src/tb/ozone_tb.sv -Wno-lint
+	$(VERILATOR) $(VFLAGS) --cc src/tb/ozone_tb.sv --top ozone_tb -Wno-lint
